@@ -190,7 +190,7 @@ export function PlayersTable({ players, orgSlug }: PlayersTableProps) {
                           variant="ghost"
                           size="icon"
                           asChild
-                          className="size-8 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          className="size-8 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer"
                         >
                           <Link
                             href={`/admin/${orgSlug}/sports/players/${player.id}`}

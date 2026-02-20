@@ -63,113 +63,115 @@ export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
 
     return (
         <TooltipProvider>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Temporada</TableHead>
-                            <TableHead>Período</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {seasons.map((season) => (
-                            <TableRow key={season.id} className={season.isArchived ? 'opacity-50' : ''}>
-                                <TableCell>
-                                    <div className="flex items-center gap-2">
-                                        <div>
-                                            <p className="font-medium">{season.name}</p>
-                                            {season.shortName && (
-                                                <p className="text-xs text-muted-foreground">{season.shortName}</p>
+            <div className="rounded-md border overflow-hidden">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Temporada</TableHead>
+                                <TableHead>Período</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {seasons.map((season) => (
+                                <TableRow key={season.id} className={season.isArchived ? 'opacity-50' : ''}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <div>
+                                                <p className="font-medium">{season.name}</p>
+                                                {season.shortName && (
+                                                    <p className="text-xs text-muted-foreground">{season.shortName}</p>
+                                                )}
+                                            </div>
+                                            {season.isCurrent && (
+                                                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px]">
+                                                    <Sparkles className="mr-1 h-2.5 w-2.5" />
+                                                    Activa
+                                                </Badge>
                                             )}
                                         </div>
-                                        {season.isCurrent && (
-                                            <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px]">
-                                                <Sparkles className="mr-1 h-2.5 w-2.5" />
-                                                Activa
+                                    </TableCell>
+                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                        {new Date(season.startDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                                        {' → '}
+                                        {new Date(season.endDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                                    </TableCell>
+                                    <TableCell>
+                                        {season.isArchived ? (
+                                            <Badge variant="secondary" className="text-xs">
+                                                <Lock className="mr-1 h-3 w-3" />
+                                                Archivada
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-xs">
+                                                Abierta
                                             </Badge>
                                         )}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                    {new Date(season.startDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
-                                    {' → '}
-                                    {new Date(season.endDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
-                                </TableCell>
-                                <TableCell>
-                                    {season.isArchived ? (
-                                        <Badge variant="secondary" className="text-xs">
-                                            <Lock className="mr-1 h-3 w-3" />
-                                            Archivada
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="outline" className="text-xs">
-                                            Abierta
-                                        </Badge>
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex items-center justify-end gap-1">
-                                        {!season.isCurrent && !season.isArchived && (
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
-                                                        onClick={() => executeActivate({ orgSlug, seasonId: season.id })}
-                                                        disabled={isActivating}
-                                                    >
-                                                        <Check className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>Marcar como activa</TooltipContent>
-                                            </Tooltip>
-                                        )}
-                                        {!season.isArchived && !season.isCurrent && (
-                                            <AlertDialog>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            {!season.isCurrent && !season.isArchived && (
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-8 w-8 text-destructive hover:text-destructive"
-                                                                disabled={isArchiving}
-                                                            >
-                                                                <Archive className="h-4 w-4" />
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>Archivar temporada</TooltipContent>
-                                                </Tooltip>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>¿Archivar temporada &ldquo;{season.name}&rdquo;?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Esta acción bloqueará todos los registros de jugadores de la temporada.
-                                                            Los datos se preservarán como historial inmutable. Esta acción no se puede deshacer.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <AlertDialogAction
-                                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                                            onClick={() => executeArchive({ orgSlug, seasonId: season.id })}
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
+                                                            onClick={() => executeActivate({ orgSlug, seasonId: season.id })}
+                                                            disabled={isActivating}
                                                         >
-                                                            Archivar permanentemente
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        )}
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                                                            <Check className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>Marcar como activa</TooltipContent>
+                                                </Tooltip>
+                                            )}
+                                            {!season.isArchived && !season.isCurrent && (
+                                                <AlertDialog>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-destructive hover:text-destructive"
+                                                                    disabled={isArchiving}
+                                                                >
+                                                                    <Archive className="h-4 w-4" />
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>Archivar temporada</TooltipContent>
+                                                    </Tooltip>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>¿Archivar temporada &ldquo;{season.name}&rdquo;?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Esta acción bloqueará todos los registros de jugadores de la temporada.
+                                                                Los datos se preservarán como historial inmutable. Esta acción no se puede deshacer.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                                onClick={() => executeArchive({ orgSlug, seasonId: season.id })}
+                                                            >
+                                                                Archivar permanentemente
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </TooltipProvider>
     )

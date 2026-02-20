@@ -60,7 +60,7 @@ export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px]">
+            <SheetContent className="w-full sm:w-[440px] md:w-[540px]">
                 <SheetHeader>
                     <SheetTitle>Nuevo tag</SheetTitle>
                     <SheetDescription>Crea un tag para organizar artículos y eventos.</SheetDescription>

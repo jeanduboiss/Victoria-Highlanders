@@ -76,118 +76,120 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
 
     return (
         <TooltipProvider>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Evento</TableHead>
-                            <TableHead>Tipo</TableHead>
-                            <TableHead>Fecha</TableHead>
-                            <TableHead>Lugar</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {events.map((event) => {
-                            const start = new Date(event.startDatetime)
-                            const status = STATUS_CONFIG[event.status] ?? STATUS_CONFIG.DRAFT
-                            return (
-                                <TableRow key={event.id}>
-                                    <TableCell>
-                                        <div>
-                                            <p className="font-medium line-clamp-1">{event.title}</p>
-                                            {event.tags && event.tags.length > 0 && (
-                                                <div className="flex gap-1 mt-1">
-                                                    {event.tags.slice(0, 3).map((t) => (
-                                                        <Badge key={t.id} variant="outline" className="text-[10px] px-1">{t.name}</Badge>
-                                                    ))}
-                                                    {event.tags.length > 3 && (
-                                                        <span className="text-[10px] text-muted-foreground">+{event.tags.length - 3}</span>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                        {TYPE_LABELS[event.eventType] ?? event.eventType}
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="h-3 w-3" />
-                                            {start.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                                            <Clock className="h-3 w-3 ml-1" />
-                                            {start.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground">
-                                        {event.locationText ? (
-                                            <span className="inline-flex items-center gap-1">
-                                                <MapPin className="h-3 w-3" />
-                                                {event.locationText}
-                                            </span>
-                                        ) : '—'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={status.variant} className="text-xs">{status.label}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            {event.status === 'DRAFT' && (
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-emerald-500"
-                                                            onClick={() => executePublish({ orgSlug, eventId: event.id })}
-                                                            disabled={isPending}
-                                                        >
-                                                            <Send className="h-4 w-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>Publicar</TooltipContent>
-                                                </Tooltip>
-                                            )}
-                                            {event.status === 'PUBLISHED' && (
-                                                <>
+            <div className="rounded-md border overflow-hidden">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Evento</TableHead>
+                                <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+                                <TableHead>Fecha</TableHead>
+                                <TableHead className="hidden md:table-cell">Lugar</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {events.map((event) => {
+                                const start = new Date(event.startDatetime)
+                                const status = STATUS_CONFIG[event.status] ?? STATUS_CONFIG.DRAFT
+                                return (
+                                    <TableRow key={event.id}>
+                                        <TableCell>
+                                            <div>
+                                                <p className="font-medium line-clamp-1">{event.title}</p>
+                                                {event.tags && event.tags.length > 0 && (
+                                                    <div className="flex gap-1 mt-1">
+                                                        {event.tags.slice(0, 3).map((t) => (
+                                                            <Badge key={t.id} variant="outline" className="text-[10px] px-1">{t.name}</Badge>
+                                                        ))}
+                                                        {event.tags.length > 3 && (
+                                                            <span className="text-[10px] text-muted-foreground">+{event.tags.length - 3}</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
+                                            {TYPE_LABELS[event.eventType] ?? event.eventType}
+                                        </TableCell>
+                                        <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="h-3 w-3" />
+                                                {start.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                                <Clock className="h-3 w-3 ml-1" />
+                                                {start.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                                            {event.locationText ? (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <MapPin className="h-3 w-3" />
+                                                    {event.locationText}
+                                                </span>
+                                            ) : '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={status.variant} className="text-xs">{status.label}</Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                {event.status === 'DRAFT' && (
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-8 w-8 text-blue-500"
-                                                                onClick={() => executeFinish({ orgSlug, eventId: event.id })}
+                                                                className="h-8 w-8 text-emerald-500"
+                                                                onClick={() => executePublish({ orgSlug, eventId: event.id })}
                                                                 disabled={isPending}
                                                             >
-                                                                <CheckCircle2 className="h-4 w-4" />
+                                                                <Send className="h-4 w-4" />
                                                             </Button>
                                                         </TooltipTrigger>
-                                                        <TooltipContent>Finalizar</TooltipContent>
+                                                        <TooltipContent>Publicar</TooltipContent>
                                                     </Tooltip>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-8 w-8 text-destructive"
-                                                                onClick={() => executeCancel({ orgSlug, eventId: event.id })}
-                                                                disabled={isPending}
-                                                            >
-                                                                <XCircle className="h-4 w-4" />
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>Cancelar</TooltipContent>
-                                                    </Tooltip>
-                                                </>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
+                                                )}
+                                                {event.status === 'PUBLISHED' && (
+                                                    <>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-blue-500"
+                                                                    onClick={() => executeFinish({ orgSlug, eventId: event.id })}
+                                                                    disabled={isPending}
+                                                                >
+                                                                    <CheckCircle2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>Finalizar</TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-destructive"
+                                                                    onClick={() => executeCancel({ orgSlug, eventId: event.id })}
+                                                                    disabled={isPending}
+                                                                >
+                                                                    <XCircle className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>Cancelar</TooltipContent>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </TooltipProvider>
     )

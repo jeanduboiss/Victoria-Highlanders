@@ -94,7 +94,7 @@ export function AddMatchEventSheet({ orgSlug, matchId, players, children }: AddM
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+            <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Agregar evento</SheetTitle>
                     <SheetDescription>Registra un gol, tarjeta o sustitución.</SheetDescription>

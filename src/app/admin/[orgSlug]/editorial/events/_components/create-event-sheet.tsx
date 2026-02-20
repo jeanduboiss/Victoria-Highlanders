@@ -100,7 +100,7 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+            <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Nuevo evento</SheetTitle>
                     <SheetDescription>Crea un evento para la comunidad.</SheetDescription>

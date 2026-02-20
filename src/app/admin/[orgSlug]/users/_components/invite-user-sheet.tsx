@@ -81,7 +81,7 @@ export function InviteUserSheet({ orgSlug, children }: InviteUserSheetProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[480px]">
+      <SheetContent className="w-full sm:w-[440px] md:w-[480px]">
         <SheetHeader>
           <SheetTitle>Invitar usuario</SheetTitle>
           <SheetDescription>

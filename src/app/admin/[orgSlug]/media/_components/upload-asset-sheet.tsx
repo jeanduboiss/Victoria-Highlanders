@@ -86,7 +86,7 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[480px]">
+      <SheetContent className="w-full sm:w-[440px] md:w-[480px]">
         <SheetHeader>
           <SheetTitle>Subir archivo</SheetTitle>
           <SheetDescription>Sube un archivo a la biblioteca de media.</SheetDescription>

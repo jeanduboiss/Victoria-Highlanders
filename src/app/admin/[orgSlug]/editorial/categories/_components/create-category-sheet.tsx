@@ -65,7 +65,7 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px]">
+            <SheetContent className="w-full sm:w-[440px] md:w-[540px]">
                 <SheetHeader>
                     <SheetTitle>Nueva categoría</SheetTitle>
                     <SheetDescription>Organiza tus artículos en categorías.</SheetDescription>

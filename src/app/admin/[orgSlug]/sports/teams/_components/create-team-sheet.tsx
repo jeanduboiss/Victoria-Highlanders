@@ -87,7 +87,7 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+            <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Nuevo equipo</SheetTitle>
                     <SheetDescription>Registra un equipo dentro de la organización.</SheetDescription>

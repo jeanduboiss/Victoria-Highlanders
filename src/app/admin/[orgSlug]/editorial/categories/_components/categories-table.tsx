@@ -28,39 +28,41 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
         return <p className="text-sm text-muted-foreground py-8 text-center">No hay categorías creadas.</p>
 
     return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Slug</TableHead>
-                        <TableHead className="text-center">Artículos</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {categories.map((category) => (
-                        <TableRow key={category.id}>
-                            <TableCell>
-                                <div className="flex items-center gap-2">
-                                    <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                                    <span className="font-medium">{category.name}</span>
-                                </div>
-                                {category.description && (
-                                    <p className="text-xs text-muted-foreground mt-0.5 ml-6">{category.description}</p>
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{category.slug}</code>
-                            </TableCell>
-                            <TableCell className="text-center">
-                                <Badge variant="secondary" className="text-xs tabular-nums">
-                                    {category._count.articles}
-                                </Badge>
-                            </TableCell>
+        <div className="rounded-md border overflow-hidden">
+            <div className="overflow-x-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nombre</TableHead>
+                            <TableHead className="hidden sm:table-cell">Slug</TableHead>
+                            <TableHead className="text-center">Artículos</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {categories.map((category) => (
+                            <TableRow key={category.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                        <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">{category.name}</span>
+                                    </div>
+                                    {category.description && (
+                                        <p className="text-xs text-muted-foreground mt-0.5 ml-6">{category.description}</p>
+                                    )}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell">
+                                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{category.slug}</code>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge variant="secondary" className="text-xs tabular-nums">
+                                        {category._count.articles}
+                                    </Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
         </div>
     )
 }

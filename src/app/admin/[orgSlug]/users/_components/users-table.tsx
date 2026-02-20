@@ -52,71 +52,73 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
     return <p className="text-sm text-muted-foreground py-8 text-center">No hay miembros aún.</p>
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Usuario</TableHead>
-            <TableHead>Rol</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Desde</TableHead>
-            <TableHead className="w-[100px]" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {members.map((member) => {
-            const displayName =
-              member.user.firstName || member.user.lastName
-                ? `${member.user.firstName ?? ''} ${member.user.lastName ?? ''}`.trim()
-                : member.user.email
-            const isSelf = member.userId === currentUserId
+    <div className="rounded-md border overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Usuario</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead className="hidden sm:table-cell">Estado</TableHead>
+              <TableHead className="hidden md:table-cell">Desde</TableHead>
+              <TableHead className="w-[100px]" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.map((member) => {
+              const displayName =
+                member.user.firstName || member.user.lastName
+                  ? `${member.user.firstName ?? ''} ${member.user.lastName ?? ''}`.trim()
+                  : member.user.email
+              const isSelf = member.userId === currentUserId
 
-            return (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-sm">{displayName}</p>
-                    <p className="text-xs text-muted-foreground">{member.user.email}</p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="text-xs">
-                    {ROLE_LABELS[member.role] ?? member.role}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={member.isActive ? 'default' : 'secondary'}
-                    className="text-xs"
-                  >
-                    {member.isActive ? 'Activo' : 'Pendiente'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {new Date(member.createdAt).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </TableCell>
-                <TableCell>
-                  {!isSelf && member.isActive && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      disabled={isPending}
-                      onClick={() => deactivate({ orgSlug, memberId: member.id })}
+              return (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{displayName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{member.user.email}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs whitespace-nowrap">
+                      {ROLE_LABELS[member.role] ?? member.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge
+                      variant={member.isActive ? 'default' : 'secondary'}
+                      className="text-xs"
                     >
-                      Desactivar
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
+                      {member.isActive ? 'Activo' : 'Pendiente'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">
+                    {new Date(member.createdAt).toLocaleDateString('es-ES', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    {!isSelf && member.isActive && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive whitespace-nowrap"
+                        disabled={isPending}
+                        onClick={() => deactivate({ orgSlug, memberId: member.id })}
+                      >
+                        Desactivar
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

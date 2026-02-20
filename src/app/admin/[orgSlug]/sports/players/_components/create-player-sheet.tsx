@@ -81,7 +81,7 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+      <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Nuevo jugador</SheetTitle>
           <SheetDescription>Registra un jugador en el pool de la organización.</SheetDescription>
