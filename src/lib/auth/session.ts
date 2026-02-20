@@ -25,6 +25,7 @@ export interface OrgContext {
   email: string
   organizationId: string
   organizationSlug: string
+  organizationName: string
   role: Role
 }
 
@@ -106,7 +107,7 @@ export const requireOrgAccess = cache(async (orgSlug: string): Promise<OrgContex
     },
     include: {
       organization: {
-        select: { id: true, slug: true },
+        select: { id: true, slug: true, name: true },
       },
     },
   })
@@ -118,6 +119,7 @@ export const requireOrgAccess = cache(async (orgSlug: string): Promise<OrgContex
     email: session.email,
     organizationId: membership.organization.id,
     organizationSlug: membership.organization.slug,
+    organizationName: membership.organization.name,
     role: membership.role as Role,
   }
 })
