@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
@@ -70,8 +71,8 @@ export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSid
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent hover:bg-sidebar-accent transition-colors"
                 >
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#FF7A59] text-white font-bold text-sm shrink-0">
-                    {orgName.charAt(0).toUpperCase()}
+                  <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-black">
+                    <Image src="/images/logo-victoria-sm.png" alt="VHFC" width={24} height={27} className="object-contain" />
                   </div>
                   <div className="flex flex-1 flex-col gap-0.5 leading-none min-w-0">
                     <span className="font-semibold truncate text-sm">{orgName}</span>

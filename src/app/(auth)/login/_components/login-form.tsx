@@ -70,7 +70,7 @@ export function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
-          className="bg-white/[0.07] border-white/15 text-white placeholder:text-white/25 h-12 rounded-lg focus-visible:ring-[#22c55e]/40 focus-visible:border-[#22c55e]/50 transition-colors"
+          className="bg-white/[0.07] border-white/15 text-white placeholder:text-white/25 h-12 rounded-lg focus-visible:ring-[#D4AF37]/40 focus-visible:border-[#D4AF37]/50 transition-colors"
         />
       </div>
 
@@ -88,7 +88,7 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={isRegistering ? 'new-password' : 'current-password'}
-            className="bg-white/[0.07] border-white/15 text-white placeholder:text-white/25 h-12 pr-10 rounded-lg focus-visible:ring-[#22c55e]/40 focus-visible:border-[#22c55e]/50 transition-colors"
+            className="bg-white/[0.07] border-white/15 text-white placeholder:text-white/25 h-12 pr-10 rounded-lg focus-visible:ring-[#D4AF37]/40 focus-visible:border-[#D4AF37]/50 transition-colors"
           />
           <button
             type="button"
@@ -104,7 +104,7 @@ export function LoginForm() {
       {/* Submit */}
       <Button
         type="submit"
-        className="w-full h-12 font-semibold text-sm cursor-pointer rounded-lg bg-[#22c55e] hover:bg-[#16a34a] text-black transition-colors"
+        className="w-full h-12 font-semibold text-sm cursor-pointer rounded-lg bg-[#D4AF37] hover:bg-[#C4A052] text-black transition-colors"
         disabled={isLoading}
       >
         {isLoading ? (
@@ -123,7 +123,7 @@ export function LoginForm() {
         <button
           type="button"
           onClick={() => setIsRegistering(!isRegistering)}
-          className="text-[#22c55e] hover:text-[#4ade80] font-semibold transition-colors cursor-pointer"
+          className="text-[#D4AF37] hover:text-[#E8D07A] font-semibold transition-colors cursor-pointer"
         >
           {isRegistering ? 'Inicia sesión' : 'Regístrate'}
         </button>

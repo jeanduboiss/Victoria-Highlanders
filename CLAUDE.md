@@ -221,3 +221,9 @@ Figma MCP: Úsalo solo cuando se solicite explícitamente para analizar diseños
 Desplazamiento (Scrolling): Implementa Lenis Scroll globalmente en cada proyecto web para un movimiento cinematográfico fluido.
 
 Always respond in Spanish.
+
+Uso de Agentes (Task tool):
+NUNCA lances subagentes (Task tool) para realizar tareas. Siempre ejecuta todo tú mismo directamente usando las herramientas disponibles (Read, Edit, Write, Glob, Grep, Bash, etc.). El uso de agentes consume demasiados tokens innecesariamente.
+
+Comentarios en el código:
+NUNCA agregues comentarios en el código (ni inline ni JSDoc ni bloques). El código debe ser autoexplicativo. Esto reduce el uso de tokens.

@@ -16,7 +16,7 @@ interface Category {
     name: string
     slug: string
     description: string | null
-    _count: { articles: number }
+    _count: { ArticleCategories: number }
 }
 
 interface CategoriesTableProps {
@@ -55,7 +55,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge variant="secondary" className="text-xs tabular-nums">
-                                        {category._count.articles}
+                                        {category._count.ArticleCategories}
                                     </Badge>
                                 </TableCell>
                             </TableRow>

@@ -26,6 +26,11 @@ export default async function MediaPage({ params }: Props) {
     }),
   ])
 
+  const mappedAssets = assets.map((asset) => ({
+    ...asset,
+    fileSize: Number(asset.fileSizeBytes),
+  }))
+
   return (
     <div className="space-y-4 py-4">
       <div className="flex items-center justify-between">
@@ -40,7 +45,7 @@ export default async function MediaPage({ params }: Props) {
           </Button>
         </UploadAssetSheet>
       </div>
-      <MediaGrid assets={assets} folders={folders} orgSlug={orgSlug} />
+      <MediaGrid assets={mappedAssets} folders={folders} orgSlug={orgSlug} />
     </div>
   )
 }

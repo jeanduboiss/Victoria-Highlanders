@@ -7,8 +7,8 @@ export default function LoginPage() {
       {/* Logo + Branding */}
       <div className="space-y-3">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className="flex items-center justify-center size-10 rounded-xl bg-[#22c55e]/15">
-            <ShieldHalf className="size-5 text-[#22c55e]" />
+          <div className="flex items-center justify-center size-10 rounded-xl bg-[#D4AF37]/15">
+            <ShieldHalf className="size-5 text-[#D4AF37]" />
           </div>
           <span className="text-white text-xl font-extrabold tracking-tight">
             Victoria Highlanders

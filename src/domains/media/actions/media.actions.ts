@@ -9,7 +9,7 @@ import { z } from 'zod'
 const uploadAssetSchema = z.object({
   orgSlug: z.string(),
   fileName: z.string().min(1),
-  fileSize: z.number().positive(),
+  fileSizeBytes: z.number().positive(),
   mimeType: z.string(),
   storagePath: z.string(), // Already uploaded to Supabase Storage; we only register in DB
   publicUrl: z.string().url(),
@@ -64,7 +64,7 @@ export const uploadAssetAction = actionClient
       data: {
         organizationId: ctx.organizationId,
         fileName: parsedInput.fileName,
-        fileSize: parsedInput.fileSize,
+        fileSizeBytes: BigInt(parsedInput.fileSizeBytes),
         mimeType: parsedInput.mimeType,
         storagePath: parsedInput.storagePath,
         publicUrl: parsedInput.publicUrl,
@@ -74,7 +74,7 @@ export const uploadAssetAction = actionClient
         height: parsedInput.height,
         uploadedBy: ctx.userId,
         ...(parsedInput.folderId
-          ? { folders: { connect: { id: parsedInput.folderId } } }
+          ? { folders: { create: { folderId: parsedInput.folderId } } }
           : {}),
       },
     })
@@ -158,6 +158,7 @@ export const createFolderAction = actionClient
       data: {
         organizationId: ctx.organizationId,
         name: parsedInput.name,
+        slug: parsedInput.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         parentId: parsedInput.parentId,
       },
     })

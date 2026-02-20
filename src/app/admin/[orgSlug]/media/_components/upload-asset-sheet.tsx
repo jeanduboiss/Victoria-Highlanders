@@ -70,7 +70,7 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
       execute({
         orgSlug,
         fileName: selectedFile.name,
-        fileSize: selectedFile.size,
+        fileSizeBytes: selectedFile.size,
         mimeType: selectedFile.type,
         storagePath,
         publicUrl,

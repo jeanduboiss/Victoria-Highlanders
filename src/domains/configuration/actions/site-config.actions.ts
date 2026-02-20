@@ -9,27 +9,22 @@ import { z } from 'zod'
 
 const updateSiteConfigSchema = z.object({
   orgSlug: z.string(),
-  clubName: z.string().min(1).max(100).optional(),
-  clubShortName: z.string().max(10).optional(),
-  logoUrl: z.string().url().optional(),
-  faviconUrl: z.string().url().optional(),
+  siteName: z.string().min(1).max(100),
+  tagline: z.string().max(200).optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-  metaTitle: z.string().max(60).optional(),
-  metaDescription: z.string().max(160).optional(),
-  socialLinks: z
-    .object({
-      twitter: z.string().url().optional(),
-      instagram: z.string().url().optional(),
-      facebook: z.string().url().optional(),
-      youtube: z.string().url().optional(),
-      tiktok: z.string().url().optional(),
-    })
-    .optional(),
-  contactEmail: z.string().email().optional(),
+  seoDefaultTitle: z.string().max(60).optional(),
+  seoDefaultDescription: z.string().max(160).optional(),
+  contactEmail: z.string().email().optional().or(z.literal('')),
+  contactPhone: z.string().max(20).optional(),
   address: z.string().max(300).optional(),
-  foundedYear: z.number().int().min(1800).max(2100).optional(),
+  socialTwitter: z.string().url().optional().or(z.literal('')),
+  socialInstagram: z.string().url().optional().or(z.literal('')),
+  socialFacebook: z.string().url().optional().or(z.literal('')),
+  socialYoutube: z.string().url().optional().or(z.literal('')),
+  socialTiktok: z.string().url().optional().or(z.literal('')),
+  socialLinkedin: z.string().url().optional().or(z.literal('')),
 })
 
 export const updateSiteConfigAction = actionClient

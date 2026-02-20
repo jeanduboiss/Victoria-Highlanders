@@ -54,6 +54,17 @@ const config: Config = {
                     border: 'hsl(var(--sidebar-border))',
                     ring: 'hsl(var(--sidebar-ring))',
                 },
+                gold: {
+                    DEFAULT: '#D4AF37',
+                    dark: '#C4A052',
+                    light: '#E8D07A',
+                },
+                site: {
+                    bg: '#000000',
+                    'bg-card': '#111827',
+                    'bg-bar': '#121212',
+                    'bg-surface': '#1F2937',
+                },
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -62,7 +73,18 @@ const config: Config = {
             },
             fontFamily: {
                 sans: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
+                oswald: ['var(--font-oswald)', 'Oswald', 'sans-serif'],
+                roboto: ['var(--font-roboto)', 'Roboto', 'sans-serif'],
                 mono: ['ui-monospace', 'monospace'],
+            },
+            keyframes: {
+                marquee: {
+                    '0%': { transform: 'translateX(0%)' },
+                    '100%': { transform: 'translateX(-50%)' },
+                },
+            },
+            animation: {
+                marquee: 'marquee linear infinite',
             },
         },
     },

@@ -4,9 +4,10 @@ import { actionClient } from '@/lib/safe-action'
 import { requirePermission } from '@/lib/auth'
 import { prisma } from '@/lib/prisma/client'
 import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { sendEmail } from '@/lib/email/resend'
+import { inviteUserEmailHtml } from '@/lib/email/templates/invite-user'
 
 function getSupabaseAdmin() {
   return createServerClient(
@@ -35,7 +36,6 @@ const deactivateMemberSchema = z.object({
   memberId: z.string().uuid(),
 })
 
-// Invite a new user via Supabase Auth magic link; creates OrganizationMember on first login
 export const inviteUserAction = actionClient
   .schema(inviteUserSchema)
   .action(async ({ parsedInput }) => {
@@ -43,26 +43,45 @@ export const inviteUserAction = actionClient
 
     const supabase = getSupabaseAdmin()
 
-    const { data, error } = await supabase.auth.admin.inviteUserByEmail(parsedInput.email, {
-      data: {
-        organizationId: ctx.organizationId,
-        role: parsedInput.role,
-        firstName: parsedInput.firstName,
-        lastName: parsedInput.lastName,
+    const org = await prisma.organization.findUniqueOrThrow({
+      where: { id: ctx.organizationId },
+      select: { name: true },
+    })
+
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'invite',
+      email: parsedInput.email,
+      options: {
+        data: {
+          organizationId: ctx.organizationId,
+          role: parsedInput.role,
+          firstName: parsedInput.firstName,
+          lastName: parsedInput.lastName,
+        },
       },
     })
 
-    if (error) throw new Error(`Error al invitar al usuario: ${error.message}`)
+    if (linkError) throw new Error(`Error al generar el enlace de invitación: ${linkError.message}`)
 
-    // Create a pending OrganizationMember so admins can see the invitation
     await prisma.organizationMember.create({
       data: {
         organizationId: ctx.organizationId,
-        userId: data.user.id,
+        userId: linkData.user.id,
         role: parsedInput.role,
-        status: 'PENDING', // Activated when the user accepts the invitation
+        status: 'PENDING',
         invitedBy: ctx.userId,
       },
+    })
+
+    await sendEmail({
+      to: parsedInput.email,
+      subject: `Invitación a ${org.name}`,
+      html: inviteUserEmailHtml({
+        inviteLink: linkData.properties.action_link,
+        organizationName: org.name,
+        role: parsedInput.role,
+        firstName: parsedInput.firstName,
+      }),
     })
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/users`)

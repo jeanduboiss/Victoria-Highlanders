@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Montserrat } from 'next/font/google'
+import { Montserrat, Oswald, Roboto } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
 import { LenisProvider } from '@/components/providers/lenis-provider'
@@ -11,6 +11,20 @@ const montserrat = Montserrat({
   display: 'swap',
 })
 
+const oswald = Oswald({
+  subsets: ['latin'],
+  variable: '--font-oswald',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
+})
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  variable: '--font-roboto',
+  display: 'swap',
+  weight: ['300', '400', '500', '700', '900'],
+})
+
 export const metadata: Metadata = {
   title: 'Victoria Highlanders',
   description: 'Plataforma de gestión del club',
@@ -19,7 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.variable} font-sans`} suppressHydrationWarning>
+      <body className={`${montserrat.variable} ${oswald.variable} ${roboto.variable} font-sans`} suppressHydrationWarning>
         <ThemeProvider>
           <LenisProvider>
             {children}

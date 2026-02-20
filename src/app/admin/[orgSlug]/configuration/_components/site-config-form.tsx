@@ -20,27 +20,43 @@ import { toast } from 'sonner'
 
 const schema = z.object({
   orgSlug: z.string(),
-  clubName: z.string().min(1).max(100).optional(),
-  clubShortName: z.string().max(10).optional(),
+  siteName: z.string().min(1).max(100),
+  tagline: z.string().max(200).optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-  metaTitle: z.string().max(60).optional(),
-  metaDescription: z.string().max(160).optional(),
+  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  seoDefaultTitle: z.string().max(60).optional(),
+  seoDefaultDescription: z.string().max(160).optional(),
   contactEmail: z.string().email().optional().or(z.literal('')),
-  foundedYear: z.number().int().min(1800).max(2100).optional(),
+  contactPhone: z.string().max(20).optional(),
+  address: z.string().max(300).optional(),
+  socialTwitter: z.string().url().optional().or(z.literal('')),
+  socialInstagram: z.string().url().optional().or(z.literal('')),
+  socialFacebook: z.string().url().optional().or(z.literal('')),
+  socialYoutube: z.string().url().optional().or(z.literal('')),
+  socialTiktok: z.string().url().optional().or(z.literal('')),
+  socialLinkedin: z.string().url().optional().or(z.literal('')),
 })
 
 type FormValues = z.infer<typeof schema>
 
 interface SiteConfig {
-  clubName: string | null
-  clubShortName: string | null
-  primaryColor: string | null
-  secondaryColor: string | null
-  metaTitle: string | null
-  metaDescription: string | null
+  siteName: string
+  tagline: string | null
+  primaryColor: string
+  secondaryColor: string
+  accentColor: string
+  seoDefaultTitle: string | null
+  seoDefaultDescription: string | null
   contactEmail: string | null
-  foundedYear: number | null
+  contactPhone: string | null
+  address: string | null
+  socialTwitter: string | null
+  socialInstagram: string | null
+  socialFacebook: string | null
+  socialYoutube: string | null
+  socialTiktok: string | null
+  socialLinkedin: string | null
 }
 
 interface SiteConfigFormProps {
@@ -53,14 +69,22 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
     resolver: zodResolver(schema),
     defaultValues: {
       orgSlug,
-      clubName: config?.clubName ?? '',
-      clubShortName: config?.clubShortName ?? '',
+      siteName: config?.siteName ?? '',
+      tagline: config?.tagline ?? '',
       primaryColor: config?.primaryColor ?? '#000000',
       secondaryColor: config?.secondaryColor ?? '#ffffff',
-      metaTitle: config?.metaTitle ?? '',
-      metaDescription: config?.metaDescription ?? '',
+      accentColor: config?.accentColor ?? '#3b82f6',
+      seoDefaultTitle: config?.seoDefaultTitle ?? '',
+      seoDefaultDescription: config?.seoDefaultDescription ?? '',
       contactEmail: config?.contactEmail ?? '',
-      foundedYear: config?.foundedYear ?? undefined,
+      contactPhone: config?.contactPhone ?? '',
+      address: config?.address ?? '',
+      socialTwitter: config?.socialTwitter ?? '',
+      socialInstagram: config?.socialInstagram ?? '',
+      socialFacebook: config?.socialFacebook ?? '',
+      socialYoutube: config?.socialYoutube ?? '',
+      socialTiktok: config?.socialTiktok ?? '',
+      socialLinkedin: config?.socialLinkedin ?? '',
     },
   })
 
@@ -81,12 +105,12 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="clubName"
+              name="siteName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre del club</FormLabel>
+                  <FormLabel>Nombre del sitio</FormLabel>
                   <FormControl>
-                    <Input placeholder="Victoria Highlanders" {...field} />
+                    <Input placeholder="Victoria Highlanders FC" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -94,12 +118,12 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
             />
             <FormField
               control={form.control}
-              name="clubShortName"
+              name="tagline"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre corto</FormLabel>
+                  <FormLabel>Slogan / Tagline</FormLabel>
                   <FormControl>
-                    <Input placeholder="VH" {...field} />
+                    <Input placeholder="Official Sports Management Platform" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,17 +146,12 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
             />
             <FormField
               control={form.control}
-              name="foundedYear"
+              name="contactPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Año de fundación</FormLabel>
+                  <FormLabel>Teléfono de contacto</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="1990"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                    />
+                    <Input placeholder="+1 (250) 000-0000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -187,10 +206,10 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
           <h2 className="text-base font-semibold">SEO</h2>
           <FormField
             control={form.control}
-            name="metaTitle"
+            name="seoDefaultTitle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meta título</FormLabel>
+                <FormLabel>Meta título (SEO)</FormLabel>
                 <FormControl>
                   <Input placeholder="Victoria Highlanders FC — Sitio oficial" {...field} />
                 </FormControl>
@@ -200,10 +219,10 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
           />
           <FormField
             control={form.control}
-            name="metaDescription"
+            name="seoDefaultDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meta descripción</FormLabel>
+                <FormLabel>Meta descripción (SEO)</FormLabel>
                 <FormControl>
                   <Input placeholder="Sitio oficial del Victoria Highlanders FC..." {...field} />
                 </FormControl>
