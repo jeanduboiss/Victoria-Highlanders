@@ -13,7 +13,7 @@ interface OrgLayoutProps {
 export default async function OrgAdminLayout({ children, params }: OrgLayoutProps) {
   const { orgSlug } = await params
 
-  // Verify session and org access; redirects to /login if not authenticated
+  // requireOrgAccess uses unstable_cache — 0 DB calls after first load
   const ctx = await requireOrgAccess(orgSlug).catch(() => redirect('/login'))
 
   // Read sidebar state from cookie for persistence
@@ -21,16 +21,17 @@ export default async function OrgAdminLayout({ children, params }: OrgLayoutProp
   const sidebarOpen = cookieStore.get('sidebar:state')?.value === 'true'
 
   return (
-    <SidebarProvider defaultOpen={sidebarOpen ?? true} className="bg-zinc-950">
-      <AdminSidebar orgSlug={orgSlug} orgName={ctx.organizationName} />
+    <SidebarProvider defaultOpen={sidebarOpen ?? true} className="bg-sidebar">
+      <AdminSidebar
+        orgSlug={orgSlug}
+        orgName={ctx.organizationName}
+        userEmail={ctx.email}
+        userRole={ctx.role}
+      />
       <SidebarInset className="bg-transparent border-0">
         <div className="h-svh overflow-hidden lg:p-2 w-full">
-          <div className="lg:border lg:border-white/10 lg:rounded-md overflow-hidden flex flex-col items-center justify-start bg-zinc-900/50 h-full w-full">
-            <AdminTopbar
-              userId={ctx.userId}
-              userEmail={ctx.email}
-              userRole={ctx.role}
-            />
+          <div className="lg:border lg:border-border lg:rounded-md overflow-hidden flex flex-col items-center justify-start bg-background h-full w-full">
+            <AdminTopbar />
             <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full overflow-y-auto">
               {children}
             </main>

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { toast } from 'sonner'
 
 type FormValues = z.infer<typeof enrollPlayerSchema>
@@ -63,7 +64,9 @@ export function EnrollPlayerSheet({ orgSlug, playerId, teams, seasons, children 
         defaultValues: {
             orgSlug,
             playerId,
-            contractType: 'AMATEUR',
+            teamId: '',
+            seasonId: '',
+            contractType: 'AMATEUR' as const,
             transferInDate: new Date().toISOString().split('T')[0],
         },
     })
@@ -195,7 +198,13 @@ export function EnrollPlayerSheet({ orgSlug, playerId, teams, seasons, children 
                                 <FormItem>
                                     <FormLabel>Fecha de incorporación</FormLabel>
                                     <FormControl>
-                                        <Input type="date" {...field} />
+                                        <DatePicker
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            placeholder="Fecha de incorporación"
+                                            fromYear={2000}
+                                            toYear={2050}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

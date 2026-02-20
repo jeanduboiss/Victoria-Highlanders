@@ -71,6 +71,7 @@ export function AddMatchEventSheet({ orgSlug, matchId, players, children }: AddM
         defaultValues: {
             orgSlug,
             matchId,
+            playerId: '',
             minute: 1,
         },
     })

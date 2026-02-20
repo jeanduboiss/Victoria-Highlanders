@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { toast } from 'sonner'
 import { ArrowRightLeft } from 'lucide-react'
 
@@ -65,6 +66,7 @@ export function TransferPlayerSheet({
         defaultValues: {
             orgSlug,
             currentRecordId,
+            newTeamId: '',
             transferDate: new Date().toISOString().split('T')[0],
         },
     })
@@ -161,7 +163,13 @@ export function TransferPlayerSheet({
                                     <FormItem>
                                         <FormLabel>Fecha de transferencia</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <DatePicker
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Fecha de transferencia"
+                                                fromYear={2000}
+                                                toYear={2050}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

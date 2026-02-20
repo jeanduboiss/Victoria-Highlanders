@@ -94,11 +94,19 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     orgSlug
   )
 
+  const firstName = ctx.email.split('@')[0]
+
   return (
     <div className="space-y-6 py-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Resumen del club.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+            Bienvenido, {firstName}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Resumen del club · Victoria Highlanders FC
+          </p>
+        </div>
       </div>
 
       {/* KPI Cards */}

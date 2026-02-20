@@ -60,13 +60,13 @@ export function InviteUserSheet({ orgSlug, children }: InviteUserSheetProps) {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { orgSlug, role: 'EDITOR' },
+    defaultValues: { orgSlug, email: '', firstName: '', lastName: '', role: 'EDITOR' as const },
   })
 
   const { execute, isPending } = useAction(inviteUserAction, {
     onSuccess: ({ data }) => {
       toast.success(`Invitación enviada a ${data?.email}.`)
-      form.reset({ orgSlug, role: 'EDITOR' })
+      form.reset({ orgSlug, email: '', firstName: '', lastName: '', role: 'EDITOR' })
       setOpen(false)
     },
     onError: ({ error }) => {

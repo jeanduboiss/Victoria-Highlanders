@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
 import {
   Select,
   SelectContent,
@@ -54,6 +55,9 @@ export function ScheduleMatchSheet({ orgSlug, seasons, children }: ScheduleMatch
     resolver: zodResolver(scheduleMatchSchema),
     defaultValues: {
       orgSlug,
+      homeTeamId: '',
+      awayTeamId: '',
+      matchDate: '',
       competitionName: '',
       isHomeGame: true,
     },
@@ -139,7 +143,11 @@ export function ScheduleMatchSheet({ orgSlug, seasons, children }: ScheduleMatch
                 <FormItem>
                   <FormLabel>Fecha y hora</FormLabel>
                   <FormControl>
-                    <Input type="datetime-local" {...field} />
+                    <DateTimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Selecciona fecha del partido"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

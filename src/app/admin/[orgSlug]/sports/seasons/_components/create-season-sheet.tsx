@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { toast } from 'sonner'
 
 type FormValues = z.infer<typeof createSeasonSchema>
@@ -107,7 +108,13 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                                     <FormItem>
                                         <FormLabel>Fecha inicio</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <DatePicker
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Inicio"
+                                                fromYear={2000}
+                                                toYear={2050}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -120,7 +127,13 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                                     <FormItem>
                                         <FormLabel>Fecha fin</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <DatePicker
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Fin"
+                                                fromYear={2000}
+                                                toYear={2050}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

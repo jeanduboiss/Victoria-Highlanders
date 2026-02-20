@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { toast } from 'sonner'
 
 type FormValues = z.infer<typeof createPlayerSchema>
@@ -53,13 +54,19 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(createPlayerSchema),
-    defaultValues: { orgSlug },
+    defaultValues: {
+      orgSlug,
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      nationalities: [{ country: '', isPrimary: true }],
+    },
   })
 
   const { execute, isPending } = useAction(createPlayerAction, {
     onSuccess: () => {
       toast.success('Jugador registrado correctamente.')
-      form.reset({ orgSlug })
+      form.reset({ orgSlug, firstName: '', lastName: '', dateOfBirth: '', nationalities: [{ country: '', isPrimary: true }] })
       setOpen(false)
     },
     onError: ({ error }) => {
@@ -138,7 +145,13 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
                 <FormItem>
                   <FormLabel>Fecha de nacimiento</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Selecciona fecha de nacimiento"
+                      fromYear={1950}
+                      toYear={new Date().getFullYear()}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,12 +159,12 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
             />
             <FormField
               control={form.control}
-              name="primaryNationality"
+              name="nationalities.0.country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nacionalidad principal</FormLabel>
+                  <FormLabel>Nacionalidad principal (código ISO, ej: GB)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: Scotland" {...field} />
+                    <Input placeholder="Ej: GB, CL, AR" maxLength={2} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

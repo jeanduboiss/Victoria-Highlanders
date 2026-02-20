@@ -61,8 +61,8 @@ const config: Config = {
                 sm: 'calc(var(--radius) - 4px)',
             },
             fontFamily: {
-                sans: ['var(--font-geist-sans)'],
-                mono: ['var(--font-geist-mono)'],
+                sans: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
+                mono: ['ui-monospace', 'monospace'],
             },
         },
     },
