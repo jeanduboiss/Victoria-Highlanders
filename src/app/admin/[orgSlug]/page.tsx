@@ -11,7 +11,7 @@ interface DashboardPageProps {
   params: Promise<{ orgSlug: string }>
 }
 
-async function getDashboardData(organizationId: string, orgSlug: string) {
+async function getDashboardData(organizationId: string) {
   const [playerCount, publishedMatchCount, articleCount, upcomingEventCount, nextMatch, recentArticles] =
     await Promise.all([
       prisma.player.count({ where: { organizationId, isActive: true } }),
@@ -37,7 +37,6 @@ async function getDashboardData(organizationId: string, orgSlug: string) {
       }),
     ])
 
-  // Build a synthetic activity feed from recent DB activity
   const recentActivity: ActivityItem[] = []
 
   const recentFinishedMatches = await prisma.match.findMany({
@@ -73,15 +72,13 @@ async function getDashboardData(organizationId: string, orgSlug: string) {
     })
   })
 
-  // Sort activity by date desc and take top 6
   recentActivity.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-  const latestActivity = recentActivity.slice(0, 6)
 
   return {
     kpis: { playerCount, publishedMatchCount, articleCount, upcomingEventCount },
     nextMatch,
     recentArticles,
-    latestActivity,
+    latestActivity: recentActivity.slice(0, 6),
   }
 }
 
@@ -89,24 +86,29 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const { orgSlug } = await params
   const ctx = await requireOrgAccess(orgSlug).catch(() => redirect('/login'))
 
-  const { kpis, nextMatch, recentArticles, latestActivity } = await getDashboardData(
-    ctx.organizationId,
-    orgSlug
-  )
+  const { kpis, nextMatch, recentArticles, latestActivity } = await getDashboardData(ctx.organizationId)
 
   const firstName = ctx.email.split('@')[0]
+  const today = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 
   return (
     <div className="space-y-6 py-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      {/* Greeting */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight capitalize">
             Bienvenido, {firstName}
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Resumen del club · Victoria Highlanders FC
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5 capitalize">{today}</p>
         </div>
+        <p className="text-xs text-muted-foreground bg-muted rounded-full px-3 py-1 self-start sm:self-auto">
+          {ctx.organizationName}
+        </p>
       </div>
 
       {/* KPI Cards */}
@@ -116,24 +118,32 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           value={kpis.playerCount}
           icon={Users}
           description="En el pool de la organización"
+          iconColor="text-emerald-600 dark:text-emerald-400"
+          iconBg="bg-emerald-500/10"
         />
         <KpiCard
           title="Partidos jugados"
           value={kpis.publishedMatchCount}
           icon={Trophy}
           description="Finalizados esta temporada"
+          iconColor="text-amber-600 dark:text-amber-400"
+          iconBg="bg-amber-500/10"
         />
         <KpiCard
           title="Artículos publicados"
           value={kpis.articleCount}
           icon={Newspaper}
           description="En el sitio web"
+          iconColor="text-blue-600 dark:text-blue-400"
+          iconBg="bg-blue-500/10"
         />
         <KpiCard
           title="Eventos próximos"
           value={kpis.upcomingEventCount}
           icon={CalendarRange}
           description="Publicados y futuros"
+          iconColor="text-violet-600 dark:text-violet-400"
+          iconBg="bg-violet-500/10"
         />
       </div>
 

@@ -53,14 +53,22 @@ const GENDER_LABELS: Record<string, string> = {
 
 export function TeamsTable({ teams, orgSlug }: TeamsTableProps) {
     if (teams.length === 0)
-        return <p className="text-sm text-muted-foreground py-8 text-center">No hay equipos registrados.</p>
+        return (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-center rounded-xl border bg-card">
+                <Shield className="size-10 text-muted-foreground/40" />
+                <div>
+                    <p className="text-sm font-medium">No hay equipos registrados</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Crea el primer equipo para comenzar.</p>
+                </div>
+            </div>
+        )
 
     return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {teams.map((team) => (
                 <div
                     key={team.id}
-                    className="group relative rounded-xl border bg-card p-5 transition-all hover:shadow-md hover:border-primary/20"
+                    className="group relative rounded-xl border bg-card p-5 transition-all hover:shadow-md hover:border-primary/20 cursor-default"
                 >
                     {/* Icono */}
                     <div className="flex items-start justify-between">

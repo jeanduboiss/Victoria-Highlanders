@@ -3,6 +3,7 @@ import { getPlayersByOrg } from '@/domains/sports/queries/squad.queries'
 import { redirect } from 'next/navigation'
 import { PlayersTable } from './_components/players-table'
 import { CreatePlayerSheet } from './_components/create-player-sheet'
+import { PageHeader } from '@/components/admin/page-header'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
@@ -18,18 +19,18 @@ export default async function PlayersPage({ params }: Props) {
 
   return (
     <div className="space-y-4 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Jugadores</h1>
-          <p className="text-muted-foreground">{players.length} jugador(es) en el pool.</p>
-        </div>
-        <CreatePlayerSheet orgSlug={orgSlug}>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo jugador
-          </Button>
-        </CreatePlayerSheet>
-      </div>
+      <PageHeader
+        title="Jugadores"
+        description={`${players.length} jugador${players.length !== 1 ? 'es' : ''} en el pool`}
+        action={
+          <CreatePlayerSheet orgSlug={orgSlug}>
+            <Button size="sm" className="cursor-pointer">
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo jugador
+            </Button>
+          </CreatePlayerSheet>
+        }
+      />
       <PlayersTable players={players} orgSlug={orgSlug} />
     </div>
   )

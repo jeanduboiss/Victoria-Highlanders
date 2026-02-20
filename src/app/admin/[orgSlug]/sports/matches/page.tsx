@@ -4,6 +4,7 @@ import { getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
 import { redirect } from 'next/navigation'
 import { MatchesTable } from './_components/matches-table'
 import { ScheduleMatchSheet } from './_components/schedule-match-sheet'
+import { PageHeader } from '@/components/admin/page-header'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
@@ -25,18 +26,18 @@ export default async function MatchesPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-4 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Partidos</h1>
-          <p className="text-muted-foreground">{matches.length} partido(s) encontrados.</p>
-        </div>
-        <ScheduleMatchSheet orgSlug={orgSlug} seasons={seasons}>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Programar partido
-          </Button>
-        </ScheduleMatchSheet>
-      </div>
+      <PageHeader
+        title="Partidos"
+        description={`${matches.length} partido${matches.length !== 1 ? 's' : ''} encontrado${matches.length !== 1 ? 's' : ''}`}
+        action={
+          <ScheduleMatchSheet orgSlug={orgSlug} seasons={seasons}>
+            <Button size="sm" className="cursor-pointer">
+              <Plus className="mr-2 h-4 w-4" />
+              Programar partido
+            </Button>
+          </ScheduleMatchSheet>
+        }
+      />
       <MatchesTable matches={matches} orgSlug={orgSlug} />
     </div>
   )

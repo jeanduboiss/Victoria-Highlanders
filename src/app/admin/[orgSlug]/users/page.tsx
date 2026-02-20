@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma/client'
 import { redirect } from 'next/navigation'
 import { UsersTable } from './_components/users-table'
 import { InviteUserSheet } from './_components/invite-user-sheet'
+import { PageHeader } from '@/components/admin/page-header'
 import { Button } from '@/components/ui/button'
 import { UserPlus } from 'lucide-react'
 
@@ -24,18 +25,18 @@ export default async function UsersPage({ params }: Props) {
 
   return (
     <div className="space-y-4 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Usuarios</h1>
-          <p className="text-muted-foreground">{members.length} miembro(s) en la organización.</p>
-        </div>
-        <InviteUserSheet orgSlug={orgSlug}>
-          <Button size="sm">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Invitar usuario
-          </Button>
-        </InviteUserSheet>
-      </div>
+      <PageHeader
+        title="Usuarios"
+        description={`${members.length} miembro${members.length !== 1 ? 's' : ''} en la organización`}
+        action={
+          <InviteUserSheet orgSlug={orgSlug}>
+            <Button size="sm" className="cursor-pointer">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Invitar usuario
+            </Button>
+          </InviteUserSheet>
+        }
+      />
       <UsersTable members={members} orgSlug={orgSlug} currentUserId={ctx.userId} />
     </div>
   )

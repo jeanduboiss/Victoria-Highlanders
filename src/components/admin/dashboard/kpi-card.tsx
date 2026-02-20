@@ -1,23 +1,41 @@
 import { type LucideIcon } from 'lucide-react'
+import { NumberTicker } from '@/components/ui/number-ticker'
+import { cn } from '@/lib/utils'
 
 interface KpiCardProps {
   title: string
-  value: number | string
+  value: number
   description?: string
   icon: LucideIcon
+  iconColor?: string
+  iconBg?: string
 }
 
-export function KpiCard({ title, value, description, icon: Icon }: KpiCardProps) {
+export function KpiCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  iconColor = 'text-primary',
+  iconBg = 'bg-primary/10',
+}: KpiCardProps) {
   return (
-    <div className="bg-card text-card-foreground rounded-xl border p-4">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-muted-foreground">{title}</span>
-        <Icon className="size-4 text-muted-foreground" />
+    <div className="bg-card text-card-foreground rounded-xl border p-5 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-start justify-between">
+        <div className={cn('flex items-center justify-center rounded-lg size-9 shrink-0', iconBg)}>
+          <Icon className={cn('size-4', iconColor)} />
+        </div>
+        <span className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5">
+          Total
+        </span>
       </div>
-      <div className="bg-muted/50 dark:bg-neutral-800/50 border rounded-lg p-4">
-        <span className="text-2xl sm:text-3xl font-medium tracking-tight">{value}</span>
+      <div>
+        <div className="text-3xl font-semibold tracking-tight tabular-nums">
+          <NumberTicker value={value} />
+        </div>
+        <p className="text-sm font-medium text-foreground mt-0.5">{title}</p>
         {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
         )}
       </div>
     </div>
