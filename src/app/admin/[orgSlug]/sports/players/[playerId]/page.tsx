@@ -2,13 +2,12 @@ import { requirePermission } from '@/lib/auth'
 import { getPlayerWithHistory, getTeamsByOrg, getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
 
 type PlayerData = NonNullable<Awaited<ReturnType<typeof getPlayerWithHistory>>>
-
 type SeasonRow = Awaited<ReturnType<typeof getSeasonsByOrg>>[number]
+
 import { redirect, notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import {
     ArrowLeft,
     Calendar,
@@ -17,8 +16,8 @@ import {
     Footprints,
     User,
     Shield,
-    UserMinus,
     BarChart3,
+    Flag,
 } from 'lucide-react'
 import Link from 'next/link'
 import { NumberTicker } from '@/components/ui/number-ticker'
@@ -72,26 +71,24 @@ export default async function PlayerDetailPage({ params }: Props) {
     const currentRecord = player.seasonRecords.find((r: PlayerData['seasonRecords'][number]) => r.isCurrent)
 
     return (
-        <div className="space-y-6 py-4">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" asChild className="shrink-0">
+        <div className="flex flex-col gap-4 py-4 min-w-0">
+            {/* Header compacto */}
+            <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" asChild className="shrink-0 size-8">
                     <Link href={`/admin/${orgSlug}/sports/players`}>
                         <ArrowLeft className="h-4 w-4" />
                     </Link>
                 </Button>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold tracking-tight truncate">
-                            {player.firstName} {player.lastName}
-                        </h1>
-                        <Badge variant={player.isActive ? 'default' : 'secondary'} className="text-xs shrink-0">
-                            {player.isActive ? 'Activo' : 'Inactivo'}
-                        </Badge>
-                    </div>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <h1 className="text-xl font-bold tracking-tight truncate">
+                        {player.firstName} {player.lastName}
+                    </h1>
+                    <Badge variant={player.isActive ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+                        {player.isActive ? 'Activo' : 'Inactivo'}
+                    </Badge>
                     {player.position && (
                         <span
-                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium mt-1 ${POSITION_COLORS[player.position] ?? ''}`}
+                            className={`hidden sm:inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium shrink-0 ${POSITION_COLORS[player.position] ?? ''}`}
                         >
                             {POSITION_LABELS[player.position] ?? player.position}
                         </span>
@@ -99,205 +96,192 @@ export default async function PlayerDetailPage({ params }: Props) {
                 </div>
             </div>
 
-            {/* Player card + info grid */}
-            <div className="grid gap-6 lg:grid-cols-3">
-                {/* Columna izquierda — Perfil del jugador */}
-                <div className="space-y-6">
-                    {/* Card de perfil visual */}
-                    <Card className="overflow-hidden border-0 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 shadow-2xl">
-                        <CardContent className="p-6">
-                            <div className="flex flex-col items-center text-center">
-                                {/* Avatar placeholder */}
-                                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/5 ring-2 ring-white/10 mb-4">
-                                    {player.jerseyNumberDefault ? (
-                                        <span className="text-3xl font-black text-white">{player.jerseyNumberDefault}</span>
-                                    ) : (
-                                        <User className="h-10 w-10 text-zinc-400" />
-                                    )}
-                                </div>
-                                <h2 className="text-xl font-bold text-white">
-                                    {player.firstName} {player.lastName}
-                                </h2>
-                                {currentRecord && (
-                                    <p className="text-sm text-zinc-400 mt-1">
-                                        {currentRecord.team.name} • #{currentRecord.jerseyNumber ?? '—'}
-                                    </p>
+            {/* Layout principal — 3 columnas */}
+            <div className="grid gap-4 lg:grid-cols-[280px_1fr_240px]">
+
+                {/* Col 1: Card de perfil visual */}
+                <Card className="overflow-hidden border-0 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 shadow-2xl lg:row-span-2">
+                    <CardContent className="p-5">
+                        <div className="flex flex-col items-center text-center">
+                            {/* Avatar */}
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/5 ring-2 ring-white/10 mb-3">
+                                {player.jerseyNumberDefault ? (
+                                    <span className="text-2xl font-black text-white">{player.jerseyNumberDefault}</span>
+                                ) : (
+                                    <User className="h-8 w-8 text-zinc-400" />
                                 )}
                             </div>
+                            <h2 className="text-lg font-bold text-white">
+                                {player.firstName} {player.lastName}
+                            </h2>
+                            {currentRecord && (
+                                <p className="text-xs text-zinc-400 mt-1">
+                                    {currentRecord.team.name} • #{currentRecord.jerseyNumber ?? '—'}
+                                </p>
+                            )}
+                            {player.position && (
+                                <span
+                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium mt-2 ${POSITION_COLORS[player.position] ?? ''}`}
+                                >
+                                    {POSITION_LABELS[player.position] ?? player.position}
+                                </span>
+                            )}
+                        </div>
 
-                            {/* Stats físicos */}
-                            <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
-                                <div className="text-center">
-                                    <p className="text-2xl font-bold text-white">{age ?? '—'}</p>
-                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">Edad</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-2xl font-bold text-white">{player.heightCm ?? '—'}</p>
-                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">cm</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-2xl font-bold text-white">{player.weightKg ?? '—'}</p>
-                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">kg</p>
-                                </div>
+                        {/* Stats físicos */}
+                        <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-white/5">
+                            <div className="text-center">
+                                <p className="text-xl font-bold text-white">{age ?? '—'}</p>
+                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Edad</p>
                             </div>
-
-                            {/* Career stats */}
-                            <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/5">
-                                {[
-                                    { label: 'PJ', value: player.careerStats.matchesPlayed },
-                                    { label: 'Goles', value: player.careerStats.goals },
-                                    { label: 'Amarillas', value: player.careerStats.yellowCards },
-                                    { label: 'Rojas', value: player.careerStats.redCards },
-                                ].map((s) => (
-                                    <div key={s.label} className="text-center rounded-lg bg-white/5 p-2">
-                                        <NumberTicker
-                                            value={s.value}
-                                            className="text-lg font-bold text-white"
-                                        />
-                                        <p className="text-[10px] text-zinc-500 mt-0.5">{s.label}</p>
-                                    </div>
-                                ))}
+                            <div className="text-center">
+                                <p className="text-xl font-bold text-white">{player.heightCm ?? '—'}</p>
+                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">cm</p>
                             </div>
-                        </CardContent>
-                    </Card>
+                            <div className="text-center">
+                                <p className="text-xl font-bold text-white">{player.weightKg ?? '—'}</p>
+                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">kg</p>
+                            </div>
+                        </div>
 
-                    {/* Detalles personales */}
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">Datos personales</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 text-sm">
+                        {/* Career stats */}
+                        <div className="grid grid-cols-4 gap-1.5 mt-4 pt-4 border-t border-white/5">
+                            {[
+                                { label: 'PJ', value: player.careerStats.matchesPlayed },
+                                { label: 'Goles', value: player.careerStats.goals },
+                                { label: '🟨', value: player.careerStats.yellowCards },
+                                { label: '🟥', value: player.careerStats.redCards },
+                            ].map((s) => (
+                                <div key={s.label} className="text-center rounded-lg bg-white/5 py-2 px-1">
+                                    <NumberTicker
+                                        value={s.value}
+                                        className="text-base font-bold text-white"
+                                    />
+                                    <p className="text-[9px] text-zinc-500 mt-0.5">{s.label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Datos personales inline */}
+                        <div className="mt-4 pt-4 border-t border-white/5 space-y-2.5">
                             {player.dateOfBirth && (
-                                <div className="flex items-center gap-3">
-                                    <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="text-muted-foreground">Nacimiento</span>
-                                    <span className="ml-auto font-medium">
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Calendar className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                    <span className="text-zinc-400">Nacimiento</span>
+                                    <span className="ml-auto font-medium text-zinc-200">
                                         {new Date(player.dateOfBirth).toLocaleDateString('es-ES', {
                                             day: 'numeric',
-                                            month: 'long',
+                                            month: 'short',
                                             year: 'numeric',
                                         })}
                                     </span>
                                 </div>
                             )}
                             {primaryNation && (
-                                <div className="flex items-center gap-3">
-                                    <Shield className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="text-muted-foreground">Nacionalidad</span>
-                                    <span className="ml-auto font-medium">{primaryNation.country}</span>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Flag className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                    <span className="text-zinc-400">Nacionalidad</span>
+                                    <span className="ml-auto font-medium text-zinc-200">{primaryNation.country}</span>
                                 </div>
                             )}
                             {player.preferredFoot && (
-                                <div className="flex items-center gap-3">
-                                    <Footprints className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="text-muted-foreground">Pie</span>
-                                    <span className="ml-auto font-medium">{FOOT_LABELS[player.preferredFoot] ?? player.preferredFoot}</span>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Footprints className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                    <span className="text-zinc-400">Pie</span>
+                                    <span className="ml-auto font-medium text-zinc-200">{FOOT_LABELS[player.preferredFoot] ?? player.preferredFoot}</span>
                                 </div>
                             )}
                             {player.heightCm && (
-                                <div className="flex items-center gap-3">
-                                    <Ruler className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="text-muted-foreground">Altura</span>
-                                    <span className="ml-auto font-medium">{player.heightCm} cm</span>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Ruler className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                    <span className="text-zinc-400">Altura</span>
+                                    <span className="ml-auto font-medium text-zinc-200">{player.heightCm} cm</span>
                                 </div>
                             )}
                             {player.weightKg && (
-                                <div className="flex items-center gap-3">
-                                    <Weight className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="text-muted-foreground">Peso</span>
-                                    <span className="ml-auto font-medium">{player.weightKg} kg</span>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Weight className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                    <span className="text-zinc-400">Peso</span>
+                                    <span className="ml-auto font-medium text-zinc-200">{player.weightKg} kg</span>
                                 </div>
                             )}
-                            {player.biography && (
-                                <>
-                                    <Separator />
-                                    <p className="text-muted-foreground text-xs leading-relaxed">{player.biography}</p>
-                                </>
-                            )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </CardContent>
+                </Card>
 
-                    {/* Acciones */}
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">Acciones</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <EnrollPlayerSheet
+                {/* Col 2: Historial de temporadas */}
+                <Card className="lg:row-span-2 flex flex-col">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">
+                            Historial de temporadas
+                            {player.seasonRecords.length > 0 && (
+                                <span className="ml-2 text-xs text-muted-foreground font-normal">
+                                    ({player.seasonRecords.length})
+                                </span>
+                            )}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                        <PlayerSeasonHistory records={player.seasonRecords} orgSlug={orgSlug} />
+                    </CardContent>
+                </Card>
+
+                {/* Col 3: Acciones */}
+                <Card className="h-fit">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Acciones</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <EnrollPlayerSheet
+                            orgSlug={orgSlug}
+                            playerId={player.id}
+                            teams={teams}
+                            seasons={seasons.filter((s: SeasonRow) => !s.isArchived)}
+                        >
+                            <Button variant="outline" size="sm" className="w-full justify-start cursor-pointer">
+                                <Shield className="mr-2 h-4 w-4" />
+                                Enrolar en equipo
+                            </Button>
+                        </EnrollPlayerSheet>
+
+                        {currentRecord && currentRecord.seasonStats && !currentRecord.seasonStats.isLocked ? (
+                            <EditPlayerStatsSheet
                                 orgSlug={orgSlug}
-                                playerId={player.id}
-                                teams={teams}
-                                seasons={seasons.filter((s: SeasonRow) => !s.isArchived)}
+                                stats={currentRecord.seasonStats}
+                                teamName={currentRecord.team.name}
+                                seasonName={currentRecord.season.name}
                             >
-                                <Button variant="outline" size="sm" className="w-full justify-start">
-                                    <Shield className="mr-2 h-4 w-4" />
-                                    Enrolar en equipo
+                                <Button variant="outline" size="sm" className="w-full justify-start cursor-pointer">
+                                    <BarChart3 className="mr-2 h-4 w-4" />
+                                    Editar estadísticas
                                 </Button>
-                            </EnrollPlayerSheet>
+                            </EditPlayerStatsSheet>
+                        ) : (
+                            <Button variant="outline" size="sm" className="w-full justify-start" disabled>
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                Editar estadísticas
+                            </Button>
+                        )}
 
-                            {currentRecord && currentRecord.seasonStats && !currentRecord.seasonStats.isLocked ? (
-                                <EditPlayerStatsSheet
-                                    orgSlug={orgSlug}
-                                    stats={currentRecord.seasonStats}
-                                    teamName={currentRecord.team.name}
-                                    seasonName={currentRecord.season.name}
-                                >
-                                    <Button variant="outline" size="sm" className="w-full justify-start cursor-pointer">
-                                        <BarChart3 className="mr-2 h-4 w-4" />
-                                        Editar estadísticas
-                                    </Button>
-                                </EditPlayerStatsSheet>
-                            ) : (
-                                <div className="relative group">
-                                    <Button variant="outline" size="sm" className="w-full justify-start" disabled>
-                                        <BarChart3 className="mr-2 h-4 w-4" />
-                                        Editar estadísticas
-                                    </Button>
-                                    <span className="absolute left-0 -bottom-6 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                                        Primero enrola al jugador en un equipo
-                                    </span>
-                                </div>
-                            )}
+                        {currentRecord && (
+                            <TransferPlayerSheet
+                                orgSlug={orgSlug}
+                                currentRecordId={currentRecord.id}
+                                currentTeamName={currentRecord.team.name}
+                                teams={teams}
+                            >
+                                <Button variant="outline" size="sm" className="w-full justify-start cursor-pointer">
+                                    <Footprints className="mr-2 h-4 w-4" />
+                                    Transferir
+                                </Button>
+                            </TransferPlayerSheet>
+                        )}
 
-                            {currentRecord && (
-                                <TransferPlayerSheet
-                                    orgSlug={orgSlug}
-                                    currentRecordId={currentRecord.id}
-                                    currentTeamName={currentRecord.team.name}
-                                    teams={teams}
-                                >
-                                    <Button variant="outline" size="sm" className="w-full justify-start">
-                                        <Footprints className="mr-2 h-4 w-4" />
-                                        Transferir
-                                    </Button>
-                                </TransferPlayerSheet>
-                            )}
-
-                            {player.isActive && (
-                                <DeactivatePlayerButton orgSlug={orgSlug} playerId={player.id} />
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Columna derecha — Historial de temporadas */}
-                <div className="lg:col-span-2">
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
-                                Historial de temporadas
-                                {player.seasonRecords.length > 0 && (
-                                    <span className="ml-2 text-xs text-muted-foreground font-normal">
-                                        ({player.seasonRecords.length})
-                                    </span>
-                                )}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <PlayerSeasonHistory records={player.seasonRecords} orgSlug={orgSlug} />
-                        </CardContent>
-                    </Card>
-                </div>
+                        {player.isActive && (
+                            <DeactivatePlayerButton orgSlug={orgSlug} playerId={player.id} />
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )
