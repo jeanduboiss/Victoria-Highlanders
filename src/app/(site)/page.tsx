@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { HeroSection } from '@/components/site/sections/hero-section'
 import { InfoStripSection } from '@/components/site/sections/info-strip-section'
 import { LatestNewsSection } from '@/components/site/sections/latest-news-section'
