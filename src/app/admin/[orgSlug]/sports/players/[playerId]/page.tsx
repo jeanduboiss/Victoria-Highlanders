@@ -18,6 +18,7 @@ import {
     User,
     Shield,
     UserMinus,
+    BarChart3,
 } from 'lucide-react'
 import Link from 'next/link'
 import { NumberTicker } from '@/components/ui/number-ticker'
@@ -25,6 +26,7 @@ import { PlayerSeasonHistory } from './_components/player-season-history'
 import { EnrollPlayerSheet } from './_components/enroll-player-sheet'
 import { TransferPlayerSheet } from './_components/transfer-player-sheet'
 import { DeactivatePlayerButton } from './_components/deactivate-player-button'
+import { EditPlayerStatsSheet } from './_components/edit-player-stats-sheet'
 
 interface Props {
     params: Promise<{ orgSlug: string; playerId: string }>
@@ -232,6 +234,20 @@ export default async function PlayerDetailPage({ params }: Props) {
                                     Enrolar en equipo
                                 </Button>
                             </EnrollPlayerSheet>
+
+                            {currentRecord && currentRecord.seasonStats && !currentRecord.seasonStats.isLocked && (
+                                <EditPlayerStatsSheet
+                                    orgSlug={orgSlug}
+                                    stats={currentRecord.seasonStats}
+                                    teamName={currentRecord.team.name}
+                                    seasonName={currentRecord.season.name}
+                                >
+                                    <Button variant="outline" size="sm" className="w-full justify-start">
+                                        <BarChart3 className="mr-2 h-4 w-4" />
+                                        Editar estadísticas
+                                    </Button>
+                                </EditPlayerStatsSheet>
+                            )}
 
                             {currentRecord && (
                                 <TransferPlayerSheet

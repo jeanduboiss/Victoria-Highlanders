@@ -58,8 +58,8 @@ export function AdminBreadcrumbs() {
   const visibleCrumbs = crumbs.slice(2)
 
   return (
-    <Breadcrumb className="min-w-0">
-      <BreadcrumbList className="flex-nowrap overflow-hidden">
+    <Breadcrumb>
+      <BreadcrumbList className="flex-nowrap">
         {visibleCrumbs.map((crumb, index) => (
           <React.Fragment key={crumb.href}>
             {index > 0 && <BreadcrumbSeparator />}
