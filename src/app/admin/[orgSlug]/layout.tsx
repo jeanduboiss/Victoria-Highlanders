@@ -29,7 +29,7 @@ export default async function OrgAdminLayout({ children, params }: OrgLayoutProp
         userRole={ctx.role}
       />
       <SidebarInset className="bg-transparent border-0">
-        <div className="h-svh overflow-hidden lg:p-2 w-full">
+        <div className="h-svh overflow-hidden lg:p-2 w-full" data-lenis-prevent>
           <div className="lg:border lg:border-border lg:rounded-md overflow-hidden flex flex-col items-center justify-start bg-background h-full w-full">
             <AdminTopbar orgId={ctx.organizationId} />
             <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full overflow-y-auto">
