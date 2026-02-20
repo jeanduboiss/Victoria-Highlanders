@@ -2,6 +2,7 @@ import { requirePermission } from '@/lib/auth'
 import { getPlayerWithHistory, getTeamsByOrg, getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
 
 type PlayerData = NonNullable<Awaited<ReturnType<typeof getPlayerWithHistory>>>
+
 type SeasonRow = Awaited<ReturnType<typeof getSeasonsByOrg>>[number]
 import { redirect, notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
@@ -19,6 +20,7 @@ import {
     UserMinus,
 } from 'lucide-react'
 import Link from 'next/link'
+import { NumberTicker } from '@/components/ui/number-ticker'
 import { PlayerSeasonHistory } from './_components/player-season-history'
 import { EnrollPlayerSheet } from './_components/enroll-player-sheet'
 import { TransferPlayerSheet } from './_components/transfer-player-sheet'
@@ -121,7 +123,7 @@ export default async function PlayerDetailPage({ params }: Props) {
                                 )}
                             </div>
 
-                            {/* Stats rápidos */}
+                            {/* Stats físicos */}
                             <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
                                 <div className="text-center">
                                     <p className="text-2xl font-bold text-white">{age ?? '—'}</p>
@@ -135,6 +137,24 @@ export default async function PlayerDetailPage({ params }: Props) {
                                     <p className="text-2xl font-bold text-white">{player.weightKg ?? '—'}</p>
                                     <p className="text-xs text-zinc-500 uppercase tracking-wider">kg</p>
                                 </div>
+                            </div>
+
+                            {/* Career stats */}
+                            <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/5">
+                                {[
+                                    { label: 'PJ', value: player.careerStats.matchesPlayed },
+                                    { label: 'Goles', value: player.careerStats.goals },
+                                    { label: 'Amarillas', value: player.careerStats.yellowCards },
+                                    { label: 'Rojas', value: player.careerStats.redCards },
+                                ].map((s) => (
+                                    <div key={s.label} className="text-center rounded-lg bg-white/5 p-2">
+                                        <NumberTicker
+                                            value={s.value}
+                                            className="text-lg font-bold text-white"
+                                        />
+                                        <p className="text-[10px] text-zinc-500 mt-0.5">{s.label}</p>
+                                    </div>
+                                ))}
                             </div>
                         </CardContent>
                     </Card>

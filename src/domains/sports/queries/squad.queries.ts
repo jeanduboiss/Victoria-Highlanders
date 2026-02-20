@@ -21,7 +21,7 @@ export async function getPlayersByOrg(organizationId: string) {
 }
 
 export async function getPlayerWithHistory(playerId: string, organizationId: string) {
-  return prisma.player.findFirst({
+  const player = await prisma.player.findFirst({
     where: { id: playerId, organizationId },
     include: {
       nationalities: true,
@@ -35,6 +35,14 @@ export async function getPlayerWithHistory(playerId: string, organizationId: str
       },
     },
   })
+  if (!player) return null
+  const careerStats = {
+    matchesPlayed: player.seasonRecords.reduce((acc, r) => acc + (r.seasonStats?.matchesPlayed ?? 0), 0),
+    goals: player.seasonRecords.reduce((acc, r) => acc + (r.seasonStats?.goals ?? 0), 0),
+    yellowCards: player.seasonRecords.reduce((acc, r) => acc + (r.seasonStats?.yellowCards ?? 0), 0),
+    redCards: player.seasonRecords.reduce((acc, r) => acc + (r.seasonStats?.redCards ?? 0), 0),
+  }
+  return { ...player, careerStats }
 }
 
 export async function getCurrentSquad(teamId: string, seasonId: string) {

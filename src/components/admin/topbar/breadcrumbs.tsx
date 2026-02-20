@@ -31,7 +31,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   edit: 'Editar',
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 function labelFor(segment: string) {
+  if (UUID_REGEX.test(segment)) return 'Detalle'
   return SEGMENT_LABELS[segment] ?? segment
 }
 
@@ -51,7 +54,8 @@ export function AdminBreadcrumbs() {
 
   // Skip the first two segments (admin + orgSlug) from display if desired
   // Keep admin + orgSlug visible so user knows their org
-  const visibleCrumbs = crumbs.slice(1) // remove "admin" prefix segment
+  // slice(2) removes "admin" + orgSlug — show only content path
+  const visibleCrumbs = crumbs.slice(2)
 
   return (
     <Breadcrumb>
