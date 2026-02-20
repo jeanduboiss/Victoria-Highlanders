@@ -194,7 +194,7 @@ const Sidebar = React.forwardRef<
                         // @ts-expect-error side prop
                         side={side}
                     >
-                        <div className="flex h-full w-full flex-col">{children}</div>
+                        <div className="flex h-full w-full flex-col overflow-y-auto">{children}</div>
                     </SheetContent>
                 </Sheet>
             )
