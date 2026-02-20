@@ -235,18 +235,28 @@ export default async function PlayerDetailPage({ params }: Props) {
                                 </Button>
                             </EnrollPlayerSheet>
 
-                            {currentRecord && currentRecord.seasonStats && !currentRecord.seasonStats.isLocked && (
+                            {currentRecord && currentRecord.seasonStats && !currentRecord.seasonStats.isLocked ? (
                                 <EditPlayerStatsSheet
                                     orgSlug={orgSlug}
                                     stats={currentRecord.seasonStats}
                                     teamName={currentRecord.team.name}
                                     seasonName={currentRecord.season.name}
                                 >
-                                    <Button variant="outline" size="sm" className="w-full justify-start">
+                                    <Button variant="outline" size="sm" className="w-full justify-start cursor-pointer">
                                         <BarChart3 className="mr-2 h-4 w-4" />
                                         Editar estadísticas
                                     </Button>
                                 </EditPlayerStatsSheet>
+                            ) : (
+                                <div className="relative group">
+                                    <Button variant="outline" size="sm" className="w-full justify-start" disabled>
+                                        <BarChart3 className="mr-2 h-4 w-4" />
+                                        Editar estadísticas
+                                    </Button>
+                                    <span className="absolute left-0 -bottom-6 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Primero enrola al jugador en un equipo
+                                    </span>
+                                </div>
                             )}
 
                             {currentRecord && (
