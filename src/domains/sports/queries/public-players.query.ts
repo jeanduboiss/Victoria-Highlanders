@@ -2,8 +2,7 @@ import { prisma } from '@/lib/prisma/client'
 import { cache } from 'react'
 
 const getDefaultOrg = cache(async () => {
-  const slug = process.env.DEFAULT_ORG_SLUG
-  if (!slug) throw new Error('DEFAULT_ORG_SLUG no está definido')
+  const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
   return prisma.organization.findUniqueOrThrow({ where: { slug }, select: { id: true } })
 })
 
