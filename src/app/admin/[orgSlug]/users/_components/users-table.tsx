@@ -17,13 +17,12 @@ import { toast } from 'sonner'
 type Member = {
   id: string
   role: string
-  isActive: boolean
-  createdAt: Date
+  status: string
   userId: string
+  createdAt: Date
   user: {
     email: string
-    firstName: string | null
-    lastName: string | null
+    fullName: string
   }
 }
 
@@ -40,6 +39,12 @@ const ROLE_LABELS: Record<string, string> = {
   VIEWER: 'Viewer',
   SUPER_ADMIN: 'Super Admin',
   LEAGUE_ADMIN: 'Liga Admin',
+}
+
+const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+  ACTIVE: { label: 'Activo', variant: 'default' },
+  INACTIVE: { label: 'Inactivo', variant: 'secondary' },
+  PENDING: { label: 'Pendiente', variant: 'outline' },
 }
 
 export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps) {
@@ -66,11 +71,9 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
           </TableHeader>
           <TableBody>
             {members.map((member) => {
-              const displayName =
-                member.user.firstName || member.user.lastName
-                  ? `${member.user.firstName ?? ''} ${member.user.lastName ?? ''}`.trim()
-                  : member.user.email
+              const displayName = member.user.fullName || member.user.email
               const isSelf = member.userId === currentUserId
+              const statusInfo = STATUS_CONFIG[member.status] ?? STATUS_CONFIG.PENDING
 
               return (
                 <TableRow key={member.id}>
@@ -86,11 +89,8 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge
-                      variant={member.isActive ? 'default' : 'secondary'}
-                      className="text-xs"
-                    >
-                      {member.isActive ? 'Activo' : 'Pendiente'}
+                    <Badge variant={statusInfo.variant} className="text-xs">
+                      {statusInfo.label}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">
@@ -101,7 +101,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                     })}
                   </TableCell>
                   <TableCell>
-                    {!isSelf && member.isActive && (
+                    {!isSelf && member.status === 'ACTIVE' && (
                       <Button
                         variant="ghost"
                         size="sm"

@@ -18,7 +18,7 @@ export default async function UsersPage({ params }: Props) {
   const members = await prisma.organizationMember.findMany({
     where: { organizationId: ctx.organizationId },
     include: {
-      user: { select: { email: true, firstName: true, lastName: true } },
+      user: { select: { email: true, fullName: true } },
     },
     orderBy: { createdAt: 'desc' },
   })
