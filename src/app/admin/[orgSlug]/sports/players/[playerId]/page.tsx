@@ -100,22 +100,22 @@ export default async function PlayerDetailPage({ params }: Props) {
             <div className="grid gap-4 lg:grid-cols-[280px_1fr_240px]">
 
                 {/* Col 1: Card de perfil visual */}
-                <Card className="overflow-hidden border-0 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 shadow-2xl lg:row-span-2">
+                <Card className="overflow-hidden shadow-2xl lg:row-span-2">
                     <CardContent className="p-5">
                         <div className="flex flex-col items-center text-center">
                             {/* Avatar */}
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/5 ring-2 ring-white/10 mb-3">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted ring-2 ring-border mb-3">
                                 {player.jerseyNumberDefault ? (
-                                    <span className="text-2xl font-black text-white">{player.jerseyNumberDefault}</span>
+                                    <span className="text-2xl font-black text-foreground">{player.jerseyNumberDefault}</span>
                                 ) : (
-                                    <User className="h-8 w-8 text-zinc-400" />
+                                    <User className="h-8 w-8 text-muted-foreground" />
                                 )}
                             </div>
-                            <h2 className="text-lg font-bold text-white">
+                            <h2 className="text-lg font-bold text-foreground">
                                 {player.firstName} {player.lastName}
                             </h2>
                             {currentRecord && (
-                                <p className="text-xs text-zinc-400 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     {currentRecord.team.name} • #{currentRecord.jerseyNumber ?? '—'}
                                 </p>
                             )}
@@ -129,46 +129,46 @@ export default async function PlayerDetailPage({ params }: Props) {
                         </div>
 
                         {/* Stats físicos */}
-                        <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-white/5">
+                        <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-border">
                             <div className="text-center">
-                                <p className="text-xl font-bold text-white">{age ?? '—'}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Edad</p>
+                                <p className="text-xl font-bold text-foreground">{age ?? '—'}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Edad</p>
                             </div>
                             <div className="text-center">
-                                <p className="text-xl font-bold text-white">{player.heightCm ?? '—'}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">cm</p>
+                                <p className="text-xl font-bold text-foreground">{player.heightCm ?? '—'}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">cm</p>
                             </div>
                             <div className="text-center">
-                                <p className="text-xl font-bold text-white">{player.weightKg ?? '—'}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">kg</p>
+                                <p className="text-xl font-bold text-foreground">{player.weightKg ?? '—'}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">kg</p>
                             </div>
                         </div>
 
                         {/* Career stats */}
-                        <div className="grid grid-cols-4 gap-1.5 mt-4 pt-4 border-t border-white/5">
+                        <div className="grid grid-cols-4 gap-1.5 mt-4 pt-4 border-t border-border">
                             {[
                                 { label: 'PJ', value: player.careerStats.matchesPlayed },
                                 { label: 'Goles', value: player.careerStats.goals },
                                 { label: '🟨', value: player.careerStats.yellowCards },
                                 { label: '🟥', value: player.careerStats.redCards },
                             ].map((s) => (
-                                <div key={s.label} className="text-center rounded-lg bg-white/5 py-2 px-1">
+                                <div key={s.label} className="text-center rounded-lg bg-muted py-2 px-1">
                                     <NumberTicker
                                         value={s.value}
-                                        className="text-base font-bold text-white"
+                                        className="text-base font-bold text-foreground"
                                     />
-                                    <p className="text-[9px] text-zinc-500 mt-0.5">{s.label}</p>
+                                    <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Datos personales inline */}
-                        <div className="mt-4 pt-4 border-t border-white/5 space-y-2.5">
+                        <div className="mt-4 pt-4 border-t border-border space-y-2.5">
                             {player.dateOfBirth && (
                                 <div className="flex items-center gap-2 text-xs">
-                                    <Calendar className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                    <span className="text-zinc-400">Nacimiento</span>
-                                    <span className="ml-auto font-medium text-zinc-200">
+                                    <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="text-muted-foreground">Nacimiento</span>
+                                    <span className="ml-auto font-medium text-foreground">
                                         {new Date(player.dateOfBirth).toLocaleDateString('es-ES', {
                                             day: 'numeric',
                                             month: 'short',
@@ -179,30 +179,30 @@ export default async function PlayerDetailPage({ params }: Props) {
                             )}
                             {primaryNation && (
                                 <div className="flex items-center gap-2 text-xs">
-                                    <Flag className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                    <span className="text-zinc-400">Nacionalidad</span>
-                                    <span className="ml-auto font-medium text-zinc-200">{primaryNation.country}</span>
+                                    <Flag className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="text-muted-foreground">Nacionalidad</span>
+                                    <span className="ml-auto font-medium text-foreground">{primaryNation.country}</span>
                                 </div>
                             )}
                             {player.preferredFoot && (
                                 <div className="flex items-center gap-2 text-xs">
-                                    <Footprints className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                    <span className="text-zinc-400">Pie</span>
-                                    <span className="ml-auto font-medium text-zinc-200">{FOOT_LABELS[player.preferredFoot] ?? player.preferredFoot}</span>
+                                    <Footprints className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="text-muted-foreground">Pie</span>
+                                    <span className="ml-auto font-medium text-foreground">{FOOT_LABELS[player.preferredFoot] ?? player.preferredFoot}</span>
                                 </div>
                             )}
                             {player.heightCm && (
                                 <div className="flex items-center gap-2 text-xs">
-                                    <Ruler className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                    <span className="text-zinc-400">Altura</span>
-                                    <span className="ml-auto font-medium text-zinc-200">{player.heightCm} cm</span>
+                                    <Ruler className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="text-muted-foreground">Altura</span>
+                                    <span className="ml-auto font-medium text-foreground">{player.heightCm} cm</span>
                                 </div>
                             )}
                             {player.weightKg && (
                                 <div className="flex items-center gap-2 text-xs">
-                                    <Weight className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                    <span className="text-zinc-400">Peso</span>
-                                    <span className="ml-auto font-medium text-zinc-200">{player.weightKg} kg</span>
+                                    <Weight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="text-muted-foreground">Peso</span>
+                                    <span className="ml-auto font-medium text-foreground">{player.weightKg} kg</span>
                                 </div>
                             )}
                         </div>
