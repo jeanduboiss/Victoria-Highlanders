@@ -70,7 +70,7 @@ export function AdminSidebar({ orgSlug, orgName }: AdminSidebarProps) {
                       tooltip={item.title}
                       className="h-8 rounded-md transition-colors text-white/70 hover:text-white hover:bg-white/10 data-[active=true]:bg-white/10 data-[active=true]:text-white font-medium"
                     >
-                      <Link href={item.href}>
+                      <Link href={item.href} prefetch={true}>
                         <item.icon className="size-[18px] opacity-70" />
                         <span>{item.title}</span>
                       </Link>
@@ -82,8 +82,6 @@ export function AdminSidebar({ orgSlug, orgName }: AdminSidebarProps) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-
-      <SidebarRail />
     </Sidebar>
   )
 }
