@@ -18,7 +18,7 @@ export default async function PlayersPage({ params }: Props) {
   const players = await getPlayersByOrg(ctx.organizationId)
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4 py-4 min-w-0">
       <PageHeader
         title="Jugadores"
         description={`${players.length} jugador${players.length !== 1 ? 'es' : ''} en el pool`}

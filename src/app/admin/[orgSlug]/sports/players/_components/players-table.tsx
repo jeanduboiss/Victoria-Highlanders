@@ -80,7 +80,7 @@ export function PlayersTable({ players, orgSlug }: PlayersTableProps) {
     )
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-0">
       {/* Filters bar */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
@@ -154,13 +154,13 @@ export function PlayersTable({ players, orgSlug }: PlayersTableProps) {
                   return (
                     <TableRow key={player.id} className="group">
                       <TableCell className="pl-4">
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <Avatar className="size-7 shrink-0">
                             <AvatarFallback className="text-[11px] font-semibold bg-primary/10 text-primary">
                               {initials}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="font-medium text-sm">
+                          <span className="font-medium text-sm truncate">
                             {player.firstName} {player.lastName}
                           </span>
                         </div>
