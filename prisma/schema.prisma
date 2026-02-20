@@ -1,0 +1,767 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Extends Supabase auth.users. ID must match auth.users(id).
+model User {
+  id               String               @id @db.Uuid
+  email            String               @unique
+  fullName         String               @map("full_name")
+  avatarUrl        String?              @map("avatar_url")
+  isActive         Boolean              @default(true) @map("is_active")
+  lastSignInAt     DateTime?            @map("last_sign_in_at")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  authoredArticles Article[]            @relation("ArticleAuthor")
+  uploadedAssets   MediaAsset[]
+  memberships      OrganizationMember[]
+  updatedConfigs   SiteConfiguration[]  @relation("ConfigUpdatedBy")
+
+  @@map("users")
+}
+
+/// Links a user to an organization with a specific role.
+/// A user can belong to multiple organizations with different roles.
+model OrganizationMember {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  role           Role
+  status         MemberStatus @default(PENDING)
+  invitedBy      String?      @map("invited_by") @db.Uuid
+  joinedAt       DateTime?    @map("joined_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+/// A league groups multiple clubs for competition administration (future multi-tenant).
+model League {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  slug          String         @unique
+  logoUrl       String?        @map("logo_url")
+  description   String?
+  country       String?
+  region        String?
+  isActive      Boolean        @default(true) @map("is_active")
+  /// Extra league-level settings
+  settings      Json           @default("{}")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  competitions  Competition[]
+  organizations Organization[]
+
+  @@map("leagues")
+}
+
+/// Primary tenant entity. Victoria Highlanders is one Organization.
+/// slug must be globally unique — used in URLs and routing.
+model Organization {
+  id                String               @id @default(uuid()) @db.Uuid
+  leagueId          String?              @map("league_id") @db.Uuid
+  name              String
+  slug              String               @unique
+  shortName         String?              @map("short_name")
+  description       String?
+  foundedYear       Int?                 @map("founded_year")
+  logoUrl           String?              @map("logo_url")
+  badgeUrl          String?              @map("badge_url")
+  primaryColor      String               @default("#000000") @map("primary_color")
+  secondaryColor    String               @default("#ffffff") @map("secondary_color")
+  country           String?
+  city              String?
+  isActive          Boolean              @default(true) @map("is_active")
+  /// Club-level custom settings
+  settings          Json                 @default("{}")
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+  articleCategories ArticleCategory[]
+  articles          Article[]
+  events            Event[]
+  matches           Match[]
+  mediaAssets       MediaAsset[]
+  mediaFolders      MediaFolder[]
+  members           OrganizationMember[]
+  league            League?              @relation(fields: [leagueId], references: [id])
+  players           Player[]
+  seasons           Season[]
+  siteConfiguration SiteConfiguration?
+  staffMembers      StaffMember[]
+  tags              Tag[]
+  teams             Team[]
+  venues            Venue[]
+
+  @@index([slug])
+  @@index([leagueId])
+  @@map("organizations")
+}
+
+/// Physical location used for matches and events.
+model Venue {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String
+  address        String?
+  city           String?
+  country        String?
+  capacity       Int?
+  latitude       Float?
+  longitude      Float?
+  photoUrl       String?      @map("photo_url")
+  isHomeVenue    Boolean      @default(false) @map("is_home_venue")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  events         Event[]
+  matches        Match[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("venues")
+}
+
+/// A competitive team within an organization.
+/// One organization can have multiple teams across different categories.
+model Team {
+  id                  String               @id @default(uuid()) @db.Uuid
+  organizationId      String               @map("organization_id") @db.Uuid
+  name                String
+  shortName           String?              @map("short_name")
+  category            TeamCategory
+  gender              Gender               @default(MALE)
+  badgeUrl            String?              @map("badge_url")
+  description         String?
+  isActive            Boolean              @default(true) @map("is_active")
+  foundedYear         Int?                 @map("founded_year")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  awayMatches         Match[]              @relation("AwayTeam")
+  homeMatches         Match[]              @relation("HomeTeam")
+  playerSeasonRecords PlayerSeasonRecord[]
+  staffMembers        StaffMember[]
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("teams")
+}
+
+/// Competitive period (e.g., "2025-2026"). Unit of historical integrity.
+/// Archiving a season seals all linked player records as immutable.
+model Season {
+  id                  String               @id @default(uuid()) @db.Uuid
+  organizationId      String               @map("organization_id") @db.Uuid
+  /// e.g., "2025-2026"
+  name                String
+  /// e.g., "25/26"
+  shortName           String?              @map("short_name")
+  startDate           DateTime             @map("start_date") @db.Date
+  endDate             DateTime             @map("end_date") @db.Date
+  /// Only one true per org
+  isCurrent           Boolean              @default(false) @map("is_current")
+  /// Immutable when true
+  isArchived          Boolean              @default(false) @map("is_archived")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  matches             Match[]
+  playerSeasonRecords PlayerSeasonRecord[]
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, name])
+  @@index([organizationId, isCurrent])
+  @@map("seasons")
+}
+
+/// Personal data for a player. Belongs to the organization pool — NOT to a specific team.
+/// Team assignments are managed through PlayerSeasonRecord.
+/// Soft-delete only: is_active = false. Hard delete blocked if historical records exist.
+model Player {
+  id                  String               @id @default(uuid()) @db.Uuid
+  organizationId      String               @map("organization_id") @db.Uuid
+  firstName           String               @map("first_name")
+  lastName            String               @map("last_name")
+  dateOfBirth         DateTime?            @map("date_of_birth") @db.Date
+  photoUrl            String?              @map("photo_url")
+  position            Position?
+  preferredFoot       PreferredFoot?       @map("preferred_foot")
+  heightCm            Int?                 @map("height_cm")
+  weightKg            Int?                 @map("weight_kg")
+  biography           String?
+  jerseyNumberDefault Int?                 @map("jersey_number_default")
+  isActive            Boolean              @default(true) @map("is_active")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  createdBy           String?              @map("created_by") @db.Uuid
+  updatedBy           String?              @map("updated_by") @db.Uuid
+  matchEvents         MatchEvent[]
+  nationalities       PlayerNationality[]
+  seasonRecords       PlayerSeasonRecord[]
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([organizationId, isActive])
+  @@map("players")
+}
+
+/// Player nationality. Multiple nationalities supported (e.g., dual passport).
+/// isPrimary flags the primary nationality used for foreign player quotas.
+model PlayerNationality {
+  id        String  @id @default(uuid()) @db.Uuid
+  playerId  String  @map("player_id") @db.Uuid
+  /// ISO 3166-1 alpha-2 country code (e.g., "VE", "ES")
+  country   String
+  isPrimary Boolean @default(false) @map("is_primary")
+  player    Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, country])
+  @@index([playerId])
+  @@map("player_nationalities")
+}
+
+/// CRITICAL ENTITY: Records a player's membership in a specific team during a specific season.
+/// A new record is created for each team a player joins within a season (transfers).
+/// isLocked = true when the parent season is archived — enforced at DB, ORM, and service layers.
+model PlayerSeasonRecord {
+  id              String             @id @default(uuid()) @db.Uuid
+  playerId        String             @map("player_id") @db.Uuid
+  teamId          String             @map("team_id") @db.Uuid
+  seasonId        String             @map("season_id") @db.Uuid
+  jerseyNumber    Int?               @map("jersey_number")
+  transferInDate  DateTime           @map("transfer_in_date") @db.Date
+  /// null = currently active
+  transferOutDate DateTime?          @map("transfer_out_date") @db.Date
+  isCurrent       Boolean            @default(true) @map("is_current")
+  status          PlayerStatus       @default(ACTIVE)
+  contractType    ContractType       @default(AMATEUR) @map("contract_type")
+  /// Immutable when season archived
+  isLocked        Boolean            @default(false) @map("is_locked")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  player          Player             @relation(fields: [playerId], references: [id])
+  season          Season             @relation(fields: [seasonId], references: [id])
+  team            Team               @relation(fields: [teamId], references: [id])
+  seasonStats     PlayerStatsSeason?
+
+  @@index([playerId])
+  @@index([teamId, seasonId])
+  @@index([seasonId])
+  @@map("player_season_records")
+}
+
+/// Accumulated stats for a player in a specific team/season context.
+/// 1:1 with PlayerSeasonRecord. Updated after each match (manual entry).
+/// isLocked = true when parent season is archived.
+model PlayerStatsSeason {
+  id                   String             @id @default(uuid()) @db.Uuid
+  playerSeasonRecordId String             @unique @map("player_season_record_id") @db.Uuid
+  playerId             String             @map("player_id") @db.Uuid
+  teamId               String             @map("team_id") @db.Uuid
+  seasonId             String             @map("season_id") @db.Uuid
+  matchesPlayed        Int                @default(0) @map("matches_played")
+  matchesStarted       Int                @default(0) @map("matches_started")
+  minutesPlayed        Int                @default(0) @map("minutes_played")
+  goals                Int                @default(0)
+  assists              Int                @default(0)
+  yellowCards          Int                @default(0) @map("yellow_cards")
+  redCards             Int                @default(0) @map("red_cards")
+  cleanSheets          Int                @default(0) @map("clean_sheets")
+  goalsConceded        Int                @default(0) @map("goals_conceded")
+  saves                Int                @default(0)
+  isLocked             Boolean            @default(false) @map("is_locked")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+  playerSeasonRecord   PlayerSeasonRecord @relation(fields: [playerSeasonRecordId], references: [id])
+
+  @@index([playerId, seasonId])
+  @@index([teamId, seasonId])
+  @@map("player_stats_seasons")
+}
+
+/// Technical and administrative staff linked to a team.
+model StaffMember {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  teamId         String?      @map("team_id") @db.Uuid
+  firstName      String       @map("first_name")
+  lastName       String       @map("last_name")
+  role           StaffRole
+  photoUrl       String?      @map("photo_url")
+  /// ISO 3166-1 alpha-2
+  nationality    String?
+  dateOfBirth    DateTime?    @map("date_of_birth") @db.Date
+  biography      String?
+  isActive       Boolean      @default(true) @map("is_active")
+  startDate      DateTime?    @map("start_date") @db.Date
+  endDate        DateTime?    @map("end_date") @db.Date
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team           Team?        @relation(fields: [teamId], references: [id])
+
+  @@index([organizationId])
+  @@index([teamId])
+  @@map("staff_members")
+}
+
+/// A scheduled or completed match. Always anchored to a Season.
+model Match {
+  id              String       @id @default(uuid()) @db.Uuid
+  organizationId  String       @map("organization_id") @db.Uuid
+  seasonId        String       @map("season_id") @db.Uuid
+  homeTeamId      String       @map("home_team_id") @db.Uuid
+  awayTeamId      String       @map("away_team_id") @db.Uuid
+  competitionName String?      @map("competition_name")
+  matchDate       DateTime     @map("match_date")
+  venueId         String?      @map("venue_id") @db.Uuid
+  status          MatchStatus  @default(SCHEDULED)
+  homeScore       Int?         @map("home_score")
+  awayScore       Int?         @map("away_score")
+  matchDay        Int?         @map("match_day")
+  round           String?
+  isHomeGame      Boolean      @default(true) @map("is_home_game")
+  notes           String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  createdBy       String?      @map("created_by") @db.Uuid
+  updatedBy       String?      @map("updated_by") @db.Uuid
+  events          MatchEvent[]
+  awayTeam        Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeTeam        Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  season          Season       @relation(fields: [seasonId], references: [id])
+  venue           Venue?       @relation(fields: [venueId], references: [id])
+
+  @@index([organizationId, seasonId])
+  @@index([organizationId, matchDate])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+  @@map("matches")
+}
+
+/// Individual event within a match (goal, card, substitution).
+/// Drives automatic updates to PlayerStatsSeason when a match is finalized.
+model MatchEvent {
+  id              String         @id @default(uuid()) @db.Uuid
+  matchId         String         @map("match_id") @db.Uuid
+  playerId        String         @map("player_id") @db.Uuid
+  eventType       MatchEventType @map("event_type")
+  minute          Int
+  extraTimeMinute Int?           @map("extra_time_minute")
+  description     String?
+  createdAt       DateTime       @default(now()) @map("created_at")
+  match           Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player          Player         @relation(fields: [playerId], references: [id])
+
+  @@index([matchId])
+  @@index([playerId])
+  @@map("match_events")
+}
+
+/// Tournament or league competition owned by a League (future multi-league use).
+model Competition {
+  id              String                   @id @default(uuid()) @db.Uuid
+  leagueId        String                   @map("league_id") @db.Uuid
+  name            String
+  slug            String
+  competitionType CompetitionType          @map("competition_type")
+  seasonYear      String                   @map("season_year")
+  isActive        Boolean                  @default(true) @map("is_active")
+  description     String?
+  createdAt       DateTime                 @default(now()) @map("created_at")
+  updatedAt       DateTime                 @updatedAt @map("updated_at")
+  participants    CompetitionParticipant[]
+  league          League                   @relation(fields: [leagueId], references: [id])
+
+  @@unique([leagueId, slug])
+  @@map("competitions")
+}
+
+/// Enrollment of an organization/team in a competition.
+model CompetitionParticipant {
+  id             String      @id @default(uuid()) @db.Uuid
+  competitionId  String      @map("competition_id") @db.Uuid
+  organizationId String      @map("organization_id") @db.Uuid
+  teamId         String?     @map("team_id") @db.Uuid
+  enrolledAt     DateTime    @default(now()) @map("enrolled_at")
+  isActive       Boolean     @default(true) @map("is_active")
+  competition    Competition @relation(fields: [competitionId], references: [id])
+
+  @@unique([competitionId, organizationId])
+  @@index([competitionId])
+  @@map("competition_participants")
+}
+
+/// Shared tag system for articles and events.
+/// Tags are free-form labels within an organization.
+model Tag {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String
+  slug           String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  articles       ArticleTag[]
+  events         EventTag[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("tags")
+}
+
+/// News article with full CMS workflow (draft → scheduled → published → archived).
+/// Content stored as TipTap / ProseMirror JSON.
+model Article {
+  id                String              @id @default(uuid()) @db.Uuid
+  organizationId    String              @map("organization_id") @db.Uuid
+  authorId          String              @map("author_id") @db.Uuid
+  title             String
+  /// Auto-generated, unique per organization
+  slug              String
+  excerpt           String?
+  /// TipTap ProseMirror JSON
+  content           Json                @default("{}")
+  coverImageUrl     String?             @map("cover_image_url")
+  status            ArticleStatus       @default(DRAFT)
+  /// Set automatically; immutable after first publish
+  publishedAt       DateTime?           @map("published_at")
+  scheduledAt       DateTime?           @map("scheduled_at")
+  viewCount         Int                 @default(0) @map("view_count")
+  isFeatured        Boolean             @default(false) @map("is_featured")
+  metaTitle         String?             @map("meta_title")
+  metaDescription   String?             @map("meta_description")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  createdBy         String?             @map("created_by") @db.Uuid
+  updatedBy         String?             @map("updated_by") @db.Uuid
+  ArticleCategories ArticleCategories[]
+  tags              ArticleTag[]
+  author            User                @relation("ArticleAuthor", fields: [authorId], references: [id])
+  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, status])
+  @@index([organizationId, publishedAt])
+  @@map("articles")
+}
+
+/// Structured category for classifying articles.
+model ArticleCategory {
+  id                String              @id @default(uuid()) @db.Uuid
+  organizationId    String              @map("organization_id") @db.Uuid
+  name              String
+  slug              String
+  description       String?
+  /// Hex color for UI display
+  color             String?
+  createdAt         DateTime            @default(now()) @map("created_at")
+  ArticleCategories ArticleCategories[]
+  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("article_categories")
+}
+
+/// Junction: Article ↔ Tag (N:M)
+model ArticleTag {
+  articleId String  @map("article_id") @db.Uuid
+  tagId     String  @map("tag_id") @db.Uuid
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@map("article_tags")
+}
+
+/// Club events with type classification, status workflow, and optional venue.
+model Event {
+  id              String       @id @default(uuid()) @db.Uuid
+  organizationId  String       @map("organization_id") @db.Uuid
+  title           String
+  slug            String
+  description     String?
+  eventType       EventType    @default(OTHER) @map("event_type")
+  coverImageUrl   String?      @map("cover_image_url")
+  startDatetime   DateTime     @map("start_datetime")
+  endDatetime     DateTime?    @map("end_datetime")
+  venueId         String?      @map("venue_id") @db.Uuid
+  /// Free-text fallback when no Venue entity
+  locationText    String?      @map("location_text")
+  status          EventStatus  @default(DRAFT)
+  isFeatured      Boolean      @default(false) @map("is_featured")
+  registrationUrl String?      @map("registration_url")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  tags            EventTag[]
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  venue           Venue?       @relation(fields: [venueId], references: [id])
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, status])
+  @@index([organizationId, startDatetime])
+  @@map("events")
+}
+
+/// Junction: Event ↔ Tag (N:M)
+model EventTag {
+  eventId String @map("event_id") @db.Uuid
+  tagId   String @map("tag_id") @db.Uuid
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tagId])
+  @@map("event_tags")
+}
+
+/// A digital file uploaded to Supabase Storage.
+/// storagePath is canonical and unique across the platform.
+/// Soft-archived (isArchived = true) when referenced by other entities.
+model MediaAsset {
+  id              String              @id @default(uuid()) @db.Uuid
+  organizationId  String              @map("organization_id") @db.Uuid
+  uploadedBy      String              @map("uploaded_by") @db.Uuid
+  fileName        String              @map("file_name")
+  fileSizeBytes   BigInt              @map("file_size_bytes")
+  mimeType        String              @map("mime_type")
+  /// Canonical path in Supabase Storage
+  storagePath     String              @unique @map("storage_path")
+  publicUrl       String              @map("public_url")
+  /// For images
+  width           Int?
+  /// For images
+  height          Int?
+  /// For videos
+  durationSeconds Int?                @map("duration_seconds")
+  altText         String?             @map("alt_text")
+  caption         String?
+  /// Soft delete; set when referenced
+  isArchived      Boolean             @default(false) @map("is_archived")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader        User                @relation(fields: [uploadedBy], references: [id])
+  folders         MediaFolderAsset[]
+  usedAsFavicon   SiteConfiguration[] @relation("FaviconMedia")
+  usedAsHero      SiteConfiguration[] @relation("HeroMedia")
+  usedAsLogo      SiteConfiguration[] @relation("LogoMedia")
+
+  @@index([organizationId])
+  @@index([organizationId, isArchived])
+  @@map("media_assets")
+}
+
+/// Virtual folder for organizing media assets. Supports nested subfolders (self-reference).
+model MediaFolder {
+  id             String             @id @default(uuid()) @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  name           String
+  slug           String
+  /// null = root folder
+  parentId       String?            @map("parent_id") @db.Uuid
+  description    String?
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  assets         MediaFolderAsset[]
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent         MediaFolder?       @relation("SubFolders", fields: [parentId], references: [id])
+  children       MediaFolder[]      @relation("SubFolders")
+
+  @@unique([organizationId, slug, parentId])
+  @@index([organizationId, parentId])
+  @@map("media_folders")
+}
+
+/// Junction: MediaAsset ↔ MediaFolder (N:M — an asset can appear in multiple folders)
+model MediaFolderAsset {
+  assetId  String      @map("asset_id") @db.Uuid
+  folderId String      @map("folder_id") @db.Uuid
+  addedAt  DateTime    @default(now()) @map("added_at")
+  asset    MediaAsset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  folder   MediaFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  @@id([assetId, folderId])
+  @@map("media_folder_assets")
+}
+
+/// Global public site settings for an organization. One record per organization.
+/// Changes trigger on-demand Next.js cache revalidation for the public site.
+model SiteConfiguration {
+  id                    String       @id @default(uuid()) @db.Uuid
+  organizationId        String       @unique @map("organization_id") @db.Uuid
+  siteName              String       @map("site_name")
+  tagline               String?
+  logoMediaId           String?      @map("logo_media_id") @db.Uuid
+  faviconMediaId        String?      @map("favicon_media_id") @db.Uuid
+  heroMediaId           String?      @map("hero_media_id") @db.Uuid
+  primaryColor          String       @default("#000000") @map("primary_color")
+  secondaryColor        String       @default("#ffffff") @map("secondary_color")
+  accentColor           String       @default("#3b82f6") @map("accent_color")
+  fontHeading           String       @default("Inter") @map("font_heading")
+  fontBody              String       @default("Inter") @map("font_body")
+  socialTwitter         String?      @map("social_twitter")
+  socialInstagram       String?      @map("social_instagram")
+  socialFacebook        String?      @map("social_facebook")
+  socialYoutube         String?      @map("social_youtube")
+  socialTiktok          String?      @map("social_tiktok")
+  socialLinkedin        String?      @map("social_linkedin")
+  contactEmail          String?      @map("contact_email")
+  contactPhone          String?      @map("contact_phone")
+  address               String?
+  googleAnalyticsId     String?      @map("google_analytics_id")
+  seoDefaultTitle       String?      @map("seo_default_title")
+  seoDefaultDescription String?      @map("seo_default_description")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+  updatedBy             String?      @map("updated_by") @db.Uuid
+  faviconMedia          MediaAsset?  @relation("FaviconMedia", fields: [faviconMediaId], references: [id])
+  heroMedia             MediaAsset?  @relation("HeroMedia", fields: [heroMediaId], references: [id])
+  logoMedia             MediaAsset?  @relation("LogoMedia", fields: [logoMediaId], references: [id])
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  updatedByUser         User?        @relation("ConfigUpdatedBy", fields: [updatedBy], references: [id])
+
+  @@map("site_configurations")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ArticleCategories {
+  A                  String          @db.Uuid
+  B                  String          @db.Uuid
+  articles           Article         @relation(fields: [A], references: [id], onDelete: Cascade)
+  article_categories ArticleCategory @relation(fields: [B], references: [id], onDelete: Cascade)
+
+  @@id([A, B], map: "_ArticleCategories_AB_pkey")
+  @@index([B], map: "_ArticleCategories_B_index")
+  @@map("_ArticleCategories")
+}
+
+enum Role {
+  SUPER_ADMIN
+  LEAGUE_ADMIN
+  CLUB_ADMIN
+  CLUB_MANAGER
+  EDITOR
+  VIEWER
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum TeamCategory {
+  FIRST_TEAM
+  RESERVE
+  U23
+  U20
+  U18
+  U16
+  U14
+  U12
+  WOMEN
+  FUTSAL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  MIXED
+}
+
+enum Position {
+  GOALKEEPER
+  DEFENDER
+  MIDFIELDER
+  FORWARD
+}
+
+enum PreferredFoot {
+  LEFT
+  RIGHT
+  BOTH
+}
+
+enum PlayerStatus {
+  ACTIVE
+  LOANED
+  SUSPENDED
+  INJURED
+  TRANSFERRED
+}
+
+enum ContractType {
+  PROFESSIONAL
+  AMATEUR
+  YOUTH
+}
+
+enum StaffRole {
+  HEAD_COACH
+  ASSISTANT_COACH
+  GOALKEEPER_COACH
+  FITNESS_COACH
+  DOCTOR
+  ANALYST
+  TEAM_MANAGER
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELLED
+  ABANDONED
+}
+
+enum MatchEventType {
+  GOAL
+  OWN_GOAL
+  YELLOW_CARD
+  RED_CARD
+  YELLOW_RED_CARD
+  SUBSTITUTION_IN
+  SUBSTITUTION_OUT
+  PENALTY_SCORED
+  PENALTY_MISSED
+}
+
+enum ArticleStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  FINISHED
+}
+
+enum EventType {
+  MATCH
+  TRAINING
+  SOCIAL
+  MEMBERSHIP
+  PRESS
+  CHARITY
+  OTHER
+}
+
+enum CompetitionType {
+  LEAGUE
+  CUP
+  FRIENDLY
+  TOURNAMENT
+}
