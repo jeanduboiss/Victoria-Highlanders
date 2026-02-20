@@ -26,22 +26,22 @@ export function AdminSidebar({ orgSlug, orgName }: AdminSidebarProps) {
   const navGroups = getNavGroups(orgSlug)
 
   return (
-    <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
+    <Sidebar className="border-r-0 border-r-transparent bg-zinc-950 text-zinc-100" collapsible="icon">
+      <SidebarHeader className="border-b border-white/10 mx-2 py-3 px-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent"
+              className="data-[state=open]:bg-white/5 hover:bg-white/10 transition-colors"
             >
-              <Link href={`/admin/${orgSlug}`} prefetch={false}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+              <Link href={`/admin/${orgSlug}`}>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#FF7A59] text-white font-bold text-sm">
                   {orgName.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold truncate">{orgName}</span>
-                  <span className="text-xs text-muted-foreground">Dashboard</span>
+                  <span className="text-xs text-white/50">Dashboard</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -49,11 +49,13 @@ export function AdminSidebar({ orgSlug, orgName }: AdminSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2 mt-4 space-y-4">
         {navGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarMenu>
+          <SidebarGroup key={group.label} className="p-0">
+            <SidebarGroupLabel className="text-[10px] uppercase font-bold tracking-wider text-white/40 h-6">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarMenu className="gap-1 mt-1">
               {group.items.map((item) => {
                 const isActive =
                   item.href === `/admin/${orgSlug}`
@@ -66,9 +68,10 @@ export function AdminSidebar({ orgSlug, orgName }: AdminSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
+                      className="h-8 rounded-md transition-colors text-white/70 hover:text-white hover:bg-white/10 data-[active=true]:bg-white/10 data-[active=true]:text-white font-medium"
                     >
-                      <Link href={item.href} prefetch={false}>
-                        <item.icon className="size-4" />
+                      <Link href={item.href}>
+                        <item.icon className="size-[18px] opacity-70" />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>

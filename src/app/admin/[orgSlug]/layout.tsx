@@ -30,17 +30,21 @@ export default async function OrgAdminLayout({ children, params }: OrgLayoutProp
   const sidebarOpen = cookieStore.get('sidebar:state')?.value === 'true'
 
   return (
-    <SidebarProvider defaultOpen={sidebarOpen ?? true} className="bg-muted/40 dark:bg-zinc-950">
+    <SidebarProvider defaultOpen={sidebarOpen ?? true} className="bg-zinc-950">
       <AdminSidebar orgSlug={orgSlug} orgName={org.name} />
-      <SidebarInset>
-        <AdminTopbar
-          userId={ctx.userId}
-          userEmail={ctx.email}
-          userRole={ctx.role}
-        />
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          {children}
-        </main>
+      <SidebarInset className="bg-transparent border-0">
+        <div className="h-svh overflow-hidden lg:p-2 w-full">
+          <div className="lg:border lg:border-white/10 lg:rounded-md overflow-hidden flex flex-col items-center justify-start bg-zinc-900/50 h-full w-full">
+            <AdminTopbar
+              userId={ctx.userId}
+              userEmail={ctx.email}
+              userRole={ctx.role}
+            />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full overflow-y-auto">
+              {children}
+            </main>
+          </div>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
