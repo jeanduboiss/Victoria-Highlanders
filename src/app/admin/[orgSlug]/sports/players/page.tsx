@@ -1,5 +1,6 @@
 import { requirePermission } from '@/lib/auth'
 import { getPlayersByOrg } from '@/domains/sports/queries/squad.queries'
+import { getTeamsByOrg, getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
 import { redirect } from 'next/navigation'
 import { PlayersTable } from './_components/players-table'
 import { CreatePlayerSheet } from './_components/create-player-sheet'
@@ -15,7 +16,11 @@ export default async function PlayersPage({ params }: Props) {
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'players', 'read').catch(() => redirect('/login'))
 
-  const players = await getPlayersByOrg(ctx.organizationId)
+  const [players, teams, seasons] = await Promise.all([
+    getPlayersByOrg(ctx.organizationId),
+    getTeamsByOrg(ctx.organizationId),
+    getSeasonsByOrg(ctx.organizationId),
+  ])
 
   return (
     <div className="space-y-4 py-4 min-w-0">
@@ -23,7 +28,7 @@ export default async function PlayersPage({ params }: Props) {
         title="Jugadores"
         description={`${players.length} jugador${players.length !== 1 ? 'es' : ''} en el pool`}
         action={
-          <CreatePlayerSheet orgSlug={orgSlug}>
+          <CreatePlayerSheet orgSlug={orgSlug} teams={teams} seasons={seasons}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
               Nuevo jugador

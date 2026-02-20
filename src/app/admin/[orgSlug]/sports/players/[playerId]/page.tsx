@@ -268,7 +268,7 @@ export default async function PlayerDetailPage({ params }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <PlayerSeasonHistory records={player.seasonRecords} />
+                            <PlayerSeasonHistory records={player.seasonRecords} orgSlug={orgSlug} />
                         </CardContent>
                     </Card>
                 </div>

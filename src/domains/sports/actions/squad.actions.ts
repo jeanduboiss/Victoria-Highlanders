@@ -11,6 +11,7 @@ import {
   transferPlayerSchema,
   createTeamSchema,
   createStaffMemberSchema,
+  updatePlayerStatsSchema,
 } from '../schemas/squad.schema'
 import { z } from 'zod'
 
@@ -68,24 +69,51 @@ export const createPlayerAction = actionClient
   .action(async ({ parsedInput }) => {
     const ctx = await requirePermission(parsedInput.orgSlug, 'players', 'write')
 
-    const player = await prisma.player.create({
-      data: {
-        organizationId: ctx.organizationId,
-        firstName: parsedInput.firstName,
-        lastName: parsedInput.lastName,
-        dateOfBirth: parsedInput.dateOfBirth ? new Date(parsedInput.dateOfBirth) : undefined,
-        position: parsedInput.position,
-        preferredFoot: parsedInput.preferredFoot,
-        heightCm: parsedInput.heightCm,
-        weightKg: parsedInput.weightKg,
-        biography: parsedInput.biography,
-        jerseyNumberDefault: parsedInput.jerseyNumberDefault,
-        createdBy: ctx.userId,
-        nationalities: {
-          create: parsedInput.nationalities,
+    const player = await prisma.$transaction(async (tx) => {
+      const p = await tx.player.create({
+        data: {
+          organizationId: ctx.organizationId,
+          firstName: parsedInput.firstName,
+          lastName: parsedInput.lastName,
+          dateOfBirth: parsedInput.dateOfBirth ? new Date(parsedInput.dateOfBirth) : undefined,
+          position: parsedInput.position,
+          preferredFoot: parsedInput.preferredFoot,
+          heightCm: parsedInput.heightCm,
+          weightKg: parsedInput.weightKg,
+          biography: parsedInput.biography,
+          jerseyNumberDefault: parsedInput.jerseyNumberDefault,
+          createdBy: ctx.userId,
+          nationalities: {
+            create: parsedInput.nationalities,
+          },
         },
-      },
-      include: { nationalities: true },
+        include: { nationalities: true },
+      })
+
+      // Auto-enroll in team if teamId and seasonId are provided
+      if (parsedInput.teamId && parsedInput.seasonId) {
+        const record = await tx.playerSeasonRecord.create({
+          data: {
+            playerId: p.id,
+            teamId: parsedInput.teamId,
+            seasonId: parsedInput.seasonId,
+            jerseyNumber: parsedInput.jerseyNumberDefault,
+            transferInDate: new Date(),
+            isCurrent: true,
+          },
+        })
+
+        await tx.playerStatsSeason.create({
+          data: {
+            playerSeasonRecordId: record.id,
+            playerId: p.id,
+            teamId: parsedInput.teamId,
+            seasonId: parsedInput.seasonId,
+          },
+        })
+      }
+
+      return p
     })
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/sports/players`)
@@ -267,4 +295,33 @@ export const createStaffMemberAction = actionClient
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/sports/teams`)
     return member
+  })
+
+// ---------------------------------------------------------------------------
+// PLAYER STATS
+// ---------------------------------------------------------------------------
+
+export const updatePlayerStatsAction = actionClient
+  .schema(updatePlayerStatsSchema)
+  .action(async ({ parsedInput }) => {
+    await requirePermission(parsedInput.orgSlug, 'players', 'write')
+
+    const stats = await prisma.playerStatsSeason.update({
+      where: { id: parsedInput.statsId },
+      data: {
+        matchesPlayed: parsedInput.matchesPlayed,
+        matchesStarted: parsedInput.matchesStarted,
+        minutesPlayed: parsedInput.minutesPlayed,
+        goals: parsedInput.goals,
+        assists: parsedInput.assists,
+        yellowCards: parsedInput.yellowCards,
+        redCards: parsedInput.redCards,
+        cleanSheets: parsedInput.cleanSheets,
+        goalsConceded: parsedInput.goalsConceded,
+        saves: parsedInput.saves,
+      },
+    })
+
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/players`)
+    return stats
   })

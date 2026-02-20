@@ -33,12 +33,28 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
+import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 
 type FormValues = z.infer<typeof createPlayerSchema>
 
+interface Team {
+  id: string
+  name: string
+  category: string
+}
+
+interface Season {
+  id: string
+  name: string
+  isCurrent: boolean
+  isArchived: boolean
+}
+
 interface CreatePlayerSheetProps {
   orgSlug: string
+  teams?: Team[]
+  seasons?: Season[]
   children: React.ReactNode
 }
 
@@ -49,8 +65,24 @@ const POSITIONS = [
   { value: 'FORWARD', label: 'Delantero' },
 ] as const
 
-export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps) {
+const CATEGORY_LABELS: Record<string, string> = {
+  FIRST_TEAM: 'Primer equipo',
+  RESERVE: 'Reserva',
+  U23: 'Sub-23',
+  U20: 'Sub-20',
+  U18: 'Sub-18',
+  U16: 'Sub-16',
+  U14: 'Sub-14',
+  U12: 'Sub-12',
+  WOMEN: 'Femenino',
+  FUTSAL: 'Futsal',
+}
+
+export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children }: CreatePlayerSheetProps) {
   const [open, setOpen] = useState(false)
+
+  const activeSeasons = seasons.filter((s) => !s.isArchived)
+  const defaultSeason = activeSeasons.find((s) => s.isCurrent)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(createPlayerSchema),
@@ -60,13 +92,23 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
       lastName: '',
       dateOfBirth: '',
       nationalities: [{ country: '', isPrimary: true }],
+      teamId: undefined,
+      seasonId: defaultSeason?.id ?? undefined,
     },
   })
 
   const { execute, isPending } = useAction(createPlayerAction, {
     onSuccess: () => {
       toast.success('Jugador registrado correctamente.')
-      form.reset({ orgSlug, firstName: '', lastName: '', dateOfBirth: '', nationalities: [{ country: '', isPrimary: true }] })
+      form.reset({
+        orgSlug,
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        nationalities: [{ country: '', isPrimary: true }],
+        teamId: undefined,
+        seasonId: defaultSeason?.id ?? undefined,
+      })
       setOpen(false)
     },
     onError: ({ error }) => {
@@ -170,6 +212,71 @@ export function CreatePlayerSheet({ orgSlug, children }: CreatePlayerSheetProps)
                 </FormItem>
               )}
             />
+
+            {/* Team assignment section */}
+            {teams.length > 0 && (
+              <>
+                <Separator className="my-2" />
+                <p className="text-sm font-medium text-muted-foreground">Asignar a equipo (opcional)</p>
+                <FormField
+                  control={form.control}
+                  name="teamId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Equipo</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sin equipo asignado" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {teams.map((team) => (
+                            <SelectItem key={team.id} value={team.id}>
+                              {team.name}
+                              <span className="ml-1.5 text-xs text-muted-foreground">
+                                ({CATEGORY_LABELS[team.category] ?? team.category})
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {form.watch('teamId') && activeSeasons.length > 1 && (
+                  <FormField
+                    control={form.control}
+                    name="seasonId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Temporada</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona temporada" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {activeSeasons.map((season) => (
+                              <SelectItem key={season.id} value={season.id}>
+                                {season.name}
+                                {season.isCurrent && (
+                                  <span className="ml-1.5 text-xs text-emerald-500">(actual)</span>
+                                )}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
+
             <div className="flex gap-2 pt-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
                 Cancelar
