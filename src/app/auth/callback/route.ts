@@ -11,7 +11,7 @@ import { prisma } from '@/lib/prisma/client'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/admin'
+  const next = searchParams.get('next')
 
   if (!code)
     return NextResponse.redirect(`${origin}/login?error=missing_code`)
@@ -50,9 +50,13 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: 'asc' },
   })
 
+  if (next && next !== '/admin') {
+    return NextResponse.redirect(`${origin}${next}`)
+  }
+
   const redirectTo = member
     ? `${origin}/admin/${member.organization.slug}`
-    : `${origin}${next}`
+    : `${origin}/admin`
 
   return NextResponse.redirect(redirectTo)
 }

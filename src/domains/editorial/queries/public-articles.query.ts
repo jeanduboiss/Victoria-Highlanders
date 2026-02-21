@@ -29,3 +29,26 @@ export async function getPublicArticles({ limit = 3 }: { limit?: number } = {}) 
 }
 
 export type PublicArticle = Awaited<ReturnType<typeof getPublicArticles>>[number]
+
+export async function getPublicArticleBySlug(slug: string) {
+  const org = await getDefaultOrg()
+  return prisma.article.findFirst({
+    where: { organizationId: org.id, slug, status: 'PUBLISHED' },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      content: true,
+      coverImageUrl: true,
+      publishedAt: true,
+      isFeatured: true,
+      author: { select: { email: true } },
+      ArticleCategories: {
+        include: { article_categories: { select: { name: true, slug: true } } },
+      },
+    },
+  })
+}
+
+export type PublicArticleDetail = Awaited<ReturnType<typeof getPublicArticleBySlug>>

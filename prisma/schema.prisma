@@ -334,12 +334,13 @@ model Match {
   updatedAt       DateTime     @updatedAt @map("updated_at")
   createdBy       String?      @map("created_by") @db.Uuid
   updatedBy       String?      @map("updated_by") @db.Uuid
-  events          MatchEvent[]
-  awayTeam        Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
-  homeTeam        Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  season          Season       @relation(fields: [seasonId], references: [id])
-  venue           Venue?       @relation(fields: [venueId], references: [id])
+  events              MatchEvent[]
+  awayTeam            Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeTeam            Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  season              Season       @relation(fields: [seasonId], references: [id])
+  venue               Venue?       @relation(fields: [venueId], references: [id])
+  featuredInConfigs   SiteConfiguration[] @relation("FeaturedMatch")
 
   @@index([organizationId, seasonId])
   @@index([organizationId, matchDate])
@@ -443,10 +444,11 @@ model Article {
   updatedAt         DateTime            @updatedAt @map("updated_at")
   createdBy         String?             @map("created_by") @db.Uuid
   updatedBy         String?             @map("updated_by") @db.Uuid
-  ArticleCategories ArticleCategories[]
-  tags              ArticleTag[]
-  author            User                @relation("ArticleAuthor", fields: [authorId], references: [id])
-  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ArticleCategories   ArticleCategories[]
+  tags                ArticleTag[]
+  author              User                @relation("ArticleAuthor", fields: [authorId], references: [id])
+  organization        Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  featuredInConfigs   SiteConfiguration[] @relation("FeaturedArticle")
 
   @@unique([organizationId, slug])
   @@index([organizationId, status])
@@ -620,11 +622,19 @@ model SiteConfiguration {
   googleAnalyticsId     String?      @map("google_analytics_id")
   seoDefaultTitle       String?      @map("seo_default_title")
   seoDefaultDescription String?      @map("seo_default_description")
+  heroTitle             String?      @map("hero_title")
+  heroSubtitle          String?      @map("hero_subtitle")
+  heroImageUrl          String?      @map("hero_image_url")
+  featuredArticleId     String?      @map("featured_article_id") @db.Uuid
+  featuredMatchId       String?      @map("featured_match_id") @db.Uuid
+  sponsorsJson          Json?        @map("sponsors_json")
   updatedAt             DateTime     @updatedAt @map("updated_at")
   updatedBy             String?      @map("updated_by") @db.Uuid
   faviconMedia          MediaAsset?  @relation("FaviconMedia", fields: [faviconMediaId], references: [id])
   heroMedia             MediaAsset?  @relation("HeroMedia", fields: [heroMediaId], references: [id])
   logoMedia             MediaAsset?  @relation("LogoMedia", fields: [logoMediaId], references: [id])
+  featuredArticle       Article?     @relation("FeaturedArticle", fields: [featuredArticleId], references: [id])
+  featuredMatch         Match?       @relation("FeaturedMatch", fields: [featuredMatchId], references: [id])
   organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   updatedByUser         User?        @relation("ConfigUpdatedBy", fields: [updatedBy], references: [id])
 

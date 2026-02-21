@@ -1,4 +1,5 @@
-import { Users, Trophy, Newspaper, CalendarRange } from 'lucide-react'
+import { Users, Trophy, Newspaper, CalendarRange, Bell } from 'lucide-react'
+import Link from 'next/link'
 import { requireOrgAccess } from '@/lib/auth'
 import { prisma } from '@/lib/prisma/client'
 import { redirect } from 'next/navigation'
@@ -12,7 +13,7 @@ interface DashboardPageProps {
 }
 
 async function getDashboardData(organizationId: string) {
-  const [playerCount, publishedMatchCount, articleCount, upcomingEventCount, nextMatch, recentArticles] =
+  const [playerCount, publishedMatchCount, articleCount, upcomingEventCount, pendingMemberCount, nextMatch, recentArticles] =
     await Promise.all([
       prisma.player.count({ where: { organizationId, isActive: true } }),
       prisma.match.count({ where: { organizationId, status: 'FINISHED' } }),
@@ -20,6 +21,7 @@ async function getDashboardData(organizationId: string) {
       prisma.event.count({
         where: { organizationId, status: 'PUBLISHED', startDatetime: { gte: new Date() } },
       }),
+      prisma.organizationMember.count({ where: { organizationId, status: 'PENDING' } }),
       prisma.match.findFirst({
         where: { organizationId, status: 'SCHEDULED', matchDate: { gte: new Date() } },
         orderBy: { matchDate: 'asc' },
@@ -75,7 +77,7 @@ async function getDashboardData(organizationId: string) {
   recentActivity.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
   return {
-    kpis: { playerCount, publishedMatchCount, articleCount, upcomingEventCount },
+    kpis: { playerCount, publishedMatchCount, articleCount, upcomingEventCount, pendingMemberCount },
     nextMatch,
     recentArticles,
     latestActivity: recentActivity.slice(0, 6),
@@ -98,6 +100,20 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <div className="space-y-6 py-4">
+      {kpis.pendingMemberCount > 0 && (
+        <Link
+          href={`/admin/${orgSlug}/users`}
+          className="flex items-center gap-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 hover:bg-amber-500/15 transition-colors"
+        >
+          <Bell className="w-4 h-4 text-amber-400 shrink-0" />
+          <p className="text-sm text-amber-300 flex-1">
+            <span className="font-semibold">{kpis.pendingMemberCount} {kpis.pendingMemberCount === 1 ? 'usuario pendiente' : 'usuarios pendientes'}</span>
+            {' '}de aprobación en la plataforma.
+          </p>
+          <span className="text-xs text-amber-400/60 font-medium uppercase tracking-wide shrink-0">Ver →</span>
+        </Link>
+      )}
+
       {/* Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1">
         <div>

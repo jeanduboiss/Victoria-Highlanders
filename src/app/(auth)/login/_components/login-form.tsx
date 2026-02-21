@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { createPendingMemberAction } from '@/domains/iam/actions/users.actions'
 
 export function LoginForm() {
   const router = useRouter()
@@ -27,20 +28,12 @@ export function LoginForm() {
     )
 
     if (isRegistering) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
+      const { error } = await supabase.auth.signUp({ email, password })
       if (error) {
         toast.error(error.message || 'Error al registrarse. Inténtalo de nuevo.')
       } else {
-        toast.success('Registro exitoso. Revisa tu correo para confirmar tu cuenta.')
-        if (process.env.NODE_ENV === 'development') {
-          router.push('/admin')
-        }
+        await createPendingMemberAction({})
+        router.push('/pending')
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })

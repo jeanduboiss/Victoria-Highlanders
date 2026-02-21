@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Montserrat, Oswald, Roboto } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
@@ -28,6 +28,13 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: 'Victoria Highlanders',
   description: 'Plataforma de gestión del club',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

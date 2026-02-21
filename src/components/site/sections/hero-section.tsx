@@ -5,7 +5,33 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { fadeInUp, fadeIn, staggerContainer, EASE_OUT_EXPO } from '@/components/site/animations/variants'
 
-export function HeroSection() {
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80'
+const FALLBACK_TITLE = 'Unstoppable\nMomentum'
+const FALLBACK_SUBTITLE = 'The Highlanders secure another crucial victory at home, climbing the League 1 BC standings with a dominant performance.'
+
+interface FeaturedArticle {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  coverImageUrl: string | null
+}
+
+interface HeroSectionProps {
+  heroTitle?: string | null
+  heroSubtitle?: string | null
+  heroImageUrl?: string | null
+  featuredArticle?: FeaturedArticle | null
+}
+
+export function HeroSection({ heroTitle, heroSubtitle, heroImageUrl, featuredArticle }: HeroSectionProps) {
+  const imageUrl = featuredArticle?.coverImageUrl ?? heroImageUrl ?? FALLBACK_IMAGE
+  const title = heroTitle ?? FALLBACK_TITLE
+  const subtitle = featuredArticle?.excerpt ?? heroSubtitle ?? FALLBACK_SUBTITLE
+  const articleSlug = featuredArticle?.slug
+
+  const titleLines = title.split('\n')
+
   return (
     <section className="relative flex items-end overflow-hidden bg-[#0a0a0a]" style={{ minHeight: 'calc(100vh - 94px)' }}>
       <motion.div
@@ -15,7 +41,7 @@ export function HeroSection() {
         transition={{ duration: 1.4, ease: EASE_OUT_EXPO }}
       >
         <Image
-          src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80"
+          src={imageUrl}
           alt="Victoria Highlanders"
           fill
           priority
@@ -43,22 +69,24 @@ export function HeroSection() {
             variants={fadeInUp}
             className="mb-4 font-oswald text-[44px] font-bold uppercase leading-[1] tracking-tight text-white sm:text-[56px] md:text-[72px]"
           >
-            Unstoppable<br />Momentum
+            {titleLines.map((line, i) => (
+              <span key={i}>{line}{i < titleLines.length - 1 && <br />}</span>
+            ))}
           </motion.h1>
 
           <motion.p
             variants={fadeInUp}
             className="mb-8 max-w-[460px] font-sans text-[14px] font-light leading-relaxed text-gray-400 sm:text-[15px]"
           >
-            The Highlanders secure another crucial victory at home, climbing the League 1 BC standings with a dominant performance.
+            {subtitle}
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-3">
             <Link
-              href="/noticias"
+              href={articleSlug ? `/noticias/${articleSlug}` : '/noticias'}
               className="flex h-[46px] items-center justify-center bg-gold px-6 font-oswald text-[13px] font-bold uppercase tracking-widest text-black transition-opacity hover:opacity-90 sm:px-8"
             >
-              Read Report
+              {articleSlug ? 'Leer noticia' : 'Ver noticias'}
             </Link>
             <Link
               href="/tv"

@@ -3,34 +3,56 @@ export const dynamic = 'force-dynamic'
 import { HeroSection } from '@/components/site/sections/hero-section'
 import { InfoStripSection } from '@/components/site/sections/info-strip-section'
 import { LatestNewsSection } from '@/components/site/sections/latest-news-section'
+import { PlayersSection } from '@/components/site/sections/players-section'
+import { MatchesSection } from '@/components/site/sections/matches-section'
 import { SocialSection } from '@/components/site/sections/social-section'
 import { HighlightsTvSection } from '@/components/site/sections/highlights-tv-section'
 import { ContactSection } from '@/components/site/sections/contact-section'
 import { SponsorsSection } from '@/components/site/sections/sponsors-section'
 import { getPublicArticles } from '@/domains/editorial/queries/public-articles.query'
-import { getPublicMatchBar } from '@/domains/sports/queries/public-matches.query'
+import { getPublicMatches, getPublicMatchBar } from '@/domains/sports/queries/public-matches.query'
+import { getPublicPlayers } from '@/domains/sports/queries/public-players.query'
+import { getSiteConfigBySlug } from '@/domains/configuration/actions/site-config.actions'
 
 export default async function HomePage() {
-  const [articles, matchBar] = await Promise.all([
+  const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
+
+  const [articles, matchBar, matches, players, config] = await Promise.all([
     getPublicArticles({ limit: 3 }),
     getPublicMatchBar(),
+    getPublicMatches({ limit: 6 }),
+    getPublicPlayers({ limit: 16 }),
+    getSiteConfigBySlug(slug),
   ])
 
   const latestArticle = articles[0] ?? null
+  const rawSponsors = config?.sponsorsJson
+  const sponsors = Array.isArray(rawSponsors) ? rawSponsors as { name: string; logoUrl: string; websiteUrl?: string }[] : undefined
 
   return (
     <>
-      <HeroSection />
+      <HeroSection
+        heroTitle={config?.heroTitle}
+        heroSubtitle={config?.heroSubtitle}
+        heroImageUrl={config?.heroImageUrl}
+        featuredArticle={config?.featuredArticle}
+      />
       <InfoStripSection
         latestArticle={latestArticle}
         nextMatch={matchBar.nextMatch}
         latestResult={matchBar.latestResult}
       />
       <LatestNewsSection articles={articles} />
+      <PlayersSection players={players} />
+      <MatchesSection
+        matches={matches}
+        nextMatch={matchBar.nextMatch}
+        latestResult={matchBar.latestResult}
+      />
       <SocialSection />
       <HighlightsTvSection />
       <ContactSection />
-      <SponsorsSection />
+      <SponsorsSection sponsors={sponsors} />
     </>
   )
 }

@@ -6,11 +6,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 
 const NAV_LINKS = [
-  { label: 'Club', href: '/club' },
-  { label: 'Team', href: '/plantilla' },
-  { label: 'Matches', href: '/partidos' },
-  { label: 'News', href: '/noticias' },
-  { label: 'Media', href: '/tv' },
+  { label: 'Noticias', href: '/noticias' },
+  { label: 'Plantel', href: '/plantel' },
+  { label: 'Partidos', href: '/partidos' },
+  { label: 'Galería', href: '/galeria' },
 ]
 
 export function SiteNavbar() {

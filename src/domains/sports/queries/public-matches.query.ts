@@ -61,3 +61,26 @@ export async function getPublicMatchBar() {
 }
 
 export type PublicMatchBar = Awaited<ReturnType<typeof getPublicMatchBar>>
+
+export async function getPublicMatchesAll() {
+  const org = await getDefaultOrg()
+  return prisma.match.findMany({
+    where: { organizationId: org.id },
+    select: {
+      id: true,
+      matchDate: true,
+      status: true,
+      homeScore: true,
+      awayScore: true,
+      competitionName: true,
+      isHomeGame: true,
+      round: true,
+      homeTeam: { select: { name: true, shortName: true, badgeUrl: true } },
+      awayTeam: { select: { name: true, shortName: true, badgeUrl: true } },
+      venue: { select: { name: true } },
+    },
+    orderBy: { matchDate: 'asc' },
+  })
+}
+
+export type PublicMatchFull = Awaited<ReturnType<typeof getPublicMatchesAll>>[number]

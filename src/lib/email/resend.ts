@@ -1,13 +1,14 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('Falta la variable de entorno RESEND_API_KEY')
-}
+export const FROM_EMAIL = process.env.GMAIL_USER ?? ''
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
-
-// Dirección verificada en Resend. Cámbiala por tu dominio propio cuando lo tengas.
-export const FROM_EMAIL = 'onboarding@resend.dev'
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+})
 
 interface SendEmailOptions {
   to: string | string[]
@@ -17,12 +18,10 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, from = FROM_EMAIL }: SendEmailOptions) {
-  const { data, error } = await resend.emails.send({ from, to, subject, html })
-
-  if (error) {
-    console.error('[Resend] Error al enviar email:', error)
-    throw new Error(error.message)
-  }
-
-  return data
+  await transporter.sendMail({
+    from: `Victoria Highlanders <${from}>`,
+    to: Array.isArray(to) ? to.join(', ') : to,
+    subject,
+    html,
+  })
 }

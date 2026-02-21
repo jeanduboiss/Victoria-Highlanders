@@ -25,6 +25,12 @@ const updateSiteConfigSchema = z.object({
   socialYoutube: z.string().url().optional().or(z.literal('')),
   socialTiktok: z.string().url().optional().or(z.literal('')),
   socialLinkedin: z.string().url().optional().or(z.literal('')),
+  heroTitle: z.string().max(120).optional(),
+  heroSubtitle: z.string().max(400).optional(),
+  heroImageUrl: z.string().url().optional().or(z.literal('')),
+  featuredArticleId: z.string().uuid().optional().or(z.literal('')),
+  featuredMatchId: z.string().uuid().optional().or(z.literal('')),
+  sponsorsJson: z.any().optional(),
 })
 
 export const updateSiteConfigAction = actionClient
@@ -32,15 +38,24 @@ export const updateSiteConfigAction = actionClient
   .action(async ({ parsedInput }) => {
     const ctx = await requirePermission(parsedInput.orgSlug, 'site_config', 'write')
 
-    const { orgSlug, ...data } = parsedInput
+    const { orgSlug, featuredArticleId, featuredMatchId, ...rest } = parsedInput
 
     const config = await prisma.siteConfiguration.upsert({
       where: { organizationId: ctx.organizationId },
-      create: { organizationId: ctx.organizationId, ...data },
-      update: { ...data, updatedBy: ctx.userId },
+      create: {
+        organizationId: ctx.organizationId,
+        ...rest,
+        featuredArticleId: featuredArticleId || null,
+        featuredMatchId: featuredMatchId || null,
+      },
+      update: {
+        ...rest,
+        featuredArticleId: featuredArticleId || null,
+        featuredMatchId: featuredMatchId || null,
+        updatedBy: ctx.userId,
+      },
     })
 
-    // Revalidate public site so changes are visible immediately
     revalidatePath(`/`)
     revalidatePath(`/${orgSlug}`)
     revalidatePath(`/admin/${orgSlug}/configuration`)
@@ -48,14 +63,25 @@ export const updateSiteConfigAction = actionClient
     return config
   })
 
-// Cached query for use in public-facing React Server Components
 export const getSiteConfig = cache(async (organizationId: string) => {
   return prisma.siteConfiguration.findUnique({
     where: { organizationId },
+    include: {
+      featuredArticle: {
+        select: { id: true, title: true, slug: true, excerpt: true, coverImageUrl: true },
+      },
+      featuredMatch: {
+        select: {
+          id: true,
+          matchDate: true,
+          homeTeam: { select: { name: true, shortName: true } },
+          awayTeam: { select: { name: true, shortName: true } },
+        },
+      },
+    },
   })
 })
 
-// Query by orgSlug for use in public pages
 export async function getSiteConfigBySlug(orgSlug: string) {
   const org = await prisma.organization.findUnique({
     where: { slug: orgSlug },
