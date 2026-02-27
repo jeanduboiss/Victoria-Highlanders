@@ -50,6 +50,7 @@ export const createTeamSchema = z.object({
   gender: z.enum(['MALE', 'FEMALE', 'MIXED']).default('MALE'),
   description: z.string().max(1000).optional(),
   foundedYear: z.number().int().min(1800).max(2100).optional(),
+  isExternal: z.boolean().default(false).optional(),
 })
 
 export const createStaffMemberSchema = z.object({

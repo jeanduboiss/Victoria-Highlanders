@@ -42,13 +42,20 @@ interface Season {
   name: string
 }
 
+interface Team {
+  id: string
+  name: string
+  isExternal: boolean
+}
+
 interface ScheduleMatchSheetProps {
   orgSlug: string
   seasons: Season[]
+  teams: Team[]
   children: React.ReactNode
 }
 
-export function ScheduleMatchSheet({ orgSlug, seasons, children }: ScheduleMatchSheetProps) {
+export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: ScheduleMatchSheetProps) {
   const [open, setOpen] = useState(false)
 
   const form = useForm<FormValues>({
@@ -115,10 +122,21 @@ export function ScheduleMatchSheet({ orgSlug, seasons, children }: ScheduleMatch
               name="homeTeamId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ID Equipo local</FormLabel>
-                  <FormControl>
-                    <Input placeholder="UUID del equipo local" {...field} />
-                  </FormControl>
+                  <FormLabel>Equipo local</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona equipo local" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {teams.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name} {t.isExternal ? '(Externo)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -128,10 +146,21 @@ export function ScheduleMatchSheet({ orgSlug, seasons, children }: ScheduleMatch
               name="awayTeamId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ID Equipo visitante</FormLabel>
-                  <FormControl>
-                    <Input placeholder="UUID del equipo visitante" {...field} />
-                  </FormControl>
+                  <FormLabel>Equipo visitante</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona equipo visitante" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {teams.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name} {t.isExternal ? '(Externo)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

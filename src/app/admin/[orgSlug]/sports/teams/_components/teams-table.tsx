@@ -18,6 +18,7 @@ interface Team {
     category: string
     gender: string
     description: string | null
+    isExternal: boolean
 }
 
 interface TeamsTableProps {
@@ -84,12 +85,17 @@ export function TeamsTable({ teams, orgSlug }: TeamsTableProps) {
                     </div>
 
                     {/* Info */}
-                    <div className="mt-3">
+                    <div className="mt-3 flex items-center gap-2">
                         <h3 className="font-semibold text-sm">{team.name}</h3>
-                        {team.shortName && (
-                            <p className="text-xs text-muted-foreground">{team.shortName}</p>
+                        {team.isExternal && (
+                            <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 bg-orange-500/10 text-orange-500 border-orange-500/20">
+                                Externo
+                            </Badge>
                         )}
                     </div>
+                    {team.shortName && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{team.shortName}</p>
+                    )}
 
                     {/* Footer */}
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t">

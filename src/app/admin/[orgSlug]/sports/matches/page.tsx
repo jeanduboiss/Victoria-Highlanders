@@ -1,6 +1,6 @@
 import { requirePermission } from '@/lib/auth'
 import { getMatchesByOrg } from '@/domains/sports/queries/match.queries'
-import { getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
+import { getSeasonsByOrg, getTeamsByOrg } from '@/domains/sports/queries/squad.queries'
 import { redirect } from 'next/navigation'
 import { MatchesTable } from './_components/matches-table'
 import { ScheduleMatchSheet } from './_components/schedule-match-sheet'
@@ -19,9 +19,10 @@ export default async function MatchesPage({ params, searchParams }: Props) {
 
   const ctx = await requirePermission(orgSlug, 'matches', 'read').catch(() => redirect('/login'))
 
-  const [matches, seasons] = await Promise.all([
+  const [matches, seasons, teams] = await Promise.all([
     getMatchesByOrg(ctx.organizationId, seasonId),
     getSeasonsByOrg(ctx.organizationId),
+    getTeamsByOrg(ctx.organizationId),
   ])
 
   return (
@@ -30,7 +31,7 @@ export default async function MatchesPage({ params, searchParams }: Props) {
         title="Partidos"
         description={`${matches.length} partido${matches.length !== 1 ? 's' : ''} encontrado${matches.length !== 1 ? 's' : ''}`}
         action={
-          <ScheduleMatchSheet orgSlug={orgSlug} seasons={seasons}>
+          <ScheduleMatchSheet orgSlug={orgSlug} seasons={seasons} teams={teams}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
               Programar partido

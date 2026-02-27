@@ -12,9 +12,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 
@@ -36,6 +38,8 @@ const schema = z.object({
   socialYoutube: z.string().url().optional().or(z.literal('')),
   socialTiktok: z.string().url().optional().or(z.literal('')),
   socialLinkedin: z.string().url().optional().or(z.literal('')),
+  hideResults: z.boolean().optional(),
+  hideStandings: z.boolean().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -57,6 +61,8 @@ interface SiteConfig {
   socialYoutube: string | null
   socialTiktok: string | null
   socialLinkedin: string | null
+  hideResults: boolean
+  hideStandings: boolean
 }
 
 interface SiteConfigFormProps {
@@ -85,6 +91,8 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
       socialYoutube: config?.socialYoutube ?? '',
       socialTiktok: config?.socialTiktok ?? '',
       socialLinkedin: config?.socialLinkedin ?? '',
+      hideResults: config?.hideResults ?? false,
+      hideStandings: config?.hideStandings ?? false,
     },
   })
 
@@ -194,6 +202,58 @@ export function SiteConfigForm({ orgSlug, config }: SiteConfigFormProps) {
                     </div>
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Ajustes de visibilidad</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="hideResults"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Ocultar Resultados
+                    </FormLabel>
+                    <FormDescription>
+                      Ocultará la visualización de resultados deportivos en el sitio público.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hideStandings"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Ocultar Tabla de Posiciones
+                    </FormLabel>
+                    <FormDescription>
+                      Ocultará cualquier sección referida a la tabla de la liga en el sitio.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

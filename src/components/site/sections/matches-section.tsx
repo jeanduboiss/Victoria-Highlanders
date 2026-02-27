@@ -10,6 +10,7 @@ interface MatchesSectionProps {
   matches: PublicMatch[]
   nextMatch: PublicMatchBar['nextMatch']
   latestResult: PublicMatchBar['latestResult']
+  hideResults?: boolean
 }
 
 function MatchCard({ match }: { match: PublicMatch }) {
@@ -68,13 +69,13 @@ function MatchCard({ match }: { match: PublicMatch }) {
   )
 }
 
-export function MatchesSection({ matches, nextMatch, latestResult }: MatchesSectionProps) {
+export function MatchesSection({ matches, nextMatch, latestResult, hideResults }: MatchesSectionProps) {
   const t = useTranslations('matches')
 
   if (matches.length === 0 && !nextMatch && !latestResult) return null
 
   const upcoming = matches.filter((m) => m.status === 'SCHEDULED')
-  const finished = matches.filter((m) => m.status === 'FINISHED')
+  const finished = hideResults ? [] : matches.filter((m) => m.status === 'FINISHED')
 
   return (
     <section className="bg-[#0d0d0d] py-20">
@@ -90,7 +91,7 @@ export function MatchesSection({ matches, nextMatch, latestResult }: MatchesSect
           <h2 className="font-oswald text-[32px] font-bold uppercase text-white sm:text-[40px]">{t('title')}</h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className={`grid grid-cols-1 ${hideResults && upcoming.length > 0 ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'} gap-8`}>
           {upcoming.length > 0 && (
             <motion.div
               variants={fadeInUp}
