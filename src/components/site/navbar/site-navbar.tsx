@@ -4,15 +4,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslations } from 'next-intl'
+import { LanguageSwitcher } from '@/components/site/language-switcher'
+import type { PublicNavItem } from '@/domains/site/queries/public-pages.query'
 
-const NAV_LINKS = [
-  { label: 'Noticias', href: '/noticias' },
-  { label: 'Plantel', href: '/plantel' },
-  { label: 'Partidos', href: '/partidos' },
-  { label: 'Galería', href: '/galeria' },
-]
+interface Props {
+  navItems: PublicNavItem[]
+  locale: string
+}
 
-export function SiteNavbar() {
+export function SiteNavbar({ navItems, locale }: Props) {
+  const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
 
   return (
@@ -28,7 +30,7 @@ export function SiteNavbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {navItems.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -39,25 +41,27 @@ export function SiteNavbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher currentLocale={locale} />
+
           <Link
             href="#"
             className="hidden border border-gold bg-gold px-5 py-2 font-oswald text-[12px] font-bold uppercase tracking-widest text-black transition-opacity hover:opacity-90 lg:block"
           >
-            Buy Tickets
+            {t('buyTickets')}
           </Link>
           <div className="hidden items-center gap-1 lg:flex">
             <Link
               href="/login"
               className="px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-widest text-white/50 transition-colors hover:text-white"
             >
-              Login
+              {t('login')}
             </Link>
             <Link
               href="/login"
               className="border border-white/20 px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-widest text-white/70 transition-all hover:border-white/50 hover:text-white"
             >
-              Register
+              {t('register')}
             </Link>
           </div>
 
@@ -95,7 +99,7 @@ export function SiteNavbar() {
             className="overflow-hidden border-t border-white/10 bg-[#111] lg:hidden"
           >
             <div className="py-2">
-              {NAV_LINKS.map((link, i) => (
+              {navItems.map((link, i) => (
                 <motion.div
                   key={link.href}
                   initial={{ opacity: 0, x: -16 }}
@@ -115,22 +119,27 @@ export function SiteNavbar() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="flex gap-2 px-6 py-4"
+                className="flex flex-col gap-3 px-6 py-4"
               >
-                <Link
-                  href="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 py-2.5 text-center font-sans text-[11px] font-semibold uppercase tracking-widest text-white/60 hover:text-white border border-white/10 transition-colors"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 py-2.5 text-center font-sans text-[11px] font-semibold uppercase tracking-widest text-white bg-gold/10 border border-gold/40 hover:bg-gold hover:text-black transition-all"
-                >
-                  Register
-                </Link>
+                <div className="flex gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 py-2.5 text-center font-sans text-[11px] font-semibold uppercase tracking-widest text-white/60 hover:text-white border border-white/10 transition-colors"
+                  >
+                    {t('login')}
+                  </Link>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 py-2.5 text-center font-sans text-[11px] font-semibold uppercase tracking-widest text-white bg-gold/10 border border-gold/40 hover:bg-gold hover:text-black transition-all"
+                  >
+                    {t('register')}
+                  </Link>
+                </div>
+                <div className="flex justify-center pt-1">
+                  <LanguageSwitcher currentLocale={locale} />
+                </div>
               </motion.div>
             </div>
           </motion.div>

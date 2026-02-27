@@ -4,6 +4,8 @@ import { Toaster } from 'sonner'
 import './globals.css'
 import { LenisProvider } from '@/components/providers/lenis-provider'
 import { ThemeProvider } from '@/components/admin/theme/theme-provider'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -37,16 +39,21 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${montserrat.variable} ${oswald.variable} ${roboto.variable} font-sans`} suppressHydrationWarning>
-        <ThemeProvider>
-          <LenisProvider>
-            {children}
-            <Toaster richColors position="bottom-right" />
-          </LenisProvider>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <LenisProvider>
+              {children}
+              <Toaster richColors position="bottom-right" />
+            </LenisProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

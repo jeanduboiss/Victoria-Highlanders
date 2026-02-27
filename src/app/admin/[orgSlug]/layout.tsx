@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireOrgAccess } from '@/lib/auth'
 import { AdminSidebar } from '@/components/admin/sidebar/admin-sidebar'
 import { AdminTopbar } from '@/components/admin/topbar/admin-topbar'
+import { AuthGuard } from '@/components/admin/auth-guard'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { cookies } from 'next/headers'
 
@@ -22,6 +23,7 @@ export default async function OrgAdminLayout({ children, params }: OrgLayoutProp
 
   return (
     <SidebarProvider defaultOpen={sidebarOpen ?? true} className="bg-sidebar">
+      <AuthGuard />
       <AdminSidebar
         orgSlug={orgSlug}
         orgName={ctx.organizationName}

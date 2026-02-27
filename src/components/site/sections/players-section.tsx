@@ -1,22 +1,18 @@
 'use client'
 
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import { User } from 'lucide-react'
 import type { PublicPlayer } from '@/domains/sports/queries/public-players.query'
-
-const POSITION_LABELS: Record<string, string> = {
-  GOALKEEPER: 'Portero',
-  DEFENDER: 'Defensa',
-  MIDFIELDER: 'Centrocampista',
-  FORWARD: 'Delantero',
-}
 
 interface PlayersSectionProps {
   players: PublicPlayer[]
 }
 
 export function PlayersSection({ players }: PlayersSectionProps) {
+  const t = useTranslations('players')
+
   if (players.length === 0) return null
 
   return (
@@ -29,8 +25,8 @@ export function PlayersSection({ players }: PlayersSectionProps) {
           whileInView="visible"
           viewport={VIEWPORT}
         >
-          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">El equipo</p>
-          <h2 className="font-oswald text-[32px] font-bold uppercase text-white sm:text-[40px]">El Plantel</h2>
+          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">{t('teamLabel')}</p>
+          <h2 className="font-oswald text-[32px] font-bold uppercase text-white sm:text-[40px]">{t('title')}</h2>
         </motion.div>
 
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -68,7 +64,7 @@ export function PlayersSection({ players }: PlayersSectionProps) {
               </p>
               {player.position && (
                 <p className="font-sans text-[11px] text-white/40 mt-0.5 uppercase tracking-wider">
-                  {POSITION_LABELS[player.position] ?? player.position}
+                  {t(`positions.${player.position}` as any) ?? player.position}
                 </p>
               )}
             </motion.div>

@@ -197,7 +197,6 @@ export const deactivateMemberAction = actionClient
   .action(async ({ parsedInput }) => {
     const ctx = await requirePermission(parsedInput.orgSlug, 'users', 'write')
 
-    // Prevent self-deactivation
     const member = await prisma.organizationMember.findFirstOrThrow({
       where: { id: parsedInput.memberId, organizationId: ctx.organizationId },
       select: { userId: true },
@@ -213,4 +212,90 @@ export const deactivateMemberAction = actionClient
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/users`)
     return updated
+  })
+
+export const activateMemberAction = actionClient
+  .schema(deactivateMemberSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'users', 'write')
+
+    const updated = await prisma.organizationMember.update({
+      where: { id: parsedInput.memberId, organizationId: ctx.organizationId },
+      data: { status: 'ACTIVE' },
+    })
+
+    revalidateTag('org-membership')
+    revalidatePath(`/admin/${parsedInput.orgSlug}/users`)
+    return updated
+  })
+
+export const removeMemberAction = actionClient
+  .schema(deactivateMemberSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'users', 'write')
+
+    const member = await prisma.organizationMember.findFirstOrThrow({
+      where: { id: parsedInput.memberId, organizationId: ctx.organizationId },
+      select: { userId: true },
+    })
+
+    if (member.userId === ctx.userId)
+      throw new Error('No puedes eliminarte a ti mismo.')
+
+    await prisma.organizationMember.delete({
+      where: { id: parsedInput.memberId, organizationId: ctx.organizationId },
+    })
+
+    revalidateTag('org-membership')
+    revalidatePath(`/admin/${parsedInput.orgSlug}/users`)
+    return { success: true }
+  })
+
+export const resendInviteAction = actionClient
+  .schema(deactivateMemberSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'users', 'write')
+
+    const member = await prisma.organizationMember.findFirstOrThrow({
+      where: { id: parsedInput.memberId, organizationId: ctx.organizationId, status: 'PENDING' },
+      include: { user: { select: { email: true } } },
+    })
+
+    const supabase = getSupabaseAdmin()
+
+    const headersList = await headers()
+    const host = headersList.get('host') ?? 'localhost:3000'
+    const forwardedProto = headersList.get('x-forwarded-proto')
+    const protocol = forwardedProto ?? (host.includes('localhost') ? 'http' : 'https')
+    const siteUrl = `${protocol}://${host}`
+
+    const org = await prisma.organization.findUniqueOrThrow({
+      where: { id: ctx.organizationId },
+      select: { name: true },
+    })
+
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'invite',
+      email: member.user.email,
+      options: { redirectTo: `${siteUrl}/auth/callback` },
+    })
+
+    if (linkError) throw new Error(`Error al generar enlace: ${linkError.message}`)
+
+    const inviteLink = linkData.properties.action_link
+    let emailSent = false
+
+    try {
+      await sendEmail({
+        to: member.user.email,
+        subject: `Invitación a ${org.name}`,
+        html: inviteUserEmailHtml({ inviteLink, organizationName: org.name, role: member.role }),
+      })
+      emailSent = true
+    } catch {
+      // email falla silenciosamente
+    }
+
+    revalidatePath(`/admin/${parsedInput.orgSlug}/users`)
+    return { success: true, emailSent, inviteLink: emailSent ? undefined : inviteLink }
   })

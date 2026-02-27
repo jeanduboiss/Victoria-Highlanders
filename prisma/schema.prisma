@@ -96,12 +96,14 @@ model Organization {
   mediaFolders      MediaFolder[]
   members           OrganizationMember[]
   league            League?              @relation(fields: [leagueId], references: [id])
+  pages             Page[]
   players           Player[]
   seasons           Season[]
   siteConfiguration SiteConfiguration?
   staffMembers      StaffMember[]
   tags              Tag[]
   teams             Team[]
+  testimonials      Testimonial[]
   venues            Venue[]
 
   @@index([slug])
@@ -205,6 +207,7 @@ model Player {
   createdBy           String?              @map("created_by") @db.Uuid
   updatedBy           String?              @map("updated_by") @db.Uuid
   matchEvents         MatchEvent[]
+  assistedEvents      MatchEvent[]         @relation("AssistPlayer")
   nationalities       PlayerNationality[]
   seasonRecords       PlayerSeasonRecord[]
   organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -330,6 +333,7 @@ model Match {
   round           String?
   isHomeGame      Boolean      @default(true) @map("is_home_game")
   notes           String?
+  liveStartedAt   DateTime?    @map("live_started_at")
   createdAt       DateTime     @default(now()) @map("created_at")
   updatedAt       DateTime     @updatedAt @map("updated_at")
   createdBy       String?      @map("created_by") @db.Uuid
@@ -355,6 +359,7 @@ model MatchEvent {
   id              String         @id @default(uuid()) @db.Uuid
   matchId         String         @map("match_id") @db.Uuid
   playerId        String         @map("player_id") @db.Uuid
+  assistPlayerId  String?        @map("assist_player_id") @db.Uuid
   eventType       MatchEventType @map("event_type")
   minute          Int
   extraTimeMinute Int?           @map("extra_time_minute")
@@ -362,6 +367,7 @@ model MatchEvent {
   createdAt       DateTime       @default(now()) @map("created_at")
   match           Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
   player          Player         @relation(fields: [playerId], references: [id])
+  assistPlayer    Player?        @relation("AssistPlayer", fields: [assistPlayerId], references: [id])
 
   @@index([matchId])
   @@index([playerId])
@@ -628,6 +634,7 @@ model SiteConfiguration {
   featuredArticleId     String?      @map("featured_article_id") @db.Uuid
   featuredMatchId       String?      @map("featured_match_id") @db.Uuid
   sponsorsJson          Json?        @map("sponsors_json")
+  navJson               Json?        @map("nav_json")
   updatedAt             DateTime     @updatedAt @map("updated_at")
   updatedBy             String?      @map("updated_by") @db.Uuid
   faviconMedia          MediaAsset?  @relation("FaviconMedia", fields: [faviconMediaId], references: [id])
@@ -774,4 +781,58 @@ enum CompetitionType {
   CUP
   FRIENDLY
   TOURNAMENT
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// Static content page for the public site (e.g. Historia, Contacto).
+/// Content stored as TipTap / ProseMirror JSON.
+model Page {
+  id              String       @id @default(uuid()) @db.Uuid
+  organizationId  String       @map("organization_id") @db.Uuid
+  title           String
+  slug            String
+  content         Json         @default("{}")
+  status          PageStatus   @default(DRAFT)
+  coverImageUrl   String?      @map("cover_image_url")
+  metaTitle       String?      @map("meta_title")
+  metaDescription String?      @map("meta_description")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, status])
+  @@map("pages")
+}
+
+/// Fan or community testimonial. Can be created manually or imported from Google Reviews.
+model Testimonial {
+  id              String            @id @default(uuid()) @db.Uuid
+  organizationId  String            @map("organization_id") @db.Uuid
+  authorName      String            @map("author_name")
+  authorRole      String?           @map("author_role")
+  authorAvatarUrl String?           @map("author_avatar_url")
+  content         String
+  rating          Int               @default(5)
+  isPublished     Boolean           @default(false) @map("is_published")
+  isFeatured      Boolean           @default(false) @map("is_featured")
+  source          TestimonialSource @default(MANUAL)
+  externalId      String?           @map("external_id")
+  externalUrl     String?           @map("external_url")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, isPublished])
+  @@index([organizationId, source])
+  @@map("testimonials")
+}
+
+enum TestimonialSource {
+  MANUAL
+  GOOGLE
 }

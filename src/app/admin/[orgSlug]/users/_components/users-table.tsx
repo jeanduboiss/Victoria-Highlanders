@@ -20,13 +20,31 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { deactivateMemberAction, approveUserAction } from '@/domains/iam/actions/users.actions'
+import {
+  deactivateMemberAction,
+  approveUserAction,
+  activateMemberAction,
+  removeMemberAction,
+  resendInviteAction,
+  updateMemberRoleAction,
+} from '@/domains/iam/actions/users.actions'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
@@ -79,6 +97,32 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
     onError: ({ error }) => toast.error(error.serverError ?? 'Error al desactivar.'),
   })
 
+  const { execute: activate, isPending: isActivating } = useAction(activateMemberAction, {
+    onSuccess: () => toast.success('Miembro reactivado.'),
+    onError: ({ error }) => toast.error(error.serverError ?? 'Error al activar.'),
+  })
+
+  const { execute: remove, isPending: isRemoving } = useAction(removeMemberAction, {
+    onSuccess: () => toast.success('Miembro eliminado de la organización.'),
+    onError: ({ error }) => toast.error(error.serverError ?? 'Error al eliminar.'),
+  })
+
+  const { execute: resend, isPending: isResending } = useAction(resendInviteAction, {
+    onSuccess: ({ data }) => {
+      if (data?.emailSent) {
+        toast.success('Invitación reenviada.')
+      } else {
+        toast.info(`Email no disponible. Link: ${data?.inviteLink}`)
+      }
+    },
+    onError: ({ error }) => toast.error(error.serverError ?? 'Error al reenviar.'),
+  })
+
+  const { execute: updateRole } = useAction(updateMemberRoleAction, {
+    onSuccess: () => toast.success('Rol actualizado.'),
+    onError: ({ error }) => toast.error(error.serverError ?? 'Error al cambiar rol.'),
+  })
+
   const { execute: approve, isPending: isApproving } = useAction(approveUserAction, {
     onSuccess: () => {
       toast.success('Usuario aprobado correctamente.')
@@ -103,7 +147,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                 <TableHead>Rol</TableHead>
                 <TableHead className="hidden sm:table-cell">Estado</TableHead>
                 <TableHead className="hidden md:table-cell">Desde</TableHead>
-                <TableHead className="w-[110px]" />
+                <TableHead className="text-right pr-4">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -121,9 +165,27 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        {ROLE_LABELS[member.role] ?? member.role}
-                      </Badge>
+                      {!isSelf && member.status === 'ACTIVE' ? (
+                        <Select
+                          defaultValue={member.role}
+                          onValueChange={(role) =>
+                            updateRole({ orgSlug, memberId: member.id, role: role as 'CLUB_ADMIN' | 'CLUB_MANAGER' | 'EDITOR' | 'VIEWER' })
+                          }
+                        >
+                          <SelectTrigger className="h-7 text-xs w-[120px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {APPROVABLE_ROLES.map((r) => (
+                              <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Badge variant="outline" className="text-xs whitespace-nowrap">
+                          {ROLE_LABELS[member.role] ?? member.role}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant={statusInfo.variant} className="text-xs">
@@ -137,31 +199,89 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                         year: 'numeric',
                       })}
                     </TableCell>
-                    <TableCell>
-                      {!isSelf && member.status === 'ACTIVE' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive whitespace-nowrap"
-                          disabled={isDeactivating}
-                          onClick={() => deactivate({ orgSlug, memberId: member.id })}
-                        >
-                          Desactivar
-                        </Button>
-                      )}
-                      {member.status === 'PENDING' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-amber-500 hover:text-amber-400 whitespace-nowrap"
-                          onClick={() => {
-                            setSelectedRole('VIEWER')
-                            setApprovingId(member.id)
-                          }}
-                        >
-                          Aprobar
-                        </Button>
-                      )}
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {!isSelf && member.status === 'ACTIVE' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive whitespace-nowrap"
+                            disabled={isDeactivating}
+                            onClick={() => deactivate({ orgSlug, memberId: member.id })}
+                          >
+                            Desactivar
+                          </Button>
+                        )}
+
+                        {member.status === 'INACTIVE' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-500 whitespace-nowrap"
+                            disabled={isActivating}
+                            onClick={() => activate({ orgSlug, memberId: member.id })}
+                          >
+                            Activar
+                          </Button>
+                        )}
+
+                        {member.status === 'PENDING' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-amber-500 hover:text-amber-400 whitespace-nowrap"
+                              onClick={() => {
+                                setSelectedRole('VIEWER')
+                                setApprovingId(member.id)
+                              }}
+                            >
+                              Aprobar
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="whitespace-nowrap"
+                              disabled={isResending}
+                              onClick={() => resend({ orgSlug, memberId: member.id })}
+                            >
+                              Reenviar
+                            </Button>
+                          </>
+                        )}
+
+                        {!isSelf && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive px-2"
+                                disabled={isRemoving}
+                              >
+                                ✕
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {displayName} será removido de la organización. Esta acción no puede deshacerse.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive hover:bg-destructive/90"
+                                  onClick={() => remove({ orgSlug, memberId: member.id })}
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
