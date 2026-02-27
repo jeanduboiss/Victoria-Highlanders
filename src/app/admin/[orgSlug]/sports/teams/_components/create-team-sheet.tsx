@@ -22,7 +22,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from '@/components/ui/form'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
     Select,
     SelectContent,
@@ -66,13 +68,14 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
             shortName: '',
             gender: 'MALE',
             description: '',
+            isExternal: false,
         },
     })
 
     const { execute, isPending } = useAction(createTeamAction, {
         onSuccess: () => {
             toast.success('Equipo creado correctamente.')
-            form.reset({ orgSlug, name: '', shortName: '', gender: 'MALE', description: '' })
+            form.reset({ orgSlug, name: '', shortName: '', gender: 'MALE', description: '', isExternal: false })
             setOpen(false)
         },
         onError: ({ error }) => {
@@ -181,6 +184,28 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                                         />
                                     </FormControl>
                                     <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="isExternal"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                        <FormLabel>
+                                            Es un equipo rival (Externo)
+                                        </FormLabel>
+                                        <FormDescription className="text-xs">
+                                            Márcarlo si este equipo pertenece a la liga pero no a nuestra institución (Para crear historiales de partidos de liga).
+                                        </FormDescription>
+                                    </div>
                                 </FormItem>
                             )}
                         />

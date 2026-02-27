@@ -145,6 +145,7 @@ model Team {
   description         String?
   isActive            Boolean              @default(true) @map("is_active")
   foundedYear         Int?                 @map("founded_year")
+  isExternal          Boolean              @default(false) @map("is_external") /// BLOQUE YEPK: Identifica si el equipo es un rival de la liga
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
   awayMatches         Match[]              @relation("AwayTeam")
@@ -330,6 +331,7 @@ model Match {
   round           String?
   isHomeGame      Boolean      @default(true) @map("is_home_game")
   notes           String?
+  googleCalendarEventId String?  @map("google_calendar_event_id") /// BLOQUE YEPK
   createdAt       DateTime     @default(now()) @map("created_at")
   updatedAt       DateTime     @updatedAt @map("updated_at")
   createdBy       String?      @map("created_by") @db.Uuid
@@ -538,6 +540,8 @@ model MediaAsset {
   /// Canonical path in Supabase Storage
   storagePath     String              @unique @map("storage_path")
   publicUrl       String              @map("public_url")
+  externalUrl     String?             @map("external_url") /// BLOQUE YEPK: YouTube, Drive, external links
+  isExternal      Boolean             @default(false) @map("is_external") /// BLOQUE YEPK
   /// For images
   width           Int?
   /// For images
@@ -628,6 +632,9 @@ model SiteConfiguration {
   featuredArticleId     String?      @map("featured_article_id") @db.Uuid
   featuredMatchId       String?      @map("featured_match_id") @db.Uuid
   sponsorsJson          Json?        @map("sponsors_json")
+  hideResults           Boolean      @default(false) @map("hide_results") /// BLOQUE YEPK
+  hideStandings         Boolean      @default(false) @map("hide_standings") /// BLOQUE YEPK
+  mediaLibraryLimit     Int?         @map("media_library_limit") /// BLOQUE YEPK: Límite de biblioteca de medios
   updatedAt             DateTime     @updatedAt @map("updated_at")
   updatedBy             String?      @map("updated_by") @db.Uuid
   faviconMedia          MediaAsset?  @relation("FaviconMedia", fields: [faviconMediaId], references: [id])

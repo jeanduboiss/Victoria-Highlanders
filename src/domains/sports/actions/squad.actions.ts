@@ -33,6 +33,7 @@ export const createTeamAction = actionClient
         gender: parsedInput.gender,
         description: parsedInput.description,
         foundedYear: parsedInput.foundedYear,
+        isExternal: parsedInput.isExternal,
       },
     })
 
@@ -53,6 +54,7 @@ export const updateTeamAction = actionClient
         category: parsedInput.category,
         gender: parsedInput.gender,
         description: parsedInput.description,
+        isExternal: parsedInput.isExternal,
       },
     })
 

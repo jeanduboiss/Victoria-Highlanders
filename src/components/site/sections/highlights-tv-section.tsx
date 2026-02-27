@@ -4,14 +4,31 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { fadeInUp, scaleIn, staggerContainer, staggerFast, VIEWPORT } from '@/components/site/animations/variants'
 
-const VIDEOS = [
-  { title: 'Highlights: VHFC vs TSS Rovers', duration: '3:42', ago: '2 days ago', featured: true },
-  { title: 'Post-Match Interview: Head Coach', duration: '5:15', ago: '3 days ago', featured: false },
-  { title: 'Goal of the Month: June', duration: '1:20', ago: '1 week ago', featured: false },
-  { title: 'Inside Training: Preparing for Finals', duration: '8:45', ago: '2 weeks ago', featured: false },
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
+import type { PublicMediaTVItem } from '@/domains/media/queries/public-media.query'
+
+const FALLBACK_VIDEOS = [
+  { title: 'Highlights: VHFC vs TSS Rovers', duration: '3:42', ago: '2 days ago', featured: true, url: '/tv' },
+  { title: 'Post-Match Interview: Head Coach', duration: '5:15', ago: '3 days ago', featured: false, url: '/tv' },
+  { title: 'Goal of the Month: June', duration: '1:20', ago: '1 week ago', featured: false, url: '/tv' },
+  { title: 'Inside Training: Preparing for Finals', duration: '8:45', ago: '2 weeks ago', featured: false, url: '/tv' },
 ]
 
-export function HighlightsTvSection() {
+interface HighlightsTvSectionProps {
+  videos?: PublicMediaTVItem[]
+}
+
+export function HighlightsTvSection({ videos }: HighlightsTvSectionProps) {
+  const displayVideos = videos && videos.length > 0
+    ? videos.map((v, i) => ({
+      title: v.fileName,
+      duration: v.durationSeconds ? `${Math.floor(v.durationSeconds / 60)}:${(v.durationSeconds % 60).toString().padStart(2, '0')}` : 'Video',
+      ago: formatDistanceToNow(new Date(v.createdAt), { addSuffix: true, locale: es }),
+      featured: i === 0, // Featured para el mas reciente
+      url: v.publicUrl,
+    }))
+    : FALLBACK_VIDEOS
   return (
     <section className="bg-[#0a0a0a] py-12 border-t border-white/5 lg:py-16">
       <div className="mx-auto max-w-[1280px] px-4 lg:px-8">
@@ -37,9 +54,9 @@ export function HighlightsTvSection() {
           whileInView="visible"
           viewport={VIEWPORT}
         >
-          {VIDEOS.map((video) => (
+          {displayVideos.map((video) => (
             <motion.div key={video.title} variants={scaleIn}>
-              <Link href="/tv" className="group flex flex-col gap-2">
+              <a href={video.url} target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-2">
                 <div className="relative aspect-video overflow-hidden bg-[#1a1a1a]">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
@@ -65,7 +82,7 @@ export function HighlightsTvSection() {
                   {video.title}
                 </h4>
                 <span className="font-sans text-[11px] text-gray-600">{video.ago}</span>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </motion.div>

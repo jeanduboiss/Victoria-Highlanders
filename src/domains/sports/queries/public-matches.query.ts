@@ -48,8 +48,8 @@ export async function getPublicMatchBar() {
       where: { organizationId: org.id, status: 'SCHEDULED' },
       select: {
         matchDate: true,
-        homeTeam: { select: { name: true, shortName: true } },
-        awayTeam: { select: { name: true, shortName: true } },
+        homeTeam: { select: { name: true, shortName: true, badgeUrl: true } },
+        awayTeam: { select: { name: true, shortName: true, badgeUrl: true } },
         venue: { select: { name: true } },
         isHomeGame: true,
       },

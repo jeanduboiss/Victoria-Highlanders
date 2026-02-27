@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { MapPin, Calendar } from 'lucide-react'
 import { getPublicMatchesAll } from '@/domains/sports/queries/public-matches.query'
 import type { PublicMatchFull } from '@/domains/sports/queries/public-matches.query'
+import { getSiteConfigBySlug } from '@/domains/configuration/actions/site-config.actions'
 
 function MatchRow({ match }: { match: PublicMatchFull }) {
   const isFinished = match.status === 'FINISHED'
@@ -57,13 +58,12 @@ function MatchRow({ match }: { match: PublicMatchFull }) {
       </div>
 
       <div>
-        <span className={`font-sans text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${
-          isFinished
+        <span className={`font-sans text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${isFinished
             ? 'bg-gold/10 text-gold'
             : isScheduled
               ? 'bg-white/5 text-white/40'
               : 'bg-white/5 text-white/30'
-        }`}>
+          }`}>
           {isFinished ? 'Final' : isScheduled ? 'Prog.' : match.status}
         </span>
       </div>
@@ -72,9 +72,17 @@ function MatchRow({ match }: { match: PublicMatchFull }) {
 }
 
 export default async function PartidosPage() {
-  const matches = await getPublicMatchesAll()
+  const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
+
+  const [matches, config] = await Promise.all([
+    getPublicMatchesAll(),
+    getSiteConfigBySlug(slug)
+  ])
+
+  const hideResults = config?.hideResults ?? false
+
   const upcoming = matches.filter((m) => m.status === 'SCHEDULED')
-  const finished = matches.filter((m) => m.status === 'FINISHED').reverse()
+  const finished = hideResults ? [] : matches.filter((m) => m.status === 'FINISHED').reverse()
   const others = matches.filter((m) => m.status !== 'SCHEDULED' && m.status !== 'FINISHED')
 
   return (
@@ -85,12 +93,12 @@ export default async function PartidosPage() {
           <h1 className="font-oswald text-[36px] sm:text-[48px] font-bold uppercase text-white">Partidos</h1>
         </div>
 
-        {matches.length === 0 ? (
-          <div className="flex h-60 items-center justify-center border border-white/5">
-            <p className="font-sans text-[13px] text-gray-600">No hay partidos programados</p>
+        {matches.length === 0 || (hideResults && upcoming.length === 0) ? (
+          <div className="flex h-60 items-center justify-center border border-white/5 bg-white/[0.02] rounded">
+            <p className="font-sans text-[13px] font-bold tracking-widest uppercase text-gray-500">No hay partidos programados</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className={`grid grid-cols-1 ${hideResults ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'} gap-8`}>
             {upcoming.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-4">

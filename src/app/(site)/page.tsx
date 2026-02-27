@@ -12,16 +12,19 @@ import { SponsorsSection } from '@/components/site/sections/sponsors-section'
 import { getPublicArticles } from '@/domains/editorial/queries/public-articles.query'
 import { getPublicMatches, getPublicMatchBar } from '@/domains/sports/queries/public-matches.query'
 import { getPublicPlayers } from '@/domains/sports/queries/public-players.query'
+import { getPublicMediaTV } from '@/domains/media/queries/public-media.query'
 import { getSiteConfigBySlug } from '@/domains/configuration/actions/site-config.actions'
+import { NextMatchCountdown } from '@/components/site/matches/next-match-countdown'
 
 export default async function HomePage() {
   const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
 
-  const [articles, matchBar, matches, players, config] = await Promise.all([
+  const [articles, matchBar, matches, players, tvVideos, config] = await Promise.all([
     getPublicArticles({ limit: 3 }),
     getPublicMatchBar(),
     getPublicMatches({ limit: 6 }),
     getPublicPlayers({ limit: 16 }),
+    getPublicMediaTV({ limit: 4 }),
     getSiteConfigBySlug(slug),
   ])
 
@@ -37,10 +40,26 @@ export default async function HomePage() {
         heroImageUrl={config?.heroImageUrl}
         featuredArticle={config?.featuredArticle}
       />
+      {matchBar.nextMatch ? (
+        <NextMatchCountdown
+          targetDate={matchBar.nextMatch.matchDate}
+          homeTeam={{
+            name: matchBar.nextMatch.homeTeam.name,
+            logoUrl: matchBar.nextMatch.homeTeam.badgeUrl
+          }}
+          awayTeam={{
+            name: matchBar.nextMatch.awayTeam.name,
+            logoUrl: matchBar.nextMatch.awayTeam.badgeUrl
+          }}
+          venueName={matchBar.nextMatch.venue?.name}
+          isHomeGame={matchBar.nextMatch.isHomeGame}
+        />
+      ) : null}
       <InfoStripSection
         latestArticle={latestArticle}
         nextMatch={matchBar.nextMatch}
         latestResult={matchBar.latestResult}
+        hideResults={config?.hideResults ?? false}
       />
       <LatestNewsSection articles={articles} />
       <PlayersSection players={players} />
@@ -48,9 +67,10 @@ export default async function HomePage() {
         matches={matches}
         nextMatch={matchBar.nextMatch}
         latestResult={matchBar.latestResult}
+        hideResults={config?.hideResults ?? false}
       />
       <SocialSection />
-      <HighlightsTvSection />
+      <HighlightsTvSection videos={tvVideos} />
       <ContactSection />
       <SponsorsSection sponsors={sponsors} />
     </>

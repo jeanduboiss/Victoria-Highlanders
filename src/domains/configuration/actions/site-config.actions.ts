@@ -31,6 +31,8 @@ const updateSiteConfigSchema = z.object({
   featuredArticleId: z.string().uuid().optional().or(z.literal('')),
   featuredMatchId: z.string().uuid().optional().or(z.literal('')),
   sponsorsJson: z.any().optional(),
+  hideResults: z.boolean().optional(),
+  hideStandings: z.boolean().optional(),
 })
 
 export const updateSiteConfigAction = actionClient

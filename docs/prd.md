@@ -205,3 +205,32 @@ Operations are fragmented across spreadsheets, social media, and manual updates.
 - Fan engagement features (comments, polls)
 - Ticket sales
 - League administration panel (future multi-tenant feature)
+
+---
+
+## 10. Alcance de Desarrollo (Bloque YEPK)
+
+En la fase actual de desarrollo se trabaja en paralelo con un segundo desarrollador (Bloque JD/JF). 
+Las áreas de responsabilidad están estrictamente divididas para evitar conflictos en el merge a `main`.
+
+**Funcionalidades del Bloque YEPK (Nuestro alcance exclusivo):**
+- Listado del plantel por equipo/categoría con filtro por temporada.
+- Contador regresivo para el próximo partido.
+- Añadir todos los partidos de la liga (no solo del club).
+- Opciones de configuración del sitio para ocultar secciones (resultados o tabla).
+- Subida multimedia por URL externa (YouTube/Drive/links).
+- CRUD de Sponsors.
+- Biblioteca de imágenes con límite configurable.
+- Integración nativa con Google Calendar.
+- Módulo de exportación/uso de links externos.
+- Mostrar primer equipo por defecto, filtrar por categorías y destacar goleadores.
+- Dashboard administrativo para crear nuevas páginas y ver el changelog (updates).
+
+**Reglas Estrictas de Integración:**
+- **Prohibido** modificar la lógica de incidencias o estadísticas.
+- **Prohibido** tocar la "Tabla de posiciones" (Standings).
+- **Prohibido** editar los modelos Prisma relacionados con goles, asistencias, tarjetas o cambios (`MatchEvent`, `PlayerStatsSeason`).
+- **Prohibido** refactorizar código global que afecte al bloque paralelo.
+- **Prohibido** cambiar nombres de campos existentes o alterar las relaciones en modelos compartidos.
+- Todo cambio en campos de la base de datos (Ej., añadir la URL externa en multimedia) debe ser opcional (`?`) e incluir solo lo estrictamente necesario.
+

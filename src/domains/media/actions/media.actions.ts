@@ -9,10 +9,12 @@ import { z } from 'zod'
 const uploadAssetSchema = z.object({
   orgSlug: z.string(),
   fileName: z.string().min(1),
-  fileSizeBytes: z.number().positive(),
-  mimeType: z.string(),
-  storagePath: z.string(), // Already uploaded to Supabase Storage; we only register in DB
+  fileSizeBytes: z.number().positive().optional(),
+  mimeType: z.string().optional(),
+  storagePath: z.string().optional(), // Nullable si es URL externa
   publicUrl: z.string().url(),
+  externalUrl: z.string().url().optional(),
+  isExternal: z.boolean().optional(),
   altText: z.string().max(200).optional(),
   caption: z.string().max(500).optional(),
   folderId: z.string().uuid().optional(),
@@ -64,10 +66,12 @@ export const uploadAssetAction = actionClient
       data: {
         organizationId: ctx.organizationId,
         fileName: parsedInput.fileName,
-        fileSizeBytes: BigInt(parsedInput.fileSizeBytes),
-        mimeType: parsedInput.mimeType,
-        storagePath: parsedInput.storagePath,
+        fileSizeBytes: parsedInput.fileSizeBytes ? BigInt(parsedInput.fileSizeBytes) : BigInt(0),
+        mimeType: parsedInput.mimeType ?? 'url/external',
+        storagePath: parsedInput.storagePath || `ext-${crypto.randomUUID()}`,
         publicUrl: parsedInput.publicUrl,
+        externalUrl: parsedInput.externalUrl,
+        isExternal: parsedInput.isExternal ?? false,
         altText: parsedInput.altText,
         caption: parsedInput.caption,
         width: parsedInput.width,

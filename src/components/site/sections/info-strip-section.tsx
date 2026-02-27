@@ -10,6 +10,7 @@ interface InfoStripSectionProps {
   latestArticle: PublicArticle | null
   nextMatch: PublicMatchBar['nextMatch']
   latestResult: PublicMatchBar['latestResult']
+  hideResults?: boolean
 }
 
 function formatDate(date: Date | string) {
@@ -19,11 +20,11 @@ function formatDate(date: Date | string) {
   }).format(new Date(date))
 }
 
-export function InfoStripSection({ latestArticle, nextMatch, latestResult }: InfoStripSectionProps) {
+export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideResults = false }: InfoStripSectionProps) {
   return (
     <div className="bg-[#111] border-t border-white/5">
       <motion.div
-        className="mx-auto grid max-w-[1280px] grid-cols-1 divide-y divide-white/10 md:grid-cols-3 md:divide-x md:divide-y-0 px-4 lg:px-8"
+        className={`mx-auto grid max-w-[1280px] grid-cols-1 divide-y divide-white/10 ${hideResults ? 'md:grid-cols-2' : 'md:grid-cols-3'} md:divide-x md:divide-y-0 px-4 lg:px-8`}
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
@@ -76,31 +77,33 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult }: Inf
           )}
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="py-5 md:pl-6">
-          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Latest Result</p>
-          {latestResult ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-oswald text-[14px] font-bold text-white">
-                  {latestResult.homeTeam.shortName ?? latestResult.homeTeam.name}
-                </span>
-                <div className="flex items-center gap-2 bg-[#1f2937] px-3 py-1">
-                  <span className="font-oswald text-[20px] font-bold text-white">
-                    {latestResult.homeScore} – {latestResult.awayScore}
+        {!hideResults && (
+          <motion.div variants={fadeInUp} className="py-5 md:pl-6">
+            <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Latest Result</p>
+            {latestResult ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-oswald text-[14px] font-bold text-white">
+                    {latestResult.homeTeam.shortName ?? latestResult.homeTeam.name}
+                  </span>
+                  <div className="flex items-center gap-2 bg-[#1f2937] px-3 py-1">
+                    <span className="font-oswald text-[20px] font-bold text-white">
+                      {latestResult.homeScore} – {latestResult.awayScore}
+                    </span>
+                  </div>
+                  <span className="font-oswald text-[14px] font-bold text-gray-400">
+                    {latestResult.awayTeam.shortName ?? latestResult.awayTeam.name}
                   </span>
                 </div>
-                <span className="font-oswald text-[14px] font-bold text-gray-400">
-                  {latestResult.awayTeam.shortName ?? latestResult.awayTeam.name}
-                </span>
+                <Link href="/partidos" className="font-sans text-[11px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
+                  Match Report →
+                </Link>
               </div>
-              <Link href="/partidos" className="font-sans text-[11px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                Match Report →
-              </Link>
-            </div>
-          ) : (
-            <p className="font-sans text-[13px] text-gray-500">No hay resultados aún</p>
-          )}
-        </motion.div>
+            ) : (
+              <p className="font-sans text-[13px] text-gray-500">No hay resultados aún</p>
+            )}
+          </motion.div>
+        )}
       </motion.div>
     </div>
   )
