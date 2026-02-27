@@ -69,7 +69,7 @@ function MatchCard({ match }: { match: PublicMatch }) {
   )
 }
 
-export function MatchesSection({ matches, nextMatch, latestResult }: MatchesSectionProps) {
+export function MatchesSection({ matches, nextMatch, latestResult, hideResults }: MatchesSectionProps) {
   const t = useTranslations('matches')
 
   if (matches.length === 0 && !nextMatch && !latestResult) return null

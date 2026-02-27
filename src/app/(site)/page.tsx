@@ -21,30 +21,34 @@ import { NextMatchCountdown } from '@/components/site/matches/next-match-countdo
 export default async function HomePage() {
   const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
 
-  const [articles, matchBar, matches] = await Promise.all([
-    getPublicArticles({ limit: 3 }),
-    getPublicMatchBar(),
-    getPublicMatches({ limit: 6 }),
-  ])
+  // Fetch data in parallel with explicit awaits to preserve correct TypeScript types
+  const articlesPromise = getPublicArticles({ limit: 3 })
+  const matchBarPromise = getPublicMatchBar()
+  const matchesPromise = getPublicMatches({ limit: 6 })
+  const playersPromise = getPublicPlayers({ limit: 16 })
+  const tvVideosPromise = getPublicMediaTV({ limit: 4 })
+  const configPromise = getSiteConfigBySlug(slug)
+  const testimonialsPromise = getPublishedTestimonialsBySlug(slug).catch(() => [])
 
-  const [players, tvVideos, config, testimonials] = await Promise.all([
-    getPublicPlayers({ limit: 16 }),
-    getPublicMediaTV({ limit: 4 }),
-    getSiteConfigBySlug(slug),
-    getPublishedTestimonialsBySlug(slug).catch(() => [] as any[]),
-  ])
+  const articles = await articlesPromise
+  const matchBar = await matchBarPromise
+  const matches = await matchesPromise
+  const players = await playersPromise
+  const tvVideos = await tvVideosPromise
+  const orgConfig = await configPromise
+  const testimonials = await testimonialsPromise
 
   const latestArticle = articles[0] ?? null
-  const rawSponsors = config?.sponsorsJson
+  const rawSponsors = orgConfig?.sponsorsJson
   const sponsors = Array.isArray(rawSponsors) ? rawSponsors as { name: string; logoUrl: string; websiteUrl?: string }[] : undefined
 
   return (
     <>
       <HeroSection
-        heroTitle={config?.heroTitle}
-        heroSubtitle={config?.heroSubtitle}
-        heroImageUrl={config?.heroImageUrl}
-        featuredArticle={config?.featuredArticle}
+        heroTitle={orgConfig?.heroTitle}
+        heroSubtitle={orgConfig?.heroSubtitle}
+        heroImageUrl={orgConfig?.heroImageUrl}
+        featuredArticle={orgConfig?.featuredArticle}
       />
       {matchBar.nextMatch ? (
         <NextMatchCountdown
@@ -65,7 +69,7 @@ export default async function HomePage() {
         latestArticle={latestArticle}
         nextMatch={matchBar.nextMatch}
         latestResult={matchBar.latestResult}
-        hideResults={config?.hideResults ?? false}
+        hideResults={orgConfig?.hideResults ?? false}
       />
       <LatestNewsSection articles={articles} />
       <PlayersSection players={players} />
@@ -73,7 +77,7 @@ export default async function HomePage() {
         matches={matches}
         nextMatch={matchBar.nextMatch}
         latestResult={matchBar.latestResult}
-        hideResults={config?.hideResults ?? false}
+        hideResults={orgConfig?.hideResults ?? false}
       />
       <SocialSection />
       <HighlightsTvSection videos={tvVideos} />

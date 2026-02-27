@@ -638,6 +638,8 @@ model SiteConfiguration {
   featuredMatchId       String?      @map("featured_match_id") @db.Uuid
   sponsorsJson          Json?        @map("sponsors_json")
   navJson               Json?        @map("nav_json")
+  hideResults           Boolean      @default(false) @map("hide_results")
+  hideStandings         Boolean      @default(false) @map("hide_standings")
   updatedAt             DateTime     @updatedAt @map("updated_at")
   updatedBy             String?      @map("updated_by") @db.Uuid
   faviconMedia          MediaAsset?  @relation("FaviconMedia", fields: [faviconMediaId], references: [id])

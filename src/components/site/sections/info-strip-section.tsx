@@ -14,7 +14,7 @@ interface InfoStripSectionProps {
   hideResults?: boolean
 }
 
-export function InfoStripSection({ latestArticle, nextMatch, latestResult }: InfoStripSectionProps) {
+export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideResults }: InfoStripSectionProps) {
   const t = useTranslations('infoStrip')
 
   return (
