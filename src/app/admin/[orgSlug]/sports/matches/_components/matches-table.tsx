@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAction } from 'next-safe-action/hooks'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,8 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ArrowRight, Swords } from 'lucide-react'
+import { ArrowRight, Radio, Swords } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { startMatchLiveAction } from '@/domains/sports/actions/match.actions'
+import { toast } from 'sonner'
 
 type Match = {
   id: string
@@ -57,6 +61,29 @@ const FILTER_OPTIONS = [
   { value: 'FINISHED', label: 'Finalizados' },
   { value: 'POSTPONED', label: 'Aplazados' },
 ]
+
+function StartLiveButton({ matchId, orgSlug }: { matchId: string; orgSlug: string }) {
+  const router = useRouter()
+  const { execute, isPending } = useAction(startMatchLiveAction, {
+    onSuccess: () => {
+      toast.success('Partido iniciado en vivo')
+      router.push(`/admin/${orgSlug}/sports/matches/${matchId}/live`)
+    },
+    onError: ({ error }) => toast.error(error.serverError ?? 'Error al iniciar partido'),
+  })
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      className="h-7 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-500 shrink-0"
+      disabled={isPending}
+      onClick={(e) => { e.preventDefault(); execute({ orgSlug, matchId }) }}
+    >
+      <Radio className="mr-1 h-3 w-3" />
+      {isPending ? '...' : 'Iniciar'}
+    </Button>
+  )
+}
 
 export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
   const [statusFilter, setStatusFilter] = useState('ALL')
@@ -122,9 +149,26 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
                 </span>
-                <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
-                  {STATUS_LABELS[match.status] ?? match.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  {match.status === 'SCHEDULED' && (
+                    <StartLiveButton matchId={match.id} orgSlug={orgSlug} />
+                  )}
+                  {match.status === 'LIVE' && (
+                    <Link
+                      href={`/admin/${orgSlug}/sports/matches/${match.id}/live`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 animate-pulse"
+                    >
+                      <Radio className="h-2.5 w-2.5" />
+                      En vivo
+                    </Link>
+                  )}
+                  {match.status !== 'SCHEDULED' && match.status !== 'LIVE' && (
+                    <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
+                      {STATUS_LABELS[match.status] ?? match.status}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
@@ -196,9 +240,24 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
                         {match.competitionName ?? '—'}
                       </TableCell>
                       <TableCell>
-                        <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
-                          {STATUS_LABELS[match.status] ?? match.status}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {match.status === 'LIVE' ? (
+                            <Link
+                              href={`/admin/${orgSlug}/sports/matches/${match.id}/live`}
+                              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 animate-pulse"
+                            >
+                              <Radio className="h-2.5 w-2.5" />
+                              En vivo
+                            </Link>
+                          ) : (
+                            <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
+                              {STATUS_LABELS[match.status] ?? match.status}
+                            </span>
+                          )}
+                          {match.status === 'SCHEDULED' && (
+                            <StartLiveButton matchId={match.id} orgSlug={orgSlug} />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, fadeIn, staggerContainer, EASE_OUT_EXPO } from '@/components/site/animations/variants'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80'
@@ -25,6 +26,8 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ heroTitle, heroSubtitle, heroImageUrl, featuredArticle }: HeroSectionProps) {
+  const t = useTranslations('hero')
+
   const imageUrl = featuredArticle?.coverImageUrl ?? heroImageUrl ?? FALLBACK_IMAGE
   const title = heroTitle ?? FALLBACK_TITLE
   const subtitle = featuredArticle?.excerpt ?? heroSubtitle ?? FALLBACK_SUBTITLE
@@ -61,7 +64,7 @@ export function HeroSection({ heroTitle, heroSubtitle, heroImageUrl, featuredArt
         >
           <motion.div variants={fadeIn} className="mb-4">
             <span className="inline-block bg-gold px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-black">
-              League 1 BC
+              {t('league')}
             </span>
           </motion.div>
 
@@ -86,13 +89,13 @@ export function HeroSection({ heroTitle, heroSubtitle, heroImageUrl, featuredArt
               href={articleSlug ? `/noticias/${articleSlug}` : '/noticias'}
               className="flex h-[46px] items-center justify-center bg-gold px-6 font-oswald text-[13px] font-bold uppercase tracking-widest text-black transition-opacity hover:opacity-90 sm:px-8"
             >
-              {articleSlug ? 'Leer noticia' : 'Ver noticias'}
+              {articleSlug ? t('readArticle') : t('viewNews')}
             </Link>
             <Link
               href="/tv"
               className="flex h-[46px] items-center justify-center border border-white/30 px-6 font-oswald text-[13px] font-bold uppercase tracking-widest text-white transition-all hover:border-gold hover:text-gold sm:px-8"
             >
-              Watch Highlights
+              {t('watchHighlights')}
             </Link>
           </motion.div>
         </motion.div>

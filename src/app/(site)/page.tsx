@@ -9,20 +9,23 @@ import { SocialSection } from '@/components/site/sections/social-section'
 import { HighlightsTvSection } from '@/components/site/sections/highlights-tv-section'
 import { ContactSection } from '@/components/site/sections/contact-section'
 import { SponsorsSection } from '@/components/site/sections/sponsors-section'
+import { TestimonialsSection } from '@/components/site/sections/testimonials-section'
 import { getPublicArticles } from '@/domains/editorial/queries/public-articles.query'
 import { getPublicMatches, getPublicMatchBar } from '@/domains/sports/queries/public-matches.query'
 import { getPublicPlayers } from '@/domains/sports/queries/public-players.query'
 import { getSiteConfigBySlug } from '@/domains/configuration/actions/site-config.actions'
+import { getPublishedTestimonialsBySlug } from '@/domains/site/queries/testimonials.query'
 
 export default async function HomePage() {
   const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
 
-  const [articles, matchBar, matches, players, config] = await Promise.all([
+  const [articles, matchBar, matches, players, config, testimonials] = await Promise.all([
     getPublicArticles({ limit: 3 }),
     getPublicMatchBar(),
     getPublicMatches({ limit: 6 }),
     getPublicPlayers({ limit: 16 }),
     getSiteConfigBySlug(slug),
+    getPublishedTestimonialsBySlug(slug).catch(() => [] as Awaited<ReturnType<typeof getPublishedTestimonialsBySlug>>),
   ])
 
   const latestArticle = articles[0] ?? null
@@ -51,6 +54,7 @@ export default async function HomePage() {
       />
       <SocialSection />
       <HighlightsTvSection />
+      <TestimonialsSection testimonials={testimonials} />
       <ContactSection />
       <SponsorsSection sponsors={sponsors} />
     </>

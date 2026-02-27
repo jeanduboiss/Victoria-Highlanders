@@ -33,14 +33,17 @@ export async function recalculateStatsForMatch(matchId: string): Promise<void> {
     select: { seasonId: true, organizationId: true },
   })
 
-  // Get all unique player IDs involved in this match
   const events = await prisma.matchEvent.findMany({
     where: { matchId },
-    select: { playerId: true },
-    distinct: ['playerId'],
+    select: { playerId: true, assistPlayerId: true },
   })
 
-  const playerIds = events.map((e) => e.playerId)
+  const playerIds = [
+    ...new Set([
+      ...events.map((e) => e.playerId),
+      ...events.filter((e) => e.assistPlayerId).map((e) => e.assistPlayerId!),
+    ]),
+  ]
 
   // Recalculate stats for each player in this match
   await Promise.all(
@@ -69,24 +72,28 @@ export async function recalculatePlayerStats(
     // Skip locked records (archived season)
     if (record.isLocked) continue
 
-    // Get all FINISHED matches this player participated in for this team/season
-    const matchEvents = await prisma.matchEvent.findMany({
-      where: {
-        playerId,
-        match: {
-          seasonId,
-          status: 'FINISHED',
-          OR: [
-            { homeTeamId: record.teamId },
-            { awayTeamId: record.teamId },
-          ],
-        },
-      },
-      select: { eventType: true, matchId: true },
-    })
+    const matchFilter = {
+      seasonId,
+      status: 'FINISHED' as const,
+      OR: [{ homeTeamId: record.teamId }, { awayTeamId: record.teamId }],
+    }
 
-    // Compute accumulated totals
+    const [matchEvents, assistCount] = await Promise.all([
+      prisma.matchEvent.findMany({
+        where: { playerId, match: matchFilter },
+        select: { eventType: true, matchId: true },
+      }),
+      prisma.matchEvent.count({
+        where: {
+          assistPlayerId: playerId,
+          eventType: { in: ['GOAL', 'PENALTY_SCORED'] },
+          match: matchFilter,
+        },
+      }),
+    ])
+
     const stats = computeStats(matchEvents)
+    stats.assists = assistCount
 
     // Upsert PlayerStatsSeason
     await prisma.playerStatsSeason.upsert({

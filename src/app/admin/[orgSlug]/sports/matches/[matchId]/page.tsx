@@ -9,14 +9,18 @@ import { Separator } from '@/components/ui/separator'
 import {
   ArrowLeft,
   Calendar,
+  ClipboardList,
   MapPin,
   Trophy,
   Clock,
+  Radio,
 } from 'lucide-react'
 import Link from 'next/link'
 import { UpdateMatchResultForm } from './_components/update-match-result-form'
 import { MatchEventsTimeline } from './_components/match-events-timeline'
 import { AddMatchEventSheet } from './_components/add-match-event-sheet'
+import { StartMatchLiveButton } from './_components/start-match-live-button'
+import { BulkMatchEventsSheet } from './_components/bulk-match-events-sheet'
 
 interface Props {
   params: Promise<{ orgSlug: string; matchId: string }>
@@ -53,6 +57,8 @@ export default async function MatchDetailPage({ params }: Props) {
 
   const matchDate = new Date(match.matchDate)
   const isEditable = match.status === 'SCHEDULED' || match.status === 'LIVE'
+  const isLive = match.status === 'LIVE'
+  const isScheduled = match.status === 'SCHEDULED'
 
   return (
     <div className="space-y-6 py-4">
@@ -145,6 +151,23 @@ export default async function MatchDetailPage({ params }: Props) {
         </CardContent>
       </Card>
 
+      {isLive && (
+        <div className="flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+          <div className="flex items-center gap-2 text-emerald-500 text-sm font-medium">
+            <Radio className="h-4 w-4 animate-pulse" />
+            Partido en curso
+          </div>
+          <Button size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 text-white h-8">
+            <Link href={`/admin/${orgSlug}/sports/matches/${match.id}/live`}>
+              Abrir panel en vivo
+            </Link>
+          </Button>
+        </div>
+      )}
+      {isScheduled && (
+        <StartMatchLiveButton orgSlug={orgSlug} matchId={match.id} />
+      )}
+
       {/* Grid de actions + events */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Columna izquierda — Acciones */}
@@ -216,15 +239,27 @@ export default async function MatchDetailPage({ params }: Props) {
                   </span>
                 )}
               </CardTitle>
-              <AddMatchEventSheet
-                orgSlug={orgSlug}
-                matchId={match.id}
-                players={players}
-              >
-                <Button size="sm" variant="outline" className="h-8 text-xs">
-                  + Evento
-                </Button>
-              </AddMatchEventSheet>
+              <div className="flex items-center gap-2">
+                <BulkMatchEventsSheet
+                  orgSlug={orgSlug}
+                  matchId={match.id}
+                  players={players}
+                >
+                  <Button size="sm" variant="outline" className="h-8 text-xs gap-1">
+                    <ClipboardList className="h-3 w-3" />
+                    Entrada manual
+                  </Button>
+                </BulkMatchEventsSheet>
+                <AddMatchEventSheet
+                  orgSlug={orgSlug}
+                  matchId={match.id}
+                  players={players}
+                >
+                  <Button size="sm" variant="outline" className="h-8 text-xs">
+                    + Evento
+                  </Button>
+                </AddMatchEventSheet>
+              </div>
             </CardHeader>
             <CardContent>
               <MatchEventsTimeline

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { staggerContainer, fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import type { PublicArticle } from '@/domains/editorial/queries/public-articles.query'
 import type { PublicMatchBar } from '@/domains/sports/queries/public-matches.query'
@@ -12,14 +13,9 @@ interface InfoStripSectionProps {
   latestResult: PublicMatchBar['latestResult']
 }
 
-function formatDate(date: Date | string) {
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short', day: 'numeric', month: 'short',
-    hour: '2-digit', minute: '2-digit',
-  }).format(new Date(date))
-}
-
 export function InfoStripSection({ latestArticle, nextMatch, latestResult }: InfoStripSectionProps) {
+  const t = useTranslations('infoStrip')
+
   return (
     <div className="bg-[#111] border-t border-white/5">
       <motion.div
@@ -30,7 +26,7 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult }: Inf
         viewport={VIEWPORT}
       >
         <motion.div variants={fadeInUp} className="py-5 md:pr-6">
-          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Team News</p>
+          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">{t('teamNews')}</p>
           {latestArticle ? (
             <Link href={`/noticias/${latestArticle.slug}`} className="group flex gap-3">
               {latestArticle.coverImageUrl && (
@@ -50,12 +46,12 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult }: Inf
               </div>
             </Link>
           ) : (
-            <p className="font-sans text-[13px] text-gray-500">No hay noticias recientes</p>
+            <p className="font-sans text-[13px] text-gray-500">{t('noNews')}</p>
           )}
         </motion.div>
 
         <motion.div variants={fadeInUp} className="py-5 md:px-6">
-          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Next Home Match</p>
+          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">{t('nextMatch')}</p>
           {nextMatch ? (
             <div className="flex flex-col gap-2">
               <span className="font-oswald text-[15px] font-bold text-white">
@@ -63,21 +59,23 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult }: Inf
                   ? `Victoria Highlanders vs ${nextMatch.awayTeam.shortName ?? nextMatch.awayTeam.name}`
                   : `${nextMatch.homeTeam.shortName ?? nextMatch.homeTeam.name} vs Victoria Highlanders`}
               </span>
-              <span className="font-sans text-[12px] text-gray-400">{formatDate(nextMatch.matchDate)}</span>
+              <span className="font-sans text-[12px] text-gray-400">
+                {new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(nextMatch.matchDate))}
+              </span>
               {nextMatch.venue && (
                 <span className="font-sans text-[11px] text-gray-600">{nextMatch.venue.name}</span>
               )}
               <Link href="/partidos" className="mt-1 inline-block border border-gold/60 px-4 py-1.5 font-oswald text-[11px] font-bold uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all w-fit">
-                Buy Tickets
+                {t('buyTickets')}
               </Link>
             </div>
           ) : (
-            <p className="font-sans text-[13px] text-gray-500">No hay partidos programados</p>
+            <p className="font-sans text-[13px] text-gray-500">{t('noMatches')}</p>
           )}
         </motion.div>
 
         <motion.div variants={fadeInUp} className="py-5 md:pl-6">
-          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Latest Result</p>
+          <p className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-gold">{t('latestResult')}</p>
           {latestResult ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-3 flex-wrap">
@@ -94,11 +92,11 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult }: Inf
                 </span>
               </div>
               <Link href="/partidos" className="font-sans text-[11px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                Match Report →
+                {t('matchReport')}
               </Link>
             </div>
           ) : (
-            <p className="font-sans text-[13px] text-gray-500">No hay resultados aún</p>
+            <p className="font-sans text-[13px] text-gray-500">{t('noResults')}</p>
           )}
         </motion.div>
       </motion.div>

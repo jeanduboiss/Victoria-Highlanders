@@ -11,6 +11,10 @@ import {
   Image,
   Settings,
   UserCog,
+  ListOrdered,
+  FileText,
+  Menu,
+  MessageSquareQuote,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -39,9 +43,18 @@ export function getNavGroups(orgSlug: string): NavGroup[] {
       label: 'Deportes',
       items: [
         { title: 'Partidos', href: `${base}/sports/matches`, icon: Trophy },
+        { title: 'Clasificación', href: `${base}/sports/standings`, icon: ListOrdered },
         { title: 'Jugadores', href: `${base}/sports/players`, icon: Users },
         { title: 'Equipos', href: `${base}/sports/teams`, icon: ShieldHalf },
         { title: 'Temporadas', href: `${base}/sports/seasons`, icon: CalendarDays },
+      ],
+    },
+    {
+      label: 'Sitio Web',
+      items: [
+        { title: 'Páginas', href: `${base}/site/pages`, icon: FileText },
+        { title: 'Menú', href: `${base}/site/menu`, icon: Menu },
+        { title: 'Testimonios', href: `${base}/site/testimonials`, icon: MessageSquareQuote },
       ],
     },
     {

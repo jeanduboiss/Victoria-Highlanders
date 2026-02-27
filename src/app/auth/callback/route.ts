@@ -37,22 +37,22 @@ export async function GET(request: NextRequest) {
   if (error || !data.user)
     return NextResponse.redirect(`${origin}/login?error=auth_failed`)
 
-  // Activate the OrganizationMember if this is the first login after invitation
-  await prisma.organizationMember.updateMany({
+  const activationResult = await prisma.organizationMember.updateMany({
     where: { userId: data.user.id, status: 'PENDING' },
     data: { status: 'ACTIVE', joinedAt: new Date() },
   })
 
-  // Resolve the user's primary org to redirect to the correct dashboard
+  if (activationResult.count > 0)
+    return NextResponse.redirect(`${origin}/login/update-password`)
+
+  if (next && next !== '/admin')
+    return NextResponse.redirect(`${origin}${next}`)
+
   const member = await prisma.organizationMember.findFirst({
     where: { userId: data.user.id, status: 'ACTIVE' },
     include: { organization: { select: { slug: true } } },
     orderBy: { createdAt: 'asc' },
   })
-
-  if (next && next !== '/admin') {
-    return NextResponse.redirect(`${origin}${next}`)
-  }
 
   const redirectTo = member
     ? `${origin}/admin/${member.organization.slug}`

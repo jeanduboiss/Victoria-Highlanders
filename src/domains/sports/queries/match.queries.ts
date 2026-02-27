@@ -34,6 +34,9 @@ export async function getMatchWithEvents(matchId: string, organizationId: string
           player: {
             select: { firstName: true, lastName: true, position: true },
           },
+          assistPlayer: {
+            select: { firstName: true, lastName: true },
+          },
         },
         orderBy: [{ minute: 'asc' }, { extraTimeMinute: 'asc' }],
       },

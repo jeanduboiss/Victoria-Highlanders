@@ -28,6 +28,7 @@ export const addMatchEventSchema = z.object({
   orgSlug: z.string(),
   matchId: z.string().uuid(),
   playerId: z.string().uuid(),
+  assistPlayerId: z.string().uuid().optional(),
   eventType: z.enum([
     'GOAL', 'OWN_GOAL', 'YELLOW_CARD', 'RED_CARD', 'YELLOW_RED_CARD',
     'SUBSTITUTION_IN', 'SUBSTITUTION_OUT', 'PENALTY_SCORED', 'PENALTY_MISSED',
@@ -40,4 +41,34 @@ export const addMatchEventSchema = z.object({
 export const removeMatchEventSchema = z.object({
   orgSlug: z.string(),
   eventId: z.string().uuid(),
+})
+
+export const startMatchLiveSchema = z.object({
+  orgSlug: z.string(),
+  matchId: z.string().uuid(),
+})
+
+export const updateLiveScoreSchema = z.object({
+  orgSlug: z.string(),
+  matchId: z.string().uuid(),
+  homeScore: z.number().int().min(0).max(99),
+  awayScore: z.number().int().min(0).max(99),
+})
+
+const singleEventSchema = z.object({
+  playerId: z.string().uuid(),
+  assistPlayerId: z.string().uuid().optional(),
+  eventType: z.enum([
+    'GOAL', 'OWN_GOAL', 'YELLOW_CARD', 'RED_CARD', 'YELLOW_RED_CARD',
+    'SUBSTITUTION_IN', 'SUBSTITUTION_OUT', 'PENALTY_SCORED', 'PENALTY_MISSED',
+  ]),
+  minute: z.number().int().min(1).max(120),
+  extraTimeMinute: z.number().int().min(1).max(30).optional(),
+  description: z.string().max(200).optional(),
+})
+
+export const bulkAddMatchEventsSchema = z.object({
+  orgSlug: z.string(),
+  matchId: z.string().uuid(),
+  events: z.array(singleEventSchema).min(1).max(50),
 })
