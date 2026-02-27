@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "tickets": "Billets",
+    "store": "Boutique",
+    "academy": "Académie",
+    "buyTickets": "Acheter des Billets",
+    "login": "Connexion",
+    "register": "S'inscrire"
+  },
+  "footer": {
+    "clubDescription": "Le Victoria Highlanders Football Club est une équipe de football semi-professionnelle canadienne basée à Victoria, en Colombie-Britannique.",
+    "club": {
+      "title": "Club",
+      "aboutUs": "À Propos",
+      "history": "Histoire",
+      "staff": "Staff",
+      "careers": "Emploi",
+      "contact": "Contact"
+    },
+    "matches": {
+      "title": "Matchs",
+      "fixtures": "Calendrier",
+      "results": "Résultats",
+      "tickets": "Billets",
+      "leagueTable": "Classement"
+    },
+    "news": {
+      "title": "Actualités",
+      "latestNews": "Dernières Nouvelles",
+      "highlightersTV": "Highlanders TV",
+      "matchReports": "Rapports de Match",
+      "community": "Communauté"
+    },
+    "copyright": "Tous droits réservés.",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfUse": "Conditions d'Utilisation"
+  },
+  "hero": {
+    "league": "League 1 BC",
+    "readArticle": "Lire l'article",
+    "viewNews": "Voir les actualités",
+    "watchHighlights": "Voir les Highlights"
+  },
+  "infoStrip": {
+    "teamNews": "Actualités de l'Équipe",
+    "nextMatch": "Prochain Match à Domicile",
+    "latestResult": "Dernier Résultat",
+    "buyTickets": "Acheter des Billets",
+    "matchReport": "Rapport de Match →",
+    "noNews": "Pas d'actualités récentes",
+    "noMatches": "Aucun match programmé",
+    "noResults": "Aucun résultat pour l'instant"
+  },
+  "latestNews": {
+    "title": "Dernières Nouvelles",
+    "allNews": "Toutes les Nouvelles →",
+    "noArticles": "Aucun article publié pour l'instant",
+    "full": "Voir →",
+    "provisional": "J · DB · Pts — Provisoire"
+  },
+  "players": {
+    "teamLabel": "L'équipe",
+    "title": "L'Effectif",
+    "positions": {
+      "GOALKEEPER": "Gardien",
+      "DEFENDER": "Défenseur",
+      "MIDFIELDER": "Milieu",
+      "FORWARD": "Attaquant"
+    }
+  },
+  "matches": {
+    "seasonLabel": "Saison",
+    "title": "Matchs",
+    "upcoming": "À venir",
+    "results": "Résultats",
+    "final": "Terminé"
+  },
+  "testimonials": {
+    "label": "Ce que dit la communauté",
+    "title": "Témoignages"
+  },
+  "language": {
+    "label": "Langue",
+    "es": "Español",
+    "en": "English",
+    "fr": "Français"
+  }
+}

@@ -1,38 +1,43 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-
-const FOOTER_COLS = [
-  {
-    title: 'Club',
-    links: [
-      { label: 'About Us', href: '/club' },
-      { label: 'History', href: '/club/history' },
-      { label: 'Staff', href: '/club/staff' },
-      { label: 'Careers', href: '/club/careers' },
-      { label: 'Contact', href: '/contacto' },
-    ],
-  },
-  {
-    title: 'Matches',
-    links: [
-      { label: 'Fixtures', href: '/partidos' },
-      { label: 'Results', href: '/partidos' },
-      { label: 'Tickets', href: '#' },
-      { label: 'League Table', href: '/partidos' },
-    ],
-  },
-  {
-    title: 'News',
-    links: [
-      { label: 'Latest News', href: '/noticias' },
-      { label: 'Highlanders TV', href: '/tv' },
-      { label: 'Match Reports', href: '/noticias' },
-      { label: 'Community', href: '#' },
-    ],
-  },
-]
+import { useTranslations } from 'next-intl'
 
 export function SiteFooter() {
+  const t = useTranslations('footer')
+
+  const FOOTER_COLS = [
+    {
+      title: t('club.title'),
+      links: [
+        { label: t('club.aboutUs'), href: '/club' },
+        { label: t('club.history'), href: '/club/history' },
+        { label: t('club.staff'), href: '/club/staff' },
+        { label: t('club.careers'), href: '/club/careers' },
+        { label: t('club.contact'), href: '/contacto' },
+      ],
+    },
+    {
+      title: t('matches.title'),
+      links: [
+        { label: t('matches.fixtures'), href: '/partidos' },
+        { label: t('matches.results'), href: '/partidos' },
+        { label: t('matches.tickets'), href: '#' },
+        { label: t('matches.leagueTable'), href: '/partidos' },
+      ],
+    },
+    {
+      title: t('news.title'),
+      links: [
+        { label: t('news.latestNews'), href: '/noticias' },
+        { label: t('news.highlightersTV'), href: '/tv' },
+        { label: t('news.matchReports'), href: '/noticias' },
+        { label: t('news.community'), href: '#' },
+      ],
+    },
+  ]
+
   return (
     <footer className="bg-site-bg-bar">
       <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-8">
@@ -40,7 +45,7 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <Image src="/images/logo-victoria-sm.png" alt="Victoria Highlanders FC" width={64} height={72} className="object-contain" />
             <p className="font-sans text-[14px] leading-relaxed text-gray-400 max-w-[268px]">
-              The Victoria Highlanders Football Club is a Canadian semi-professional soccer team based in Victoria, British Columbia.
+              {t('clubDescription')}
             </p>
             <div className="flex items-center gap-3">
               {[
@@ -79,11 +84,11 @@ export function SiteFooter() {
 
         <div className="mt-12 border-t border-white/10 pt-6 flex flex-col items-center justify-between gap-2 md:flex-row">
           <p className="font-sans text-[12px] text-gray-600">
-            © {new Date().getFullYear()} Victoria Highlanders FC. All rights reserved.
+            © {new Date().getFullYear()} Victoria Highlanders FC. {t('copyright')}
           </p>
           <div className="flex gap-4">
-            <Link href="#" className="font-sans text-[12px] text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</Link>
-            <Link href="#" className="font-sans text-[12px] text-gray-600 hover:text-gray-400 transition-colors">Terms of Use</Link>
+            <Link href="#" className="font-sans text-[12px] text-gray-600 hover:text-gray-400 transition-colors">{t('privacyPolicy')}</Link>
+            <Link href="#" className="font-sans text-[12px] text-gray-600 hover:text-gray-400 transition-colors">{t('termsOfUse')}</Link>
           </div>
         </div>
       </div>

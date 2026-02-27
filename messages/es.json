@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "tickets": "Entradas",
+    "store": "Tienda",
+    "academy": "Academia",
+    "buyTickets": "Comprar Entradas",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse"
+  },
+  "footer": {
+    "clubDescription": "Victoria Highlanders Football Club es un equipo de fútbol semiprofesional canadiense con sede en Victoria, Columbia Británica.",
+    "club": {
+      "title": "Club",
+      "aboutUs": "Sobre Nosotros",
+      "history": "Historia",
+      "staff": "Cuerpo Técnico",
+      "careers": "Empleo",
+      "contact": "Contacto"
+    },
+    "matches": {
+      "title": "Partidos",
+      "fixtures": "Calendario",
+      "results": "Resultados",
+      "tickets": "Entradas",
+      "leagueTable": "Clasificación"
+    },
+    "news": {
+      "title": "Noticias",
+      "latestNews": "Últimas Noticias",
+      "highlightersTV": "Highlanders TV",
+      "matchReports": "Crónicas",
+      "community": "Comunidad"
+    },
+    "copyright": "Todos los derechos reservados.",
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfUse": "Términos de Uso"
+  },
+  "hero": {
+    "league": "League 1 BC",
+    "readArticle": "Leer noticia",
+    "viewNews": "Ver noticias",
+    "watchHighlights": "Ver Highlights"
+  },
+  "infoStrip": {
+    "teamNews": "Noticias del equipo",
+    "nextMatch": "Próximo Partido en Casa",
+    "latestResult": "Último Resultado",
+    "buyTickets": "Comprar Entradas",
+    "matchReport": "Crónica del partido →",
+    "noNews": "No hay noticias recientes",
+    "noMatches": "No hay partidos programados",
+    "noResults": "No hay resultados aún"
+  },
+  "latestNews": {
+    "title": "Últimas Noticias",
+    "allNews": "Todas las Noticias →",
+    "noArticles": "No hay artículos publicados aún",
+    "full": "Ver →",
+    "provisional": "P · GF · Pts — Provisional"
+  },
+  "players": {
+    "teamLabel": "El equipo",
+    "title": "El Plantel",
+    "positions": {
+      "GOALKEEPER": "Portero",
+      "DEFENDER": "Defensa",
+      "MIDFIELDER": "Centrocampista",
+      "FORWARD": "Delantero"
+    }
+  },
+  "matches": {
+    "seasonLabel": "Temporada",
+    "title": "Partidos",
+    "upcoming": "Próximos",
+    "results": "Resultados",
+    "final": "Final"
+  },
+  "testimonials": {
+    "label": "La comunidad dice",
+    "title": "Testimonios"
+  },
+  "language": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English",
+    "fr": "Français"
+  }
+}

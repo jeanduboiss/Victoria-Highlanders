@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerFast, scaleIn, VIEWPORT } from '@/components/site/animations/variants'
 import type { PublicArticle } from '@/domains/editorial/queries/public-articles.query'
 
@@ -60,6 +61,8 @@ function ArticleCard({ article }: { article: PublicArticle }) {
 }
 
 export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
+  const t = useTranslations('latestNews')
+
   return (
     <section className="bg-[#0f0f0f] py-12 lg:py-16">
       <div className="mx-auto max-w-[1280px] px-4 lg:px-8">
@@ -73,9 +76,9 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
             viewport={VIEWPORT}
           >
             <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-oswald text-[28px] font-bold uppercase text-white sm:text-[32px]">Latest News</h2>
+              <h2 className="font-oswald text-[28px] font-bold uppercase text-white sm:text-[32px]">{t('title')}</h2>
               <Link href="/noticias" className="font-sans text-[12px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                All News →
+                {t('allNews')}
               </Link>
             </div>
 
@@ -93,7 +96,7 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
               </motion.div>
             ) : (
               <div className="flex h-40 items-center justify-center border border-white/5">
-                <p className="font-sans text-[13px] text-gray-600">No hay artículos publicados aún</p>
+                <p className="font-sans text-[13px] text-gray-600">{t('noArticles')}</p>
               </div>
             )}
           </motion.div>
@@ -109,7 +112,7 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
               <div className="flex items-center justify-between border-b border-white/10 bg-[#161616] px-4 py-3">
                 <h3 className="font-oswald text-[14px] font-bold uppercase tracking-wider text-white">League 1 BC</h3>
                 <Link href="/tabla" className="font-sans text-[10px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                  Full →
+                  {t('full')}
                 </Link>
               </div>
 
@@ -142,7 +145,7 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
               </div>
 
               <div className="border-t border-white/5 px-3 py-2">
-                <p className="font-sans text-[10px] text-gray-600">P · GD · Pts — Provisional</p>
+                <p className="font-sans text-[10px] text-gray-600">{t('provisional')}</p>
               </div>
             </div>
           </motion.div>

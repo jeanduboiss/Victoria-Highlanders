@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "tickets": "Tickets",
+    "store": "Store",
+    "academy": "Academy",
+    "buyTickets": "Buy Tickets",
+    "login": "Login",
+    "register": "Register"
+  },
+  "footer": {
+    "clubDescription": "The Victoria Highlanders Football Club is a Canadian semi-professional soccer team based in Victoria, British Columbia.",
+    "club": {
+      "title": "Club",
+      "aboutUs": "About Us",
+      "history": "History",
+      "staff": "Staff",
+      "careers": "Careers",
+      "contact": "Contact"
+    },
+    "matches": {
+      "title": "Matches",
+      "fixtures": "Fixtures",
+      "results": "Results",
+      "tickets": "Tickets",
+      "leagueTable": "League Table"
+    },
+    "news": {
+      "title": "News",
+      "latestNews": "Latest News",
+      "highlightersTV": "Highlanders TV",
+      "matchReports": "Match Reports",
+      "community": "Community"
+    },
+    "copyright": "All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use"
+  },
+  "hero": {
+    "league": "League 1 BC",
+    "readArticle": "Read article",
+    "viewNews": "View news",
+    "watchHighlights": "Watch Highlights"
+  },
+  "infoStrip": {
+    "teamNews": "Team News",
+    "nextMatch": "Next Home Match",
+    "latestResult": "Latest Result",
+    "buyTickets": "Buy Tickets",
+    "matchReport": "Match Report →",
+    "noNews": "No recent news",
+    "noMatches": "No upcoming matches",
+    "noResults": "No results yet"
+  },
+  "latestNews": {
+    "title": "Latest News",
+    "allNews": "All News →",
+    "noArticles": "No articles published yet",
+    "full": "Full →",
+    "provisional": "P · GD · Pts — Provisional"
+  },
+  "players": {
+    "teamLabel": "The team",
+    "title": "The Squad",
+    "positions": {
+      "GOALKEEPER": "Goalkeeper",
+      "DEFENDER": "Defender",
+      "MIDFIELDER": "Midfielder",
+      "FORWARD": "Forward"
+    }
+  },
+  "matches": {
+    "seasonLabel": "Season",
+    "title": "Matches",
+    "upcoming": "Upcoming",
+    "results": "Results",
+    "final": "Full time"
+  },
+  "testimonials": {
+    "label": "What the community says",
+    "title": "Testimonials"
+  },
+  "language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English",
+    "fr": "Français"
+  }
+}

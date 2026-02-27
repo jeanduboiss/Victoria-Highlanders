@@ -10,6 +10,9 @@ import {
   updateMatchResultSchema,
   addMatchEventSchema,
   removeMatchEventSchema,
+  startMatchLiveSchema,
+  updateLiveScoreSchema,
+  bulkAddMatchEventsSchema,
 } from '../schemas/match.schema'
 import { z } from 'zod'
 
@@ -70,6 +73,7 @@ export const addMatchEventAction = actionClient
       data: {
         matchId: parsedInput.matchId,
         playerId: parsedInput.playerId,
+        assistPlayerId: parsedInput.assistPlayerId,
         eventType: parsedInput.eventType,
         minute: parsedInput.minute,
         extraTimeMinute: parsedInput.extraTimeMinute,
@@ -77,10 +81,10 @@ export const addMatchEventAction = actionClient
       },
     })
 
-    // Recalculate stats after adding event
     await recalculateStatsForMatch(parsedInput.matchId)
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches/${parsedInput.matchId}`)
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches/${parsedInput.matchId}/live`)
     return event
   })
 
@@ -119,4 +123,64 @@ export const updateMatchStatusAction = actionClient
 
     revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches`)
     return match
+  })
+
+export const startMatchLiveAction = actionClient
+  .schema(startMatchLiveSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'matches', 'write')
+
+    const match = await prisma.match.update({
+      where: { id: parsedInput.matchId, organizationId: ctx.organizationId },
+      data: { status: 'LIVE', liveStartedAt: new Date(), updatedBy: ctx.userId },
+    })
+
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches`)
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches/${parsedInput.matchId}`)
+    return match
+  })
+
+export const updateLiveScoreAction = actionClient
+  .schema(updateLiveScoreSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'matches', 'write')
+
+    const match = await prisma.match.update({
+      where: { id: parsedInput.matchId, organizationId: ctx.organizationId },
+      data: {
+        homeScore: parsedInput.homeScore,
+        awayScore: parsedInput.awayScore,
+        updatedBy: ctx.userId,
+      },
+    })
+
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches/${parsedInput.matchId}/live`)
+    return match
+  })
+
+export const bulkAddMatchEventsAction = actionClient
+  .schema(bulkAddMatchEventsSchema)
+  .action(async ({ parsedInput }) => {
+    const ctx = await requirePermission(parsedInput.orgSlug, 'match_events', 'write')
+
+    await prisma.$transaction(
+      parsedInput.events.map((e) =>
+        prisma.matchEvent.create({
+          data: {
+            matchId: parsedInput.matchId,
+            playerId: e.playerId,
+            assistPlayerId: e.assistPlayerId,
+            eventType: e.eventType,
+            minute: e.minute,
+            extraTimeMinute: e.extraTimeMinute,
+            description: e.description,
+          },
+        }),
+      ),
+    )
+
+    await recalculateStatsForMatch(parsedInput.matchId)
+
+    revalidatePath(`/admin/${parsedInput.orgSlug}/sports/matches/${parsedInput.matchId}`)
+    return { count: parsedInput.events.length }
   })

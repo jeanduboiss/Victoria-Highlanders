@@ -39,7 +39,17 @@ export async function middleware(request: NextRequest) {
   )
 
   // Decode JWT from cookie — no network call, fast (<1ms)
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+  // Invalid/expired refresh token — clear cookies and send to login
+  if (sessionError?.message?.includes('Refresh Token')) {
+    const loginUrl = new URL('/login', request.url)
+    const clearResponse = NextResponse.redirect(loginUrl)
+    request.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith('sb-')) clearResponse.cookies.delete(name)
+    })
+    return clearResponse
+  }
 
   // -------------------------------------------------------------------------
   // /login — Redirect authenticated users to their org dashboard

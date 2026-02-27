@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import { Calendar, MapPin } from 'lucide-react'
 import type { PublicMatch, PublicMatchBar } from '@/domains/sports/queries/public-matches.query'
@@ -13,6 +14,7 @@ interface MatchesSectionProps {
 }
 
 function MatchCard({ match }: { match: PublicMatch }) {
+  const t = useTranslations('matches')
   const isFinished = match.status === 'FINISHED'
   const date = new Date(match.matchDate)
 
@@ -60,14 +62,16 @@ function MatchCard({ match }: { match: PublicMatch }) {
 
       <div className="shrink-0">
         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isFinished ? 'bg-gold/10 text-gold' : 'bg-white/[0.05] text-white/40'}`}>
-          {isFinished ? 'Final' : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+          {isFinished ? t('final') : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
     </div>
   )
 }
 
-export function MatchesSection({ matches, nextMatch, latestResult, hideResults = false }: MatchesSectionProps) {
+export function MatchesSection({ matches, nextMatch, latestResult }: MatchesSectionProps) {
+  const t = useTranslations('matches')
+
   if (matches.length === 0 && !nextMatch && !latestResult) return null
 
   const upcoming = matches.filter((m) => m.status === 'SCHEDULED')
@@ -83,8 +87,8 @@ export function MatchesSection({ matches, nextMatch, latestResult, hideResults =
           whileInView="visible"
           viewport={VIEWPORT}
         >
-          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">Temporada</p>
-          <h2 className="font-oswald text-[32px] font-bold uppercase text-white sm:text-[40px]">Partidos</h2>
+          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">{t('seasonLabel')}</p>
+          <h2 className="font-oswald text-[32px] font-bold uppercase text-white sm:text-[40px]">{t('title')}</h2>
         </motion.div>
 
         <div className={`grid grid-cols-1 ${hideResults && upcoming.length > 0 ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'} gap-8`}>
@@ -97,7 +101,7 @@ export function MatchesSection({ matches, nextMatch, latestResult, hideResults =
             >
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-4 h-4 text-gold" />
-                <p className="font-oswald text-[13px] font-bold uppercase tracking-widest text-gold">Próximos</p>
+                <p className="font-oswald text-[13px] font-bold uppercase tracking-widest text-gold">{t('upcoming')}</p>
               </div>
               <div className="bg-[#111] border border-white/[0.06] rounded-sm px-4">
                 {upcoming.map((m) => <MatchCard key={m.id} match={m} />)}
@@ -116,7 +120,7 @@ export function MatchesSection({ matches, nextMatch, latestResult, hideResults =
                 <span className="w-4 h-4 rounded-full bg-gold/20 flex items-center justify-center">
                   <span className="w-2 h-2 rounded-full bg-gold" />
                 </span>
-                <p className="font-oswald text-[13px] font-bold uppercase tracking-widest text-white/60">Resultados</p>
+                <p className="font-oswald text-[13px] font-bold uppercase tracking-widest text-white/60">{t('results')}</p>
               </div>
               <div className="bg-[#111] border border-white/[0.06] rounded-sm px-4">
                 {finished.map((m) => <MatchCard key={m.id} match={m} />)}

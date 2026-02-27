@@ -37,6 +37,9 @@ export type Module =
   | 'events'
   | 'tags'
   | 'media'
+  // Site
+  | 'pages'
+  | 'testimonials'
   // Admin
   | 'site_config'
   | 'users'
@@ -77,6 +80,8 @@ const PERMISSIONS: Record<Role, Partial<Record<Module, Action[]>>> = {
     events:       FULL,
     tags:         FULL,
     media:        FULL,
+    pages:        FULL,
+    testimonials: FULL,
     site_config:  FULL,
     users:        FULL,
     leagues:      FULL,
@@ -111,6 +116,9 @@ const PERMISSIONS: Record<Role, Partial<Record<Module, Action[]>>> = {
     events:       FULL,
     tags:         FULL,
     media:        FULL,
+    // Site — full
+    pages:        FULL,
+    testimonials: FULL,
     // Admin — full
     site_config:  FULL,
     users:        FULL,
@@ -134,6 +142,8 @@ const PERMISSIONS: Record<Role, Partial<Record<Module, Action[]>>> = {
     // Editorial — NO access (managers don't publish content)
     // Media — read only (to attach photos to player profiles)
     media:        READ,
+    // Site — read only
+    pages:        READ,
     // Users — read only (can see team members but not manage them)
     users:        READ,
   },
@@ -154,6 +164,9 @@ const PERMISSIONS: Record<Role, Partial<Record<Module, Action[]>>> = {
     events:       WRITE,
     tags:         WRITE,
     media:        WRITE,
+    // Site — write (no delete)
+    pages:        WRITE,
+    testimonials: WRITE,
   },
 
   // -------------------------------------------------------------------------
