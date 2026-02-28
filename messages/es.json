@@ -73,7 +73,10 @@
     "title": "Partidos",
     "upcoming": "Próximos",
     "results": "Resultados",
-    "final": "Final"
+    "final": "Final",
+    "addToCalendar": "Agendar",
+    "googleCalendar": "Google Calendar",
+    "appleCalendar": "Apple Calendar / iCal"
   },
   "testimonials": {
     "label": "La comunidad dice",

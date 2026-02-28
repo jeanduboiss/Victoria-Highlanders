@@ -2,9 +2,15 @@
 
 import { motion } from 'motion/react'
 import { useTranslations } from 'next-intl'
+import dynamic from 'next/dynamic'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import { Calendar, MapPin } from 'lucide-react'
 import type { PublicMatch, PublicMatchBar } from '@/domains/sports/queries/public-matches.query'
+
+const AddToCalendarButton = dynamic(
+  () => import('@/components/site/matches/add-to-calendar-button').then((m) => m.AddToCalendarButton),
+  { ssr: false }
+)
 
 interface MatchesSectionProps {
   matches: PublicMatch[]
@@ -19,52 +25,56 @@ function MatchCard({ match }: { match: PublicMatch }) {
   const date = new Date(match.matchDate)
 
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-white/[0.06] last:border-0">
-      <div className="w-12 text-center shrink-0">
-        <p className="font-oswald text-[11px] font-bold uppercase text-white/40">
-          {date.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase()}
-        </p>
-        <p className="font-oswald text-[22px] font-bold text-white leading-none">
-          {date.getDate()}
-        </p>
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <p className="font-sans text-sm font-medium text-white truncate">
-            {match.homeTeam.name}
+    <div className="py-4 border-b border-white/[0.06] last:border-0">
+      <div className="flex items-center gap-4">
+        <div className="w-12 text-center shrink-0">
+          <p className="font-oswald text-[11px] font-bold uppercase text-white/40">
+            {date.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase()}
           </p>
-          {isFinished ? (
-            <span className="font-oswald text-base font-bold text-gold shrink-0">
-              {match.homeScore} — {match.awayScore}
-            </span>
-          ) : (
-            <span className="font-sans text-[11px] font-bold uppercase text-white/30 shrink-0 bg-white/[0.05] px-2 py-0.5 rounded">
-              vs
-            </span>
-          )}
-          <p className="font-sans text-sm font-medium text-white truncate text-right">
-            {match.awayTeam.name}
+          <p className="font-oswald text-[22px] font-bold text-white leading-none">
+            {date.getDate()}
           </p>
         </div>
-        <div className="flex items-center gap-1 mt-1">
-          {match.venue && (
-            <span className="text-[11px] text-white/30 flex items-center gap-0.5">
-              <MapPin className="w-2.5 h-2.5" />
-              {match.venue.name}
-            </span>
-          )}
-          {match.competitionName && (
-            <span className="text-[11px] text-white/25 ml-2">{match.competitionName}</span>
-          )}
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-sans text-sm font-medium text-white truncate">
+              {match.homeTeam.name}
+            </p>
+            {isFinished ? (
+              <span className="font-oswald text-base font-bold text-gold shrink-0">
+                {match.homeScore} — {match.awayScore}
+              </span>
+            ) : (
+              <span className="font-sans text-[11px] font-bold uppercase text-white/30 shrink-0 bg-white/[0.05] px-2 py-0.5 rounded">
+                vs
+              </span>
+            )}
+            <p className="font-sans text-sm font-medium text-white truncate text-right">
+              {match.awayTeam.name}
+            </p>
+          </div>
+          <div className="flex items-center gap-1 mt-1">
+            {match.venue && (
+              <span className="text-[11px] text-white/30 flex items-center gap-0.5">
+                <MapPin className="w-2.5 h-2.5" />
+                {match.venue.name}
+              </span>
+            )}
+            {match.competitionName && (
+              <span className="text-[11px] text-white/25 ml-2">{match.competitionName}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="shrink-0">
+          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isFinished ? 'bg-gold/10 text-gold' : 'bg-white/[0.05] text-white/40'}`}>
+            {isFinished ? t('final') : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+          </span>
         </div>
       </div>
 
-      <div className="shrink-0">
-        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isFinished ? 'bg-gold/10 text-gold' : 'bg-white/[0.05] text-white/40'}`}>
-          {isFinished ? t('final') : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-        </span>
-      </div>
+      {!isFinished && <AddToCalendarButton match={match} />}
     </div>
   )
 }

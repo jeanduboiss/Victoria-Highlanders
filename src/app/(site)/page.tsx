@@ -63,6 +63,8 @@ export default async function HomePage() {
           }}
           venueName={matchBar.nextMatch.venue?.name}
           isHomeGame={matchBar.nextMatch.isHomeGame}
+          competitionName={matchBar.nextMatch.competitionName}
+          matchId={matchBar.nextMatch.id}
         />
       ) : null}
       <InfoStripSection

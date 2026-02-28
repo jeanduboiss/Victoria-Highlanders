@@ -73,7 +73,10 @@
     "title": "Matchs",
     "upcoming": "À venir",
     "results": "Résultats",
-    "final": "Terminé"
+    "final": "Terminé",
+    "addToCalendar": "Ajouter",
+    "googleCalendar": "Google Agenda",
+    "appleCalendar": "Calendrier Apple / iCal"
   },
   "testimonials": {
     "label": "Ce que dit la communauté",

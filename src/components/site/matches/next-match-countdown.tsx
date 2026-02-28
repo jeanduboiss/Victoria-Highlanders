@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { Calendar, MapPin, Trophy } from 'lucide-react'
 import Image from 'next/image'
 import { fadeInUp, staggerContainer } from '@/components/site/animations/variants'
+import { AddToCalendarButton } from '@/components/site/matches/add-to-calendar-button'
 
 interface Team {
   name: string
@@ -18,6 +19,7 @@ export interface NextMatchCountdownProps {
   competitionName?: string | null
   venueName?: string | null
   isHomeGame?: boolean
+  matchId?: string
 }
 
 interface TimeLeft {
@@ -42,13 +44,14 @@ function calculateTimeLeft(target: Date): TimeLeft {
   }
 }
 
-export function NextMatchCountdown({ 
-  targetDate, 
-  homeTeam, 
-  awayTeam, 
-  competitionName = 'League 1 BC', 
+export function NextMatchCountdown({
+  targetDate,
+  homeTeam,
+  awayTeam,
+  competitionName = 'League 1 BC',
   venueName,
-  isHomeGame = true
+  isHomeGame = true,
+  matchId,
 }: NextMatchCountdownProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isMounted, setIsMounted] = useState(false)
@@ -147,6 +150,20 @@ export function NextMatchCountdown({
             <TimeUnit value={timeLeft.minutes} label="Minutes" />
             <TimeSeparator />
             <TimeUnit value={timeLeft.seconds} label="Seconds" />
+          </motion.div>
+
+          {/* Add to Calendar */}
+          <motion.div variants={fadeInUp} className="mt-8 flex justify-center">
+            <AddToCalendarButton
+              match={{
+                matchDate: targetDate,
+                homeTeam,
+                awayTeam,
+                venue: venueName ? { name: venueName } : null,
+                competitionName,
+                matchId,
+              }}
+            />
           </motion.div>
 
         </motion.div>

@@ -73,7 +73,10 @@
     "title": "Matches",
     "upcoming": "Upcoming",
     "results": "Results",
-    "final": "Full time"
+    "final": "Full time",
+    "addToCalendar": "Add to Calendar",
+    "googleCalendar": "Google Calendar",
+    "appleCalendar": "Apple Calendar / iCal"
   },
   "testimonials": {
     "label": "What the community says",

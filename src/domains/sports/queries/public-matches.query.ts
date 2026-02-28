@@ -47,7 +47,9 @@ export async function getPublicMatchBar() {
     prisma.match.findFirst({
       where: { organizationId: org.id, status: 'SCHEDULED' },
       select: {
+        id: true,
         matchDate: true,
+        competitionName: true,
         homeTeam: { select: { name: true, shortName: true, badgeUrl: true } },
         awayTeam: { select: { name: true, shortName: true, badgeUrl: true } },
         venue: { select: { name: true } },
