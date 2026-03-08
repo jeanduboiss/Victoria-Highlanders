@@ -2,6 +2,7 @@ import { requirePermission } from '@/lib/auth'
 import { getSeasonsByOrg, getTeamsByOrg } from '@/domains/sports/queries/squad.queries'
 import { getStandingsData, getCompetitionNames } from '@/domains/sports/queries/standings.query'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/admin/page-header'
 import { StandingsFilters } from './_components/standings-filters'
 import { StandingsTable } from './_components/standings-table'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default async function StandingsPage({ params, searchParams }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const { seasonId, category, competitionName } = await searchParams
 
@@ -30,8 +32,8 @@ export default async function StandingsPage({ params, searchParams }: Props) {
   return (
     <div className="space-y-4 py-4">
       <PageHeader
-        title="Clasificación"
-        description="Tabla de posiciones calculada a partir de partidos finalizados"
+        title={t('sports.standings.title')}
+        description={t('sports.standings.desc')}
       />
       <StandingsFilters
         seasons={seasons}
