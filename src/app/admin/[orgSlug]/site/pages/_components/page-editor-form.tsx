@@ -1,7 +1,7 @@
 'use client'
 import { useTranslations } from 'next-intl'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
@@ -23,15 +23,15 @@ interface Props {
   page?: Page | null
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  DRAFT: { label: 'Borrador', color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
-  PUBLISHED: { label: 'Publicada', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-}
-
 export function PageEditorForm({ orgSlug, page }: Props) {
   const t = useTranslations('admin.pages.site.newPageEdit')
   const router = useRouter()
   const isEditing = !!page
+
+  const STATUS_CONFIG: Record<string, { label: string; color: string }> = useMemo(() => ({
+    DRAFT: { label: t('draft'), color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
+    PUBLISHED: { label: 'Publicada', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  }), [t])
 
   const [editorContent, setEditorContent] = useState<string>(
     page?.content ? JSON.stringify(page.content) : ''
