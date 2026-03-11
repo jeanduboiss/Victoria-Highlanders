@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth'
 import { getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
-import { redirect } from 'next/navigation'
+import {  redirect  } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { SeasonsTable } from './_components/seasons-table'
 import { CreateSeasonSheet } from './_components/create-season-sheet'
 import { PageHeader } from '@/components/admin/page-header'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default async function SeasonsPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'seasons', 'read').catch(() => redirect('/login'))
 
@@ -20,13 +22,13 @@ export default async function SeasonsPage({ params }: Props) {
   return (
     <div className="space-y-4 py-4">
       <PageHeader
-        title="Temporadas"
-        description={`${seasons.length} temporada${seasons.length !== 1 ? 's' : ''} registrada${seasons.length !== 1 ? 's' : ''}`}
+        title={t('sports.seasons')}
+        description={t('sports.seasonsCount', { count: seasons.length })}
         action={
           <CreateSeasonSheet orgSlug={orgSlug}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
-              Nueva temporada
+              {t('sports.newSeason')}
             </Button>
           </CreateSeasonSheet>
         }

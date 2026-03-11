@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth'
 import { getEventsByOrg, getTagsByOrg } from '@/domains/editorial/queries/editorial.queries'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { EventsTable } from './_components/events-table'
 import { CreateEventSheet } from './_components/create-event-sheet'
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default async function EventsPage({ params }: Props) {
+    const t = await getTranslations('admin.pages')
     const { orgSlug } = await params
     const ctx = await requirePermission(orgSlug, 'events', 'read').catch(() => redirect('/login'))
 
@@ -29,13 +31,13 @@ export default async function EventsPage({ params }: Props) {
         <div className="space-y-4 py-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Eventos</h1>
-                    <p className="text-muted-foreground">{events.length} evento(s) encontrados.</p>
+                    <h1 className="text-2xl font-bold tracking-tight">{t('editorial.eventsTitle')}</h1>
+                    <p className="text-muted-foreground">{events.length} {t('editorial.eventsRegistered')}</p>
                 </div>
                 <CreateEventSheet orgSlug={orgSlug} tags={tags}>
                     <Button size="sm">
                         <Plus className="mr-2 h-4 w-4" />
-                        Nuevo evento
+                        {t('editorial.newEvent')}
                     </Button>
                 </CreateEventSheet>
             </div>

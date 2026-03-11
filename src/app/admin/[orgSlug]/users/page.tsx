@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth'
 import { prisma } from '@/lib/prisma/client'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { UsersTable } from './_components/users-table'
 import { InviteUserSheet } from './_components/invite-user-sheet'
 import { PageHeader } from '@/components/admin/page-header'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default async function UsersPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'users', 'read').catch(() => redirect('/login'))
 
@@ -24,20 +26,20 @@ export default async function UsersPage({ params }: Props) {
   })
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4 py-4" >
       <PageHeader
-        title="Usuarios"
-        description={`${members.length} miembro${members.length !== 1 ? 's' : ''} en la organización`}
+        title={t('users.title')}
+        description={t('users.desc')}
         action={
           <InviteUserSheet orgSlug={orgSlug}>
             <Button size="sm" className="cursor-pointer">
               <UserPlus className="mr-2 h-4 w-4" />
-              Invitar usuario
+              {t('users.invite')}
             </Button>
           </InviteUserSheet>
         }
       />
       <UsersTable members={members} orgSlug={orgSlug} currentUserId={ctx.userId} />
-    </div>
+    </div >
   )
 }

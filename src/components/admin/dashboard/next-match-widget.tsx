@@ -3,6 +3,7 @@ import { CalendarDays, MapPin, ArrowRight, Swords } from 'lucide-react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { getTranslations } from 'next-intl/server'
 
 interface NextMatchWidgetProps {
   orgSlug: string
@@ -15,22 +16,25 @@ interface NextMatchWidgetProps {
     venue: { name: string } | null
     isHomeGame: boolean
   } | null
+  locale: string
 }
 
-export function NextMatchWidget({ orgSlug, match }: NextMatchWidgetProps) {
+export async function NextMatchWidget({ orgSlug, match, locale }: NextMatchWidgetProps) {
+  const t = await getTranslations('admin.dashboard')
+
   if (!match) {
     return (
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <CalendarDays className="h-4 w-4" />
-            Próximo Partido
+            {t('nextMatch')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
             <Swords className="size-8 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">No hay partidos programados.</p>
+            <p className="text-sm text-muted-foreground">{t('noNextMatch')}</p>
           </div>
         </CardContent>
       </Card>
@@ -38,12 +42,13 @@ export function NextMatchWidget({ orgSlug, match }: NextMatchWidgetProps) {
   }
 
   const matchDate = new Date(match.matchDate)
-  const dateStr = matchDate.toLocaleDateString('es-ES', {
+  const formatLocale = locale === 'en' ? 'en-US' : locale === 'fr' ? 'fr-FR' : 'es-ES'
+  const dateStr = matchDate.toLocaleDateString(formatLocale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   })
-  const timeStr = matchDate.toLocaleTimeString('es-ES', {
+  const timeStr = matchDate.toLocaleTimeString(formatLocale, {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -54,7 +59,7 @@ export function NextMatchWidget({ orgSlug, match }: NextMatchWidgetProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <CalendarDays className="h-4 w-4" />
-            Próximo Partido
+            {t('nextMatch')}
           </CardTitle>
           <div className="flex gap-1.5">
             {match.competitionName && (
@@ -107,7 +112,7 @@ export function NextMatchWidget({ orgSlug, match }: NextMatchWidgetProps) {
       <CardFooter className="pt-0">
         <Button variant="ghost" size="sm" asChild className="w-full cursor-pointer">
           <Link href={`/admin/${orgSlug}/sports/matches/${match.id}`}>
-            Ver detalles
+            {t('view')}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

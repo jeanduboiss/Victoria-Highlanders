@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState } from 'react'
 import { useAction } from 'next-safe-action/hooks'
@@ -79,6 +80,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children }: CreatePlayerSheetProps) {
+  const t = useTranslations('admin.pages.sports.newPlayerSheet')
   const [open, setOpen] = useState(false)
 
   const activeSeasons = seasons.filter((s) => !s.isArchived)
@@ -125,8 +127,8 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Nuevo jugador</SheetTitle>
-          <SheetDescription>Registra un jugador en el pool de la organización.</SheetDescription>
+          <SheetTitle>{t('title')}</SheetTitle>
+          <SheetDescription>{t('desc')}</SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -136,9 +138,9 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>{t('name')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nombre" {...field} />
+                      <Input placeholder={t('name')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,9 +151,9 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Apellido</FormLabel>
+                    <FormLabel>{t('lastName')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Apellido" {...field} />
+                      <Input placeholder={t('lastName')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,11 +165,11 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
               name="position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Posición</FormLabel>
+                  <FormLabel>{t('position')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona posición" />
+                        <SelectValue placeholder={t('selectPosition')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -185,12 +187,12 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
               name="dateOfBirth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Fecha de nacimiento</FormLabel>
+                  <FormLabel>{t('dob')}</FormLabel>
                   <FormControl>
                     <DatePicker
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Selecciona fecha de nacimiento"
+                      placeholder={t('selectDob')}
                       fromYear={1950}
                       toYear={new Date().getFullYear()}
                     />
@@ -204,9 +206,9 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
               name="nationalities.0.country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nacionalidad principal (código ISO, ej: GB)</FormLabel>
+                  <FormLabel>{t('nationality')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: GB, CL, AR" maxLength={2} {...field} />
+                    <Input placeholder={t('ejNat')} maxLength={2} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -217,17 +219,17 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
             {teams.length > 0 && (
               <>
                 <Separator className="my-2" />
-                <p className="text-sm font-medium text-muted-foreground">Asignar a equipo (opcional)</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('assignTeam')}</p>
                 <FormField
                   control={form.control}
                   name="teamId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Equipo</FormLabel>
+                      <FormLabel>{t('team')}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value ?? ''}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Sin equipo asignado" />
+                            <SelectValue placeholder={t('noTeam')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -278,11 +280,9 @@ export function CreatePlayerSheet({ orgSlug, teams = [], seasons = [], children 
             )}
 
             <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                Cancelar
-              </Button>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>{t('cancel')}</Button>
               <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? 'Guardando...' : 'Crear jugador'}
+                {isPending ? 'Guardando...' : t('create')}
               </Button>
             </div>
           </form>

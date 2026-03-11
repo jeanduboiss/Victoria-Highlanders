@@ -1,8 +1,15 @@
 import { Activity, Newspaper, CalendarDays, Trophy, UserRound, Megaphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enGB, fr } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
+import { getLocale, getTranslations } from 'next-intl/server'
+
+const DATE_FNS_LOCALES = {
+  es,
+  en: enGB,
+  fr,
+} as const
 
 export interface ActivityItem {
   id: string
@@ -24,20 +31,24 @@ const ACTIVITY_CONFIG: Record<
 
 interface ActivityFeedProps {
   items: ActivityItem[]
+  locale: string
 }
 
-export function ActivityFeed({ items }: ActivityFeedProps) {
+export async function ActivityFeed({ items, locale }: ActivityFeedProps) {
+  const t = await getTranslations('admin.dashboard')
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] || es
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <Activity className="h-4 w-4" />
-          Actividad Reciente
+          {t('latestActivity')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">Sin actividad reciente.</p>
+          <p className="text-sm text-muted-foreground py-4 text-center">{t('noRecentEvents')}</p>
         ) : (
           <ul className="space-y-0">
             {items.map((item, index) => {
@@ -57,7 +68,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {formatDistanceToNow(new Date(item.createdAt), {
                         addSuffix: true,
-                        locale: es,
+                        locale: dateFnsLocale,
                       })}
                     </p>
                   </div>

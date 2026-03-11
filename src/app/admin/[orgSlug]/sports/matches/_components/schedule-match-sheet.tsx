@@ -1,4 +1,6 @@
 'use client'
+import { useTranslations } from 'next-intl'
+
 
 import { useState } from 'react'
 import { useAction } from 'next-safe-action/hooks'
@@ -56,6 +58,7 @@ interface ScheduleMatchSheetProps {
 }
 
 export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: ScheduleMatchSheetProps) {
+  const t = useTranslations('admin.pages.sports.scheduleMatchSheet')
   const [open, setOpen] = useState(false)
 
   const form = useForm<FormValues>({
@@ -72,12 +75,12 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
 
   const { execute, isPending } = useAction(scheduleMatchAction, {
     onSuccess: () => {
-      toast.success('Partido programado correctamente.')
+      toast.success(t('success'))
       form.reset()
       setOpen(false)
     },
     onError: ({ error }) => {
-      toast.error(error.serverError ?? 'Error al programar el partido.')
+      toast.error(error.serverError ?? t('error'))
     },
   })
 
@@ -90,8 +93,8 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Programar partido</SheetTitle>
-          <SheetDescription>Completa los datos del nuevo partido.</SheetDescription>
+          <SheetTitle>{t('title')}</SheetTitle>
+          <SheetDescription>{t('desc')}</SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -100,11 +103,11 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
               name="seasonId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Temporada</FormLabel>
+                  <FormLabel>{t('season')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona temporada" />
+                        <SelectValue placeholder={t('selectSeason')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -122,17 +125,17 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
               name="homeTeamId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Equipo local</FormLabel>
+                  <FormLabel>{t('homeTeam')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona equipo local" />
+                        <SelectValue placeholder={t('selectHome')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name} {t.isExternal ? '(Externo)' : ''}
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name} {team.isExternal ? t('external') : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -146,17 +149,17 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
               name="awayTeamId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Equipo visitante</FormLabel>
+                  <FormLabel>{t('awayTeam')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona equipo visitante" />
+                        <SelectValue placeholder={t('selectAway')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name} {t.isExternal ? '(Externo)' : ''}
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name} {team.isExternal ? t('external') : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -170,12 +173,12 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
               name="matchDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Fecha y hora</FormLabel>
+                  <FormLabel>{t('dateTime')}</FormLabel>
                   <FormControl>
                     <DateTimePicker
-                      value={field.value}
+                      value={field.value || ''}
                       onChange={field.onChange}
-                      placeholder="Selecciona fecha del partido"
+                      placeholder={t('selectDate')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -187,20 +190,18 @@ export function ScheduleMatchSheet({ orgSlug, seasons, teams, children }: Schedu
               name="competitionName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Competición</FormLabel>
+                  <FormLabel>{t('competition')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Liga, Copa..." {...field} />
+                    <Input placeholder={t('leagueCup')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                Cancelar
-              </Button>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>{t('cancel')}</Button>
               <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? 'Guardando...' : 'Programar'}
+                {isPending ? t('saving') : t('schedule')}
               </Button>
             </div>
           </form>

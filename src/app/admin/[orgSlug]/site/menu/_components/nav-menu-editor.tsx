@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { useState } from 'react'
 import {
   DndContext,
@@ -36,9 +38,11 @@ interface Props {
 function SortableItem({
   item,
   onToggle,
+  t,
 }: {
   item: NavItem
   onToggle: (id: string) => void
+  t: (key: string) => string
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -78,13 +82,14 @@ function SortableItem({
       </div>
 
       <Badge variant="outline" className="text-xs shrink-0">
-        {item.type === 'fixed' ? 'Fijo' : 'Página'}
+        {item.type === 'fixed' ? t('fixed') : t('page')}
       </Badge>
     </div>
   )
 }
 
 export function NavMenuEditor({ items: initialItems, pages, orgSlug }: Props) {
+  const t = useTranslations('admin.pages.site.navMenuEditor')
   const [items, setItems] = useState<NavItem[]>(initialItems)
 
   const sensors = useSensors(
@@ -95,8 +100,8 @@ export function NavMenuEditor({ items: initialItems, pages, orgSlug }: Props) {
   )
 
   const { execute: saveNav, isPending } = useAction(updateNavAction, {
-    onSuccess: () => toast.success('Menú guardado.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al guardar.'),
+    onSuccess: () => toast.success(t('successSave')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('errorSave')),
   })
 
   function handleDragEnd(event: DragEndEvent) {
@@ -143,11 +148,11 @@ export function NavMenuEditor({ items: initialItems, pages, orgSlug }: Props) {
       <div className="lg:col-span-2 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Arrastra para reordenar. Usa el switch para mostrar u ocultar.
+            {t('dragToReorder')}
           </p>
           <Button size="sm" onClick={() => saveNav({ orgSlug, items })} disabled={isPending}>
             <Save className="mr-2 h-4 w-4" />
-            {isPending ? 'Guardando...' : 'Guardar menú'}
+            {isPending ? t('saving') : t('saveMenu')}
           </Button>
         </div>
 
@@ -160,13 +165,13 @@ export function NavMenuEditor({ items: initialItems, pages, orgSlug }: Props) {
             <div className="space-y-2">
               {items.map((item) => (
                 <div key={item.id} className="relative group">
-                  <SortableItem item={item} onToggle={toggleVisibility} />
+                  <SortableItem item={item} onToggle={toggleVisibility} t={(k) => t(k as any)} />
                   {item.type === 'page' && (
                     <button
                       onClick={() => removeItem(item.id)}
                       className="absolute right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-xs text-destructive hover:text-destructive/80 transition-opacity"
                     >
-                      quitar
+                      {t('remove')}
                     </button>
                   )}
                 </div>
@@ -177,19 +182,19 @@ export function NavMenuEditor({ items: initialItems, pages, orgSlug }: Props) {
 
         {items.length === 0 && (
           <div className="flex items-center justify-center py-12 text-sm text-muted-foreground border rounded-lg border-dashed">
-            No hay items en el menú
+            {t('noItems')}
           </div>
         )}
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-medium">Páginas disponibles</h3>
+        <h3 className="text-sm font-medium">{t('availablePages')}</h3>
         <p className="text-xs text-muted-foreground">
-          Páginas publicadas que aún no están en el menú
+          {t('availablePagesDesc')}
         </p>
         {availablePages.length === 0 ? (
           <p className="text-xs text-muted-foreground italic">
-            Todas las páginas publicadas ya están en el menú
+            {t('allPagesInMenu')}
           </p>
         ) : (
           <div className="space-y-2">

@@ -28,12 +28,14 @@ interface HeroSectionProps {
 export function HeroSection({ heroTitle, heroSubtitle, heroImageUrl, featuredArticle }: HeroSectionProps) {
   const t = useTranslations('hero')
 
-  const imageUrl = featuredArticle?.coverImageUrl ?? heroImageUrl ?? FALLBACK_IMAGE
-  const title = heroTitle ?? FALLBACK_TITLE
-  const subtitle = featuredArticle?.excerpt ?? heroSubtitle ?? FALLBACK_SUBTITLE
-  const articleSlug = featuredArticle?.slug
+  // Ignore default DB seeds to allow translation fallback
+  const finalHeroTitle = heroTitle === 'Unstoppable\nMomentum' ? null : heroTitle;
+  const finalHeroSubtitle = heroSubtitle === 'The Highlanders secure another crucial victory at home, climbing the League 1 BC standings with a dominant performance.' ? null : heroSubtitle;
 
-  const titleLines = title.split('\n')
+  const titleLines = (finalHeroTitle ?? t('fallbackTitle')).split('\n')
+  const subtitle = featuredArticle?.excerpt ?? finalHeroSubtitle ?? t('fallbackSubtitle')
+  const imageUrl = featuredArticle?.coverImageUrl ?? heroImageUrl ?? FALLBACK_IMAGE
+  const articleSlug = featuredArticle?.slug
 
   return (
     <section className="relative flex items-end overflow-hidden bg-[#0a0a0a]" style={{ minHeight: 'calc(100vh - 94px)' }}>

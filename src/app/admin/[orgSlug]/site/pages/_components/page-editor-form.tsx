@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -28,6 +29,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 }
 
 export function PageEditorForm({ orgSlug, page }: Props) {
+  const t = useTranslations('admin.pages.site.newPageEdit')
   const router = useRouter()
   const isEditing = !!page
 
@@ -89,6 +91,7 @@ export function PageEditorForm({ orgSlug, page }: Props) {
 
   const currentStatus = page?.status ?? 'DRAFT'
   const statusConfig = STATUS_CONFIG[currentStatus] ?? STATUS_CONFIG.DRAFT
+  const draftLabel = t('draft')
 
   return (
     <div className="space-y-6">
@@ -101,10 +104,10 @@ export function PageEditorForm({ orgSlug, page }: Props) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight truncate">
-              {isEditing ? 'Editar página' : 'Nueva página'}
+              {isEditing ? 'Editar página' : t('title')}
             </h1>
             <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusConfig.color}`}>
-              {statusConfig.label}
+              {currentStatus === 'DRAFT' ? draftLabel : 'Publicada'}
             </span>
           </div>
         </div>
@@ -133,7 +136,7 @@ export function PageEditorForm({ orgSlug, page }: Props) {
           )}
           <Button size="sm" onClick={handleSave} disabled={isPending}>
             <Save className="mr-2 h-4 w-4" />
-            {isPending ? 'Guardando...' : 'Guardar'}
+            {isPending ? 'Guardando...' : t('save')}
           </Button>
         </div>
       </div>
@@ -149,7 +152,7 @@ export function PageEditorForm({ orgSlug, page }: Props) {
                   <FormItem>
                     <FormControl>
                       <Input
-                        placeholder="Título de la página"
+                        placeholder={t('pageTitle')}
                         className="text-xl font-bold h-12 border-0 bg-transparent px-0 focus-visible:ring-0 placeholder:text-muted-foreground/40"
                         {...field}
                       />
@@ -199,7 +202,7 @@ export function PageEditorForm({ orgSlug, page }: Props) {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium">Imagen de portada</CardTitle>
+              <CardTitle className="text-xs font-medium">{t('coverImage')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -209,7 +212,7 @@ export function PageEditorForm({ orgSlug, page }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="URL de la imagen" className="text-xs" {...field} />
+                        <Input placeholder={t('imgUrl')} className="text-xs" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -230,9 +233,9 @@ export function PageEditorForm({ orgSlug, page }: Props) {
                   name="metaTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs">Meta título</FormLabel>
+                      <FormLabel className="text-xs">{t('seoTitle')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Título para buscadores" className="text-xs" {...field} />
+                        <Input placeholder={t('titleSearch')} className="text-xs" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -243,9 +246,9 @@ export function PageEditorForm({ orgSlug, page }: Props) {
                   name="metaDescription"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs">Meta descripción</FormLabel>
+                      <FormLabel className="text-xs">{t('seoDesc')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Descripción para buscadores" className="text-xs" {...field} />
+                        <Input placeholder={t('descSearch')} className="text-xs" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

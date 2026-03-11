@@ -1,6 +1,8 @@
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 export function SiteTopbar() {
+  const t = useTranslations('nav')
   return (
     <div className="h-[34px] bg-[#111] flex items-center justify-between px-4 lg:px-8 border-b border-white/5">
       <div className="flex items-center gap-5">
@@ -8,9 +10,9 @@ export function SiteTopbar() {
           Victoria
         </Link>
         <div className="hidden items-center gap-4 sm:flex">
-          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">Tickets</Link>
-          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">Store</Link>
-          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">Academy</Link>
+          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">{t('tickets')}</Link>
+          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">{t('store')}</Link>
+          <Link href="#" className="font-sans text-[11px] font-medium uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors">{t('academy')}</Link>
         </div>
       </div>
 
@@ -28,7 +30,7 @@ export function SiteTopbar() {
           ))}
         </div>
         <Link href="#" className="bg-gold px-3 py-1 font-oswald text-[11px] font-bold uppercase tracking-widest text-black hover:bg-gold-light transition-colors">
-          Tickets
+          {t('tickets')}
         </Link>
       </div>
     </div>

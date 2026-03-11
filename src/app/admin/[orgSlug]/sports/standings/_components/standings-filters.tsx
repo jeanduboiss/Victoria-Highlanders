@@ -1,23 +1,11 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import type { Season, TeamCategory } from '@prisma/client'
-
-const CATEGORY_LABELS: Record<TeamCategory, string> = {
-  FIRST_TEAM: 'Primera División',
-  RESERVE: 'Reservas',
-  U23: 'Sub-23',
-  U20: 'Sub-20',
-  U18: 'Sub-18',
-  U16: 'Sub-16',
-  U14: 'Sub-14',
-  U12: 'Sub-12',
-  WOMEN: 'Femenino',
-  FUTSAL: 'Fútsal',
-}
 
 interface Props {
   seasons: Season[]
@@ -38,6 +26,8 @@ export function StandingsFilters({
   currentCompetition,
   orgSlug,
 }: Props) {
+  const t = useTranslations('admin.pages.sports.standingsFilters')
+  const tc = useTranslations('subpages.roster.categories')
   const router = useRouter()
   const hasFilters = !!(currentSeasonId || currentCategory || currentCompetition)
 
@@ -62,10 +52,10 @@ export function StandingsFilters({
         onValueChange={(v) => updateFilter('seasonId', v === 'all' ? undefined : v)}
       >
         <SelectTrigger className="w-44 h-8 text-sm">
-          <SelectValue placeholder="Temporada" />
+          <SelectValue placeholder={t('season')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todas las temporadas</SelectItem>
+          <SelectItem value="all">{t('allSeasons')}</SelectItem>
           {seasons.map((s) => (
             <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
           ))}
@@ -77,12 +67,12 @@ export function StandingsFilters({
         onValueChange={(v) => updateFilter('category', v === 'all' ? undefined : v)}
       >
         <SelectTrigger className="w-44 h-8 text-sm">
-          <SelectValue placeholder="Categoría" />
+          <SelectValue placeholder={t('category')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todas las categorías</SelectItem>
+          <SelectItem value="all">{t('allCategories')}</SelectItem>
           {categories.map((c) => (
-            <SelectItem key={c} value={c}>{CATEGORY_LABELS[c]}</SelectItem>
+            <SelectItem key={c} value={c}>{tc(c)}</SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -93,10 +83,10 @@ export function StandingsFilters({
           onValueChange={(v) => updateFilter('competitionName', v === 'all' ? undefined : v)}
         >
           <SelectTrigger className="w-48 h-8 text-sm">
-            <SelectValue placeholder="Competición" />
+            <SelectValue placeholder={t('competition')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas las competiciones</SelectItem>
+            <SelectItem value="all">{t('allCompetitions')}</SelectItem>
             {competitions.map((c) => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
@@ -112,7 +102,7 @@ export function StandingsFilters({
           onClick={clearFilters}
         >
           <X className="h-3.5 w-3.5 mr-1" />
-          Limpiar
+          {t('clear')}
         </Button>
       )}
     </div>

@@ -29,54 +29,54 @@ export interface NavGroup {
   items: NavItem[]
 }
 
-export function getNavGroups(orgSlug: string): NavGroup[] {
+export function getNavGroups(orgSlug: string, t: any): NavGroup[] {
   const base = `/admin/${orgSlug}`
 
   return [
     {
-      label: 'General',
+      label: t('groupGeneral'),
       items: [
-        { title: 'Dashboard', href: base, icon: LayoutDashboard },
+        { title: t('dashboard'), href: base, icon: LayoutDashboard },
       ],
     },
     {
-      label: 'Deportes',
+      label: t('groupSports'),
       items: [
-        { title: 'Partidos', href: `${base}/sports/matches`, icon: Trophy },
-        { title: 'Clasificación', href: `${base}/sports/standings`, icon: ListOrdered },
-        { title: 'Jugadores', href: `${base}/sports/players`, icon: Users },
-        { title: 'Equipos', href: `${base}/sports/teams`, icon: ShieldHalf },
-        { title: 'Temporadas', href: `${base}/sports/seasons`, icon: CalendarDays },
+        { title: t('matches'), href: `${base}/sports/matches`, icon: Trophy },
+        { title: t('standings'), href: `${base}/sports/standings`, icon: ListOrdered },
+        { title: t('players'), href: `${base}/sports/players`, icon: Users },
+        { title: t('teams'), href: `${base}/sports/teams`, icon: ShieldHalf },
+        { title: t('seasons'), href: `${base}/sports/seasons`, icon: CalendarDays },
       ],
     },
     {
-      label: 'Sitio Web',
+      label: t('groupWebsite'),
       items: [
-        { title: 'Páginas', href: `${base}/site/pages`, icon: FileText },
-        { title: 'Menú', href: `${base}/site/menu`, icon: Menu },
-        { title: 'Testimonios', href: `${base}/site/testimonials`, icon: MessageSquareQuote },
+        { title: t('pages'), href: `${base}/site/pages`, icon: FileText },
+        { title: t('menu'), href: `${base}/site/menu`, icon: Menu },
+        { title: t('testimonials'), href: `${base}/site/testimonials`, icon: MessageSquareQuote },
       ],
     },
     {
-      label: 'Editorial',
+      label: t('groupEditorial'),
       items: [
-        { title: 'Artículos', href: `${base}/editorial/articles`, icon: Newspaper },
-        { title: 'Eventos', href: `${base}/editorial/events`, icon: CalendarRange },
-        { title: 'Categorías', href: `${base}/editorial/categories`, icon: FolderOpen },
-        { title: 'Tags', href: `${base}/editorial/tags`, icon: Tags },
+        { title: t('articles'), href: `${base}/editorial/articles`, icon: Newspaper },
+        { title: t('events'), href: `${base}/editorial/events`, icon: CalendarRange },
+        { title: t('categories'), href: `${base}/editorial/categories`, icon: FolderOpen },
+        { title: t('tags'), href: `${base}/editorial/tags`, icon: Tags },
       ],
     },
     {
-      label: 'Media',
+      label: t('groupMedia'),
       items: [
-        { title: 'Biblioteca', href: `${base}/media`, icon: Image },
+        { title: t('library'), href: `${base}/media`, icon: Image },
       ],
     },
     {
-      label: 'Gestión',
+      label: t('groupManagement'),
       items: [
-        { title: 'Usuarios', href: `${base}/users`, icon: UserCog },
-        { title: 'Configuración', href: `${base}/configuration`, icon: Settings },
+        { title: t('users'), href: `${base}/users`, icon: UserCog },
+        { title: t('configuration'), href: `${base}/configuration`, icon: Settings },
       ],
     },
   ]

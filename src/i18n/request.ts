@@ -2,7 +2,7 @@ import { getRequestConfig } from 'next-intl/server'
 import { cookies } from 'next/headers'
 
 const SUPPORTED_LOCALES = ['es', 'en', 'fr'] as const
-const DEFAULT_LOCALE = 'es'
+const DEFAULT_LOCALE = 'en'
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 

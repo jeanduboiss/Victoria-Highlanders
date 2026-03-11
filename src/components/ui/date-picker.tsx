@@ -1,12 +1,19 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enGB, fr } from 'date-fns/locale'
 import { CalendarIcon } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { useLocale } from 'next-intl'
+
+const DATE_FNS_LOCALES = {
+  es,
+  en: enGB,
+  fr,
+} as const
 
 interface DatePickerProps {
   value?: string          // ISO date string: 'YYYY-MM-DD'
@@ -30,6 +37,8 @@ export function DatePicker({
   fromYear = 1920,
   toYear = new Date().getFullYear() + 5,
 }: DatePickerProps) {
+  const locale = useLocale()
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] || es
   const selected = value ? parseISO(value) : undefined
 
   function handleSelect(date: Date | undefined) {
@@ -56,7 +65,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 size-4 shrink-0" />
           {selected
-            ? format(selected, 'PPP', { locale: es })
+            ? format(selected, 'PPP', { locale: dateFnsLocale })
             : placeholder}
         </Button>
       </PopoverTrigger>

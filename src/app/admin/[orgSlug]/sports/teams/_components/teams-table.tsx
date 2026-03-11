@@ -10,6 +10,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Shield } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface Team {
     id: string
@@ -26,19 +27,6 @@ interface TeamsTableProps {
     orgSlug: string
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-    FIRST_TEAM: 'Primer equipo',
-    RESERVE: 'Reserva',
-    U23: 'Sub-23',
-    U20: 'Sub-20',
-    U18: 'Sub-18',
-    U16: 'Sub-16',
-    U14: 'Sub-14',
-    U12: 'Sub-12',
-    WOMEN: 'Femenino',
-    FUTSAL: 'Futsal',
-}
-
 const CATEGORY_COLORS: Record<string, string> = {
     FIRST_TEAM: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
     RESERVE: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -46,20 +34,23 @@ const CATEGORY_COLORS: Record<string, string> = {
     FUTSAL: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
 }
 
-const GENDER_LABELS: Record<string, string> = {
-    MALE: 'Masculino',
-    FEMALE: 'Femenino',
-    MIXED: 'Mixto',
-}
-
 export function TeamsTable({ teams, orgSlug }: TeamsTableProps) {
+    const t = useTranslations('admin.pages.sports.teamsTable')
+    const tc = useTranslations('subpages.roster.categories')
+
+    const GENDER_LABELS: Record<string, string> = {
+        MALE: t('male'),
+        FEMALE: t('female'),
+        MIXED: t('mixed'),
+    }
+
     if (teams.length === 0)
         return (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-center rounded-xl border bg-card">
                 <Shield className="size-10 text-muted-foreground/40" />
                 <div>
-                    <p className="text-sm font-medium">No hay equipos registrados</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Crea el primer equipo para comenzar.</p>
+                    <p className="text-sm font-medium">{t('noTeams')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('createFirst')}</p>
                 </div>
             </div>
         )
@@ -80,7 +71,7 @@ export function TeamsTable({ teams, orgSlug }: TeamsTableProps) {
                             className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${CATEGORY_COLORS[team.category] ?? 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
                                 }`}
                         >
-                            {CATEGORY_LABELS[team.category] ?? team.category}
+                            {tc(team.category)}
                         </span>
                     </div>
 
@@ -89,7 +80,7 @@ export function TeamsTable({ teams, orgSlug }: TeamsTableProps) {
                         <h3 className="font-semibold text-sm">{team.name}</h3>
                         {team.isExternal && (
                             <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 bg-orange-500/10 text-orange-500 border-orange-500/20">
-                                Externo
+                                {t('external')}
                             </Badge>
                         )}
                     </div>

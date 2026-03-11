@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInLeft, fadeInRight, fadeInUp, staggerContainer, VIEWPORT } from '@/components/site/animations/variants'
 
 const SOCIAL_LINKS = [
@@ -12,6 +13,8 @@ const SOCIAL_LINKS = [
 ]
 
 export function SocialSection() {
+  const t = useTranslations('social')
+
   return (
     <section className="bg-[#111] border-y border-white/5">
       <div className="mx-auto max-w-[1280px] px-4 py-10 lg:px-8 lg:py-14">
@@ -24,8 +27,8 @@ export function SocialSection() {
             whileInView="visible"
             viewport={VIEWPORT}
           >
-            <p className="mb-1 font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-gold">Stay Connected</p>
-            <h2 className="mb-5 font-oswald text-[24px] font-bold uppercase text-white sm:text-[28px]">Follow Us on Social</h2>
+            <p className="mb-1 font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-gold">{t('stayConnected')}</p>
+            <h2 className="mb-5 font-oswald text-[24px] font-bold uppercase text-white sm:text-[28px]">{t('followUs')}</h2>
             <motion.div
               className="flex flex-wrap gap-3"
               variants={staggerContainer}
@@ -56,16 +59,16 @@ export function SocialSection() {
             whileInView="visible"
             viewport={VIEWPORT}
           >
-            <p className="mb-1 font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-gold">Membership</p>
-            <h3 className="mb-2 font-oswald text-[22px] font-bold uppercase text-white">Join the Club</h3>
+            <p className="mb-1 font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-gold">{t('membershipBadge')}</p>
+            <h3 className="mb-2 font-oswald text-[22px] font-bold uppercase text-white">{t('joinClub')}</h3>
             <p className="mb-5 font-sans text-[13px] leading-relaxed text-gray-400">
-              Become a member of Victoria Highlanders FC and get exclusive access to match updates, behind-the-scenes content, and more.
+              {t('joinDescription')}
             </p>
             <Link
               href="#"
               className="flex h-[42px] w-full items-center justify-center bg-gold font-oswald text-[13px] font-bold uppercase tracking-widest text-black transition-opacity hover:opacity-90"
             >
-              Join Now
+              {t('joinNow')}
             </Link>
           </motion.div>
 

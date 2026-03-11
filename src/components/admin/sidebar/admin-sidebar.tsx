@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
+import { useTranslations } from 'next-intl'
 import { ChevronsUpDown, Settings, LogOut, User } from 'lucide-react'
 import { getNavGroups } from './nav-items'
 import {
@@ -28,14 +29,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 
-const ROLE_LABELS: Record<string, string> = {
-  SUPER_ADMIN: 'Super Admin',
-  LEAGUE_ADMIN: 'Liga Admin',
-  CLUB_ADMIN: 'Club Admin',
-  CLUB_MANAGER: 'Manager',
-  EDITOR: 'Editor',
-  VIEWER: 'Viewer',
-}
+// Roles labels are now translated within the component using t('roles.ROLE_NAME')
 
 interface AdminSidebarProps {
   orgSlug: string
@@ -47,7 +41,8 @@ interface AdminSidebarProps {
 export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const navGroups = getNavGroups(orgSlug)
+  const t = useTranslations('admin.sidebar')
+  const navGroups = getNavGroups(orgSlug, t)
 
   const initials = userEmail.slice(0, 2).toUpperCase()
 
@@ -76,7 +71,7 @@ export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSid
                   </div>
                   <div className="flex flex-1 flex-col gap-0.5 leading-none min-w-0">
                     <span className="font-semibold truncate text-sm">{orgName}</span>
-                    <span className="text-[11px] text-sidebar-foreground/50">Panel de control</span>
+                    <span className="text-[11px] text-sidebar-foreground/50">{t('controlPanel')}</span>
                   </div>
                   <ChevronsUpDown className="size-3.5 text-sidebar-foreground/40 shrink-0" />
                 </SidebarMenuButton>
@@ -85,7 +80,7 @@ export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSid
                 <DropdownMenuItem asChild>
                   <Link href={`/admin/${orgSlug}/configuration`}>
                     <Settings className="size-4" />
-                    <span>Configuración</span>
+                    <span>{t('configuration')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -94,7 +89,7 @@ export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSid
                   className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="size-4" />
-                  <span>Cerrar sesión</span>
+                  <span>{t('logout')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -146,7 +141,7 @@ export function AdminSidebar({ orgSlug, orgName, userEmail, userRole }: AdminSid
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-[12px] font-medium text-sidebar-foreground/80 truncate">{userEmail}</span>
             <Badge variant="secondary" className="w-fit text-[10px] px-1.5 h-4 mt-0.5 bg-sidebar-accent text-sidebar-foreground/60 border-0 hover:bg-sidebar-accent">
-              {ROLE_LABELS[userRole] ?? userRole}
+              {t(`roles.${userRole}`)}
             </Badge>
           </div>
         </div>

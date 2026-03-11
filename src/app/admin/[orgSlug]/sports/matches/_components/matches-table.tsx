@@ -18,6 +18,7 @@ import { ArrowRight, Radio, Swords } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { startMatchLiveAction } from '@/domains/sports/actions/match.actions'
 import { toast } from 'sonner'
+import { useTranslations, useLocale } from 'next-intl'
 
 type Match = {
   id: string
@@ -36,14 +37,8 @@ interface MatchesTableProps {
   orgSlug: string
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  SCHEDULED: 'Programado',
-  LIVE: 'En vivo',
-  FINISHED: 'Finalizado',
-  POSTPONED: 'Aplazado',
-  CANCELLED: 'Cancelado',
-  ABANDONED: 'Abandonado',
-}
+
+
 
 const STATUS_STYLES: Record<string, string> = {
   SCHEDULED: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
@@ -64,12 +59,15 @@ const FILTER_OPTIONS = [
 
 function StartLiveButton({ matchId, orgSlug }: { matchId: string; orgSlug: string }) {
   const router = useRouter()
+  const t = useTranslations('admin.pages.sports.matchesTable')
   const { execute, isPending } = useAction(startMatchLiveAction, {
     onSuccess: () => {
-      toast.success('Partido iniciado en vivo')
+      toast.success(t('liveStarted'))
       router.push(`/admin/${orgSlug}/sports/matches/${matchId}/live`)
     },
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al iniciar partido'),
+    onError: ({ error }) => {
+      toast.error(error.serverError ?? (t('errorStartingMatch') || 'Error'))
+    },
   })
   return (
     <Button
@@ -80,13 +78,35 @@ function StartLiveButton({ matchId, orgSlug }: { matchId: string; orgSlug: strin
       onClick={(e) => { e.preventDefault(); execute({ orgSlug, matchId }) }}
     >
       <Radio className="mr-1 h-3 w-3" />
-      {isPending ? '...' : 'Iniciar'}
+      {isPending ? '...' : t('startLive')}
     </Button>
   )
 }
 
 export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
   const [statusFilter, setStatusFilter] = useState('ALL')
+  const t = useTranslations('admin.pages.sports.matchesTable')
+  const locale = useLocale()
+
+  const FILTER_OPTIONS = [
+    { value: 'ALL', label: t('all') },
+    { value: 'SCHEDULED', label: t('scheduled') },
+    { value: 'LIVE', label: t('live') },
+    { value: 'FINISHED', label: t('finished') },
+    { value: 'POSTPONED', label: t('postponed') },
+  ]
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'SCHEDULED': return t('scheduled')
+      case 'LIVE': return t('live')
+      case 'FINISHED': return t('finished')
+      case 'POSTPONED': return t('postponed')
+      case 'CANCELLED': return t('cancelled')
+      case 'ABANDONED': return t('abandoned')
+      default: return status
+    }
+  }
 
   const filtered = statusFilter === 'ALL'
     ? matches
@@ -97,8 +117,8 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
       <div className="flex flex-col items-center justify-center py-16 gap-3 text-center rounded-xl border bg-card">
         <Swords className="size-10 text-muted-foreground/40" />
         <div>
-          <p className="text-sm font-medium">No hay partidos registrados</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Programa el primer partido para comenzar.</p>
+          <p className="text-sm font-medium">{t('noMatches')}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('scheduleFirst')}</p>
         </div>
       </div>
     )
@@ -134,7 +154,7 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
       <div className="md:hidden space-y-2">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-center rounded-xl border bg-card">
-            <p className="text-sm text-muted-foreground">No hay partidos con ese estado.</p>
+            <p className="text-sm text-muted-foreground">{t('noMatchesFilter')}</p>
           </div>
         ) : (
           filtered.map((match) => (
@@ -145,7 +165,7 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-muted-foreground">
-                  {new Date(match.matchDate).toLocaleDateString('es-ES', {
+                  {new Date(match.matchDate).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
                 </span>
@@ -160,12 +180,12 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
                       className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 animate-pulse"
                     >
                       <Radio className="h-2.5 w-2.5" />
-                      En vivo
+                      {t('live')}
                     </Link>
                   )}
                   {match.status !== 'SCHEDULED' && match.status !== 'LIVE' && (
                     <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
-                      {STATUS_LABELS[match.status] ?? match.status}
+                      {getStatusLabel(match.status)}
                     </span>
                   )}
                 </div>
@@ -196,7 +216,7 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
       <div className="hidden md:block">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-center rounded-xl border bg-card">
-            <p className="text-sm text-muted-foreground">No hay partidos con ese estado.</p>
+            <p className="text-sm text-muted-foreground">{t('noMatchesFilter')}</p>
           </div>
         ) : (
           <div className="rounded-xl border bg-card overflow-hidden">
@@ -204,11 +224,11 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="pl-4 whitespace-nowrap">Fecha</TableHead>
-                    <TableHead>Partido</TableHead>
-                    <TableHead className="text-center">Resultado</TableHead>
-                    <TableHead className="hidden lg:table-cell">Competición</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead className="pl-4 whitespace-nowrap">{t('date')}</TableHead>
+                    <TableHead>{t('match')}</TableHead>
+                    <TableHead className="text-center">{t('result')}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{t('competition')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
                     <TableHead className="w-[52px]" />
                   </TableRow>
                 </TableHeader>
@@ -216,7 +236,7 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
                   {filtered.map((match) => (
                     <TableRow key={match.id} className="group">
                       <TableCell className="pl-4 text-sm text-muted-foreground whitespace-nowrap">
-                        {new Date(match.matchDate).toLocaleDateString('es-ES', {
+                        {new Date(match.matchDate).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
                           day: '2-digit', month: 'short', year: 'numeric',
                         })}
                       </TableCell>
@@ -247,11 +267,11 @@ export function MatchesTable({ matches, orgSlug }: MatchesTableProps) {
                               className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 animate-pulse"
                             >
                               <Radio className="h-2.5 w-2.5" />
-                              En vivo
+                              {t('live')}
                             </Link>
                           ) : (
                             <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full border', STATUS_STYLES[match.status] ?? STATUS_STYLES.FINISHED)}>
-                              {STATUS_LABELS[match.status] ?? match.status}
+                              {getStatusLabel(match.status)}
                             </span>
                           )}
                           {match.status === 'SCHEDULED' && (

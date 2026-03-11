@@ -21,22 +21,15 @@ import { NextMatchCountdown } from '@/components/site/matches/next-match-countdo
 export default async function HomePage() {
   const slug = process.env.DEFAULT_ORG_SLUG ?? 'victoria-highlanders'
 
-  // Fetch data in parallel with explicit awaits to preserve correct TypeScript types
-  const articlesPromise = getPublicArticles({ limit: 3 })
-  const matchBarPromise = getPublicMatchBar()
-  const matchesPromise = getPublicMatches({ limit: 6 })
-  const playersPromise = getPublicPlayers({ limit: 16 })
-  const tvVideosPromise = getPublicMediaTV({ limit: 4 })
-  const configPromise = getSiteConfigBySlug(slug)
-  const testimonialsPromise = getPublishedTestimonialsBySlug(slug).catch(() => [])
-
-  const articles = await articlesPromise
-  const matchBar = await matchBarPromise
-  const matches = await matchesPromise
-  const players = await playersPromise
-  const tvVideos = await tvVideosPromise
-  const orgConfig = await configPromise
-  const testimonials = await testimonialsPromise
+  // Fetch data sequentially to prevent Prisma connection pool timeouts
+  // (Prisma has a default connection limit of 5 which we easily exceed if we fire 7 queries concurrently)
+  const orgConfig = await getSiteConfigBySlug(slug)
+  const articles = await getPublicArticles({ limit: 3 })
+  const matchBar = await getPublicMatchBar()
+  const matches = await getPublicMatches({ limit: 6 })
+  const players = await getPublicPlayers({ limit: 16 })
+  const tvVideos = await getPublicMediaTV({ limit: 4 })
+  const testimonials = await getPublishedTestimonialsBySlug(slug).catch(() => [])
 
   const latestArticle = articles[0] ?? null
   const rawSponsors = orgConfig?.sponsorsJson

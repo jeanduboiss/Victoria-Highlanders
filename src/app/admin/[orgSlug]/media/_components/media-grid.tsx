@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import Image from 'next/image'
 import { FolderOpen, FileText, Film, Music, File, Link as LinkIcon, Copy, Trash2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
@@ -45,30 +47,31 @@ function AssetIcon({ mimeType }: { mimeType: string }) {
 }
 
 export function MediaGrid({ assets, folders, orgSlug }: MediaGridProps) {
+  const t = useTranslations('admin.pages.media')
   const { execute: archiveAsset } = useAction(archiveAssetAction, {
-    onSuccess: () => toast.success('Archivo eliminado correctamente'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Rechazado: el archivo sigue en uso en noticias o página'),
+    onSuccess: () => toast.success(t('deleteSuccess')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('deleteError')),
   })
 
   if (folders.length === 0 && assets.length === 0)
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
         <FolderOpen className="h-10 w-10" />
-        <p className="text-sm">La biblioteca está vacía. Sube tu primer archivo.</p>
+        <p className="text-sm">{t('noAssets')}</p>
       </div>
     )
 
   function handleCopy(e: React.MouseEvent, url: string) {
     e.stopPropagation()
     navigator.clipboard.writeText(url)
-    toast.success('URL copiada al portapapeles')
+    toast.success(t('urlCopied'))
   }
 
   return (
     <div className="space-y-4">
       {folders.length > 0 && (
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-2">Carpetas</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">{t('folders')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
             {folders.map((folder) => (
               <Card
@@ -85,7 +88,7 @@ export function MediaGrid({ assets, folders, orgSlug }: MediaGridProps) {
 
       {assets.length > 0 && (
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-2">Archivos</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">{t('files')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
             {assets.map((asset) => (
               <Card key={asset.id} className="overflow-hidden group cursor-pointer hover:ring-2 hover:ring-primary transition-all">
@@ -125,19 +128,19 @@ export function MediaGrid({ assets, folders, orgSlug }: MediaGridProps) {
                       <button
                         onClick={(e) => handleCopy(e, asset.publicUrl)}
                         className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-                        title="Copiar URL pública"
+                        title={t('copyUrl')}
                       >
                         <Copy className="h-3 w-3" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (confirm('¿Estás seguro de que quieres ocultar/eliminar este archivo del panel?')) {
+                          if (confirm(t('confirmDelete'))) {
                             archiveAsset({ orgSlug, assetId: asset.id })
                           }
                         }}
                         className="text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
-                        title="Eliminar archivo"
+                        title={t('deleteAsset')}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>

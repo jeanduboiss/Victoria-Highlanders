@@ -1,7 +1,8 @@
 import { requirePermission } from '@/lib/auth'
 import { getMatchesByOrg } from '@/domains/sports/queries/match.queries'
 import { getSeasonsByOrg, getTeamsByOrg } from '@/domains/sports/queries/squad.queries'
-import { redirect } from 'next/navigation'
+import {  redirect  } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { MatchesTable } from './_components/matches-table'
 import { ScheduleMatchSheet } from './_components/schedule-match-sheet'
 import { PageHeader } from '@/components/admin/page-header'
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default async function MatchesPage({ params, searchParams }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const { seasonId } = await searchParams
 
@@ -28,13 +30,13 @@ export default async function MatchesPage({ params, searchParams }: Props) {
   return (
     <div className="space-y-4 py-4">
       <PageHeader
-        title="Partidos"
-        description={`${matches.length} partido${matches.length !== 1 ? 's' : ''} encontrado${matches.length !== 1 ? 's' : ''}`}
+        title={t('sports.matches')}
+        description={t('sports.matchesCount', { count: matches.length })}
         action={
           <ScheduleMatchSheet orgSlug={orgSlug} seasons={seasons} teams={teams}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
-              Programar partido
+              {t('sports.scheduleMatch')}
             </Button>
           </ScheduleMatchSheet>
         }

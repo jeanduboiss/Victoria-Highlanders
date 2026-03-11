@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState } from 'react'
 import { useAction } from 'next-safe-action/hooks'
@@ -36,6 +37,7 @@ interface CreateSeasonSheetProps {
 }
 
 export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps) {
+  const t = useTranslations('admin.pages.sports.newSeasonSheet')
     const [open, setOpen] = useState(false)
 
     const form = useForm<FormValues>({
@@ -69,8 +71,8 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle>Nueva temporada</SheetTitle>
-                    <SheetDescription>Define el período competitivo de la organización.</SheetDescription>
+                    <SheetTitle>{t('title')}</SheetTitle>
+                    <SheetDescription>{t('desc')}</SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -79,9 +81,9 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre</FormLabel>
+                                    <FormLabel>{t('name')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: 2025-2026" {...field} />
+                                        <Input placeholder={t('ejSeason')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -92,9 +94,9 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                             name="shortName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre corto (opcional)</FormLabel>
+                                    <FormLabel>{t('shortName')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: 25/26" {...field} />
+                                        <Input placeholder={t('ejShort')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -106,12 +108,12 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                                 name="startDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Fecha inicio</FormLabel>
+                                        <FormLabel>{t('startDate')}</FormLabel>
                                         <FormControl>
                                             <DatePicker
                                                 value={field.value}
                                                 onChange={field.onChange}
-                                                placeholder="Inicio"
+                                                placeholder={t('start')}
                                                 fromYear={2000}
                                                 toYear={2050}
                                             />
@@ -125,12 +127,12 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                                 name="endDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Fecha fin</FormLabel>
+                                        <FormLabel>{t('endDate')}</FormLabel>
                                         <FormControl>
                                             <DatePicker
                                                 value={field.value}
                                                 onChange={field.onChange}
-                                                placeholder="Fin"
+                                                placeholder={t('end')}
                                                 fromYear={2000}
                                                 toYear={2050}
                                             />
@@ -141,11 +143,9 @@ export function CreateSeasonSheet({ orgSlug, children }: CreateSeasonSheetProps)
                             />
                         </div>
                         <div className="flex gap-2 pt-2">
-                            <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                                Cancelar
-                            </Button>
+                            <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>{t('cancel')}</Button>
                             <Button type="submit" className="flex-1" disabled={isPending}>
-                                {isPending ? 'Guardando...' : 'Crear temporada'}
+                                {isPending ? 'Guardando...' : t('create')}
                             </Button>
                         </div>
                     </form>

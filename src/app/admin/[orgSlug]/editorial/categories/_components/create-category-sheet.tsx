@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createCategorySchema } from '@/domains/editorial/schemas/article.schema'
 import { createCategoryAction } from '@/domains/editorial/actions/article.actions'
+import { useTranslations } from 'next-intl'
 import {
     Sheet,
     SheetContent,
@@ -36,6 +37,7 @@ interface CreateCategorySheetProps {
 }
 
 export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetProps) {
+    const t = useTranslations('admin.pages.editorial.newCategorySheet')
     const [open, setOpen] = useState(false)
 
     const form = useForm<FormValues>({
@@ -49,12 +51,12 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
 
     const { execute, isPending } = useAction(createCategoryAction, {
         onSuccess: () => {
-            toast.success('Categoría creada.')
+            toast.success(t('success'))
             form.reset({ orgSlug, name: '', description: '' })
             setOpen(false)
         },
         onError: ({ error }) => {
-            toast.error(error.serverError ?? 'Error al crear categoría.')
+            toast.error(error.serverError ?? t('error'))
         },
     })
 
@@ -67,8 +69,8 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="w-full sm:w-[440px] md:w-[540px]">
                 <SheetHeader>
-                    <SheetTitle>Nueva categoría</SheetTitle>
-                    <SheetDescription>Organiza tus artículos en categorías.</SheetDescription>
+                    <SheetTitle>{t('title')}</SheetTitle>
+                    <SheetDescription>{t('desc')}</SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -77,9 +79,9 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre</FormLabel>
+                                    <FormLabel>{t('name')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: Noticias del club" {...field} />
+                                        <Input placeholder={t('placeholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -90,9 +92,9 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Descripción (opcional)</FormLabel>
+                                    <FormLabel>{t('description')}</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Descripción de la categoría..." rows={3} className="resize-none" {...field} />
+                                        <Textarea placeholder={t('descPlaceholder')} rows={3} className="resize-none" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -100,10 +102,10 @@ export function CreateCategorySheet({ orgSlug, children }: CreateCategorySheetPr
                         />
                         <div className="flex gap-2 pt-2">
                             <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button type="submit" className="flex-1" disabled={isPending}>
-                                {isPending ? 'Guardando...' : 'Crear categoría'}
+                                {isPending ? t('saving') : t('create')}
                             </Button>
                         </div>
                     </form>

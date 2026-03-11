@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
+
 import { useAction } from 'next-safe-action/hooks'
 import { publishEventAction, cancelEventAction, finishEventAction } from '@/domains/editorial/actions/event.actions'
 import { Badge } from '@/components/ui/badge'
@@ -38,39 +40,42 @@ interface EventsTableProps {
     orgSlug: string
 }
 
-const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-    DRAFT: { label: 'Borrador', variant: 'secondary' },
-    PUBLISHED: { label: 'Publicado', variant: 'default' },
-    CANCELLED: { label: 'Cancelado', variant: 'destructive' },
-    FINISHED: { label: 'Finalizado', variant: 'outline' },
-}
-
-const TYPE_LABELS: Record<string, string> = {
-    MATCH: 'Día de partido',
-    TRAINING: 'Entrenamiento',
-    SOCIAL: 'Social',
-    MEMBERSHIP: 'Membresía',
-    PRESS: 'Prensa',
-    CHARITY: 'Caridad',
-    OTHER: 'Otro',
-}
-
 export function EventsTable({ events, orgSlug }: EventsTableProps) {
+    const t = useTranslations('admin.pages.editorial.eventsTable')
+    const locale = useLocale()
+
+    const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
+        DRAFT: { label: t('statusDraft'), variant: 'secondary' },
+        PUBLISHED: { label: t('statusPublished'), variant: 'default' },
+        CANCELLED: { label: t('statusCancelled'), variant: 'destructive' },
+        FINISHED: { label: t('statusFinished'), variant: 'outline' },
+    }
+
+    const TYPE_LABELS: Record<string, string> = {
+        MATCH: t('typeMatch'),
+        TRAINING: t('typeTraining'),
+        SOCIAL: t('typeSocial'),
+        MEMBERSHIP: t('typeMembership'),
+        PRESS: t('typePress'),
+        CHARITY: t('typeCharity'),
+        OTHER: t('typeOther'),
+    }
+
     const { execute: executePublish, isPending: isPub } = useAction(publishEventAction, {
-        onSuccess: () => toast.success('Evento publicado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error.'),
+        onSuccess: () => toast.success(t('successPublish')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
     const { execute: executeCancel, isPending: isCan } = useAction(cancelEventAction, {
-        onSuccess: () => toast.success('Evento cancelado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error.'),
+        onSuccess: () => toast.success(t('successCancel')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
     const { execute: executeFinish, isPending: isFin } = useAction(finishEventAction, {
-        onSuccess: () => toast.success('Evento finalizado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error.'),
+        onSuccess: () => toast.success(t('successFinish')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
 
     if (events.length === 0)
-        return <p className="text-sm text-muted-foreground py-8 text-center">No hay eventos registrados.</p>
+        return <p className="text-sm text-muted-foreground py-8 text-center">{t('noEvents')}</p>
 
     const isPending = isPub || isCan || isFin
 
@@ -81,12 +86,12 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Evento</TableHead>
-                                <TableHead className="hidden sm:table-cell">Tipo</TableHead>
-                                <TableHead>Fecha</TableHead>
-                                <TableHead className="hidden md:table-cell">Lugar</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('event')}</TableHead>
+                                <TableHead className="hidden sm:table-cell">{t('type')}</TableHead>
+                                <TableHead>{t('date')}</TableHead>
+                                <TableHead className="hidden md:table-cell">{t('place')}</TableHead>
+                                <TableHead>{t('status')}</TableHead>
+                                <TableHead className="text-right">{t('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -116,9 +121,9 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
                                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                                             <div className="flex items-center gap-1.5">
                                                 <Calendar className="h-3 w-3" />
-                                                {start.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                                {start.toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short' })}
                                                 <Clock className="h-3 w-3 ml-1" />
-                                                {start.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                                {start.toLocaleTimeString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })}
                                             </div>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
@@ -147,7 +152,7 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
                                                                 <Send className="h-4 w-4" />
                                                             </Button>
                                                         </TooltipTrigger>
-                                                        <TooltipContent>Publicar</TooltipContent>
+                                                        <TooltipContent>{t('publish')}</TooltipContent>
                                                     </Tooltip>
                                                 )}
                                                 {event.status === 'PUBLISHED' && (
@@ -164,7 +169,7 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
                                                                     <CheckCircle2 className="h-4 w-4" />
                                                                 </Button>
                                                             </TooltipTrigger>
-                                                            <TooltipContent>Finalizar</TooltipContent>
+                                                            <TooltipContent>{t('finish')}</TooltipContent>
                                                         </Tooltip>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
@@ -178,7 +183,7 @@ export function EventsTable({ events, orgSlug }: EventsTableProps) {
                                                                     <XCircle className="h-4 w-4" />
                                                                 </Button>
                                                             </TooltipTrigger>
-                                                            <TooltipContent>Cancelar</TooltipContent>
+                                                            <TooltipContent>{t('cancel')}</TooltipContent>
                                                         </Tooltip>
                                                     </>
                                                 )}

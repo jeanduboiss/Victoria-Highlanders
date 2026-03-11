@@ -9,6 +9,7 @@ interface KpiCardProps {
   icon: LucideIcon
   iconColor?: string
   iconBg?: string
+  badgeText?: string
 }
 
 export function KpiCard({
@@ -18,6 +19,7 @@ export function KpiCard({
   icon: Icon,
   iconColor = 'text-primary',
   iconBg = 'bg-primary/10',
+  badgeText,
 }: KpiCardProps) {
   return (
     <div className="bg-card text-card-foreground rounded-xl border p-5 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200">
@@ -26,7 +28,7 @@ export function KpiCard({
           <Icon className={cn('size-4', iconColor)} />
         </div>
         <span className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5">
-          Total
+          {badgeText || 'Total'}
         </span>
       </div>
       <div>

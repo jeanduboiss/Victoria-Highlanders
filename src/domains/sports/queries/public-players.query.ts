@@ -51,18 +51,18 @@ import type { TeamCategory } from '@prisma/client'
 
 export async function getRosterFilters() {
   const org = await getDefaultOrg()
-  const [seasons, teams] = await Promise.all([
-    prisma.season.findMany({
-      where: { organizationId: org.id },
-      select: { id: true, name: true, isCurrent: true },
-      orderBy: { startDate: 'desc' }
-    }),
-    prisma.team.findMany({
-      where: { organizationId: org.id, isActive: true, isExternal: false },
-      select: { id: true, name: true, category: true },
-      orderBy: { name: 'asc' }
-    })
-  ])
+  const seasons = await prisma.season.findMany({
+    where: { organizationId: org.id },
+    select: { id: true, name: true, isCurrent: true },
+    orderBy: { startDate: 'desc' }
+  })
+
+  const teams = await prisma.team.findMany({
+    where: { organizationId: org.id, isActive: true, isExternal: false },
+    select: { id: true, name: true, category: true },
+    orderBy: { name: 'asc' }
+  })
+
   return { seasons, teams }
 }
 

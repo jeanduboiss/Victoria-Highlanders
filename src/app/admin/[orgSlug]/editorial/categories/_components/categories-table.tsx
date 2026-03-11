@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { Badge } from '@/components/ui/badge'
 import {
     Table,
@@ -24,8 +26,9 @@ interface CategoriesTableProps {
 }
 
 export function CategoriesTable({ categories }: CategoriesTableProps) {
+    const t = useTranslations('admin.pages.editorial.categoriesTable')
     if (categories.length === 0)
-        return <p className="text-sm text-muted-foreground py-8 text-center">No hay categorías creadas.</p>
+        return <p className="text-sm text-muted-foreground py-8 text-center">{t('noCategories')}</p>
 
     return (
         <div className="rounded-md border overflow-hidden">
@@ -33,9 +36,9 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Nombre</TableHead>
-                            <TableHead className="hidden sm:table-cell">Slug</TableHead>
-                            <TableHead className="text-center">Artículos</TableHead>
+                            <TableHead>{t('name')}</TableHead>
+                            <TableHead className="hidden sm:table-cell">{t('slug')}</TableHead>
+                            <TableHead className="text-center">{t('articles')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

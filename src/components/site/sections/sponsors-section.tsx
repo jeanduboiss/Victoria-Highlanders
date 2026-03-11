@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 
 const FALLBACK_SPONSORS = [
@@ -18,6 +19,7 @@ interface Sponsor { name: string; logoUrl: string; websiteUrl?: string }
 interface SponsorsSectionProps { sponsors?: Sponsor[] }
 
 export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
+  const t = useTranslations('sponsors')
   const list = sponsors && sponsors.length > 0 ? sponsors : FALLBACK_SPONSORS
   return (
     <section className="bg-white py-10 overflow-hidden">
@@ -29,7 +31,7 @@ export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
         viewport={VIEWPORT}
       >
         <p className="text-center font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gray-400">
-          Official Partners
+          {t('title')}
         </p>
       </motion.div>
 

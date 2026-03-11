@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -54,13 +55,15 @@ interface HeroConfigFormProps {
 }
 
 export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }: HeroConfigFormProps) {
+  const t = useTranslations('admin.pages.configuration.hero')
+  const locale = useLocale()
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       orgSlug,
       siteName,
       heroTitle: config?.heroTitle ?? 'Unstoppable\nMomentum',
-      heroSubtitle: config?.heroSubtitle ?? 'The Highlanders secure another crucial victory at home, climbing the League 1 BC standings with a dominant performance.',
+      heroSubtitle: config?.heroSubtitle ?? 'The Highlanders secure another crucial victory at home...',
       heroImageUrl: config?.heroImageUrl ?? 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80',
       featuredArticleId: config?.featuredArticleId ?? '__none__',
       featuredMatchId: config?.featuredMatchId ?? '__none__',
@@ -68,8 +71,8 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
   })
 
   const { execute, isPending } = useAction(updateSiteConfigAction, {
-    onSuccess: () => toast.success('Hero actualizado.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al guardar.'),
+    onSuccess: () => toast.success(t('success')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   function onSubmit(values: FormValues) {
@@ -84,13 +87,13 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
         <div className="space-y-4">
-          <h2 className="text-base font-semibold">Texto del hero</h2>
+          <h2 className="text-base font-semibold">{t('text')}</h2>
           <FormField
             control={form.control}
             name="heroTitle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Título principal</FormLabel>
+                <FormLabel>{t('title')}</FormLabel>
                 <FormControl>
                   <Input placeholder="Unstoppable Momentum" {...field} />
                 </FormControl>
@@ -103,7 +106,7 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
             name="heroSubtitle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Subtítulo / descripción</FormLabel>
+                <FormLabel>{t('subtitle')}</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="The Highlanders secure another crucial victory..."
@@ -118,13 +121,13 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold">Imagen de fondo</h2>
+          <h2 className="text-base font-semibold">{t('background')}</h2>
           <FormField
             control={form.control}
             name="heroImageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL de la imagen</FormLabel>
+                <FormLabel>{t('imageUrl')}</FormLabel>
                 <FormControl>
                   <Input placeholder="https://images.unsplash.com/..." {...field} />
                 </FormControl>
@@ -135,21 +138,21 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold">Contenido destacado</h2>
+          <h2 className="text-base font-semibold">{t('featured')}</h2>
           <FormField
             control={form.control}
             name="featuredArticleId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Noticia destacada en el hero</FormLabel>
+                <FormLabel>{t('featuredArticle')}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value ?? ''}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sin noticia destacada" />
+                      <SelectValue placeholder={t('noneArticle')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="__none__">Sin noticia destacada</SelectItem>
+                    <SelectItem value="__none__">{t('noneArticle')}</SelectItem>
                     {articles.map((a) => (
                       <SelectItem key={a.id} value={a.id}>{a.title}</SelectItem>
                     ))}
@@ -164,18 +167,18 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
             name="featuredMatchId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Próximo partido destacado</FormLabel>
+                <FormLabel>{t('featuredMatch')}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value ?? ''}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sin partido destacado" />
+                      <SelectValue placeholder={t('noneMatch')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="__none__">Sin partido destacado</SelectItem>
+                    <SelectItem value="__none__">{t('noneMatch')}</SelectItem>
                     {matches.map((m) => (
                       <SelectItem key={m.id} value={m.id}>
-                        {m.homeTeam.shortName ?? m.homeTeam.name} vs {m.awayTeam.shortName ?? m.awayTeam.name} · {new Date(m.matchDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        {m.homeTeam.shortName ?? m.homeTeam.name} vs {m.awayTeam.shortName ?? m.awayTeam.name} · {new Date(m.matchDate).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short' })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -187,7 +190,7 @@ export function HeroConfigForm({ orgSlug, siteName, config, articles, matches }:
         </div>
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Guardando...' : 'Guardar hero'}
+          {isPending ? t('saving') : t('saveHero')}
         </Button>
       </form>
     </Form>

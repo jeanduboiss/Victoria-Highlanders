@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getTranslations } from 'next-intl/server'
 
 interface Article {
   id: string
@@ -16,13 +17,7 @@ interface Article {
 interface RecentArticlesWidgetProps {
   orgSlug: string
   articles: Article[]
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  PUBLISHED: 'Publicado',
-  DRAFT: 'Borrador',
-  SCHEDULED: 'Programado',
-  ARCHIVED: 'Archivado',
+  locale: string
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -32,20 +27,31 @@ const STATUS_STYLES: Record<string, string> = {
   ARCHIVED: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
 }
 
-export function RecentArticlesWidget({ orgSlug, articles }: RecentArticlesWidgetProps) {
+export async function RecentArticlesWidget({ orgSlug, articles, locale }: RecentArticlesWidgetProps) {
+  const t = await getTranslations('admin.dashboard')
+  const formatLocale = locale === 'en' ? 'en-US' : locale === 'fr' ? 'fr-FR' : 'es-ES'
+
+  const getStatusLabel = (status: string) => {
+    if (status === 'PUBLISHED') return t('statusPublished')
+    if (status === 'DRAFT') return t('statusDraft')
+    if (status === 'SCHEDULED') return t('statusScheduled')
+    if (status === 'ARCHIVED') return t('statusArchived')
+    return status
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <Newspaper className="h-4 w-4" />
-          Últimos Artículos
+          {t('recentArticles')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {articles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
             <FileText className="size-8 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">No hay artículos aún.</p>
+            <p className="text-sm text-muted-foreground">{t('noRecentArticles')}</p>
           </div>
         ) : (
           <ul className="divide-y divide-border">
@@ -61,7 +67,7 @@ export function RecentArticlesWidget({ orgSlug, articles }: RecentArticlesWidget
                   {article.publishedAt && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       <Clock className="size-3" />
-                      {new Date(article.publishedAt).toLocaleDateString('es-ES', {
+                      {new Date(article.publishedAt).toLocaleDateString(formatLocale, {
                         day: 'numeric',
                         month: 'short',
                       })}
@@ -74,7 +80,7 @@ export function RecentArticlesWidget({ orgSlug, articles }: RecentArticlesWidget
                     STATUS_STYLES[article.status] ?? STATUS_STYLES.DRAFT
                   )}
                 >
-                  {STATUS_LABELS[article.status] ?? article.status}
+                  {getStatusLabel(article.status)}
                 </span>
               </li>
             ))}
@@ -84,7 +90,7 @@ export function RecentArticlesWidget({ orgSlug, articles }: RecentArticlesWidget
       <CardFooter className="pt-0">
         <Button variant="ghost" size="sm" asChild className="w-full cursor-pointer">
           <Link href={`/admin/${orgSlug}/editorial/articles`}>
-            Ver todos
+            {t('view')}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
+import { useTranslations } from 'next-intl'
 import {
     Form,
     FormControl,
@@ -72,16 +73,19 @@ interface ArticleEditorFormProps {
     tags: TagItem[]
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-    DRAFT: { label: 'Borrador', color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
-    PUBLISHED: { label: 'Publicado', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-    SCHEDULED: { label: 'Programado', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-    ARCHIVED: { label: 'Archivado', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-}
-
 export function ArticleEditorForm({ orgSlug, article, categories, tags }: ArticleEditorFormProps) {
+    const t = useTranslations('admin.pages.editorial.articleEditor')
+    const tUi = useTranslations('admin.common.status') // Assuming status labels might be in common or just define them locally
+
     const router = useRouter()
     const isEditing = !!article
+
+    const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+        DRAFT: { label: tUi('draft'), color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
+        PUBLISHED: { label: tUi('published'), color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+        SCHEDULED: { label: tUi('scheduled'), color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+        ARCHIVED: { label: tUi('archived'), color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+    }
 
     const [editorContent, setEditorContent] = useState<string>(
         article?.content ? JSON.stringify(article.content) : ''
@@ -105,25 +109,25 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
 
     const { execute: executeCreate, isPending: isCreating } = useAction(createArticleAction, {
         onSuccess: (result) => {
-            toast.success('Artículo creado.')
+            toast.success(t('successCreate'))
             router.push(`/admin/${orgSlug}/editorial/articles/${result.data?.id}`)
         },
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error al crear.'),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
 
     const { execute: executeUpdate, isPending: isUpdating } = useAction(updateArticleAction, {
-        onSuccess: () => toast.success('Artículo guardado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error al guardar.'),
+        onSuccess: () => toast.success(t('successUpdate')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
 
     const { execute: executePublish, isPending: isPublishing } = useAction(publishArticleAction, {
-        onSuccess: () => toast.success('Artículo publicado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error al publicar.'),
+        onSuccess: () => toast.success(t('successPublish')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
 
     const { execute: executeArchive, isPending: isArchiving } = useAction(archiveArticleAction, {
-        onSuccess: () => toast.success('Artículo archivado.'),
-        onError: ({ error }) => toast.error(error.serverError ?? 'Error al archivar.'),
+        onSuccess: () => toast.success(t('successArchive')),
+        onError: ({ error }) => toast.error(error.serverError ?? t('error')),
     })
 
     const isPending = isCreating || isUpdating || isPublishing || isArchiving
@@ -175,7 +179,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                         <h1 className="text-2xl font-bold tracking-tight truncate">
-                            {isEditing ? 'Editar artículo' : 'Nuevo artículo'}
+                            {isEditing ? t('edit') : t('new')}
                         </h1>
                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusConfig.color}`}>
                             {statusConfig.label}
@@ -191,7 +195,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                             disabled={isPending}
                         >
                             <Send className="mr-2 h-4 w-4" />
-                            Publicar
+                            {t('publish')}
                         </Button>
                     )}
                     {isEditing && article?.status === 'PUBLISHED' && (
@@ -203,12 +207,12 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                             className="text-destructive"
                         >
                             <Archive className="mr-2 h-4 w-4" />
-                            Archivar
+                            {t('archive')}
                         </Button>
                     )}
                     <Button size="sm" onClick={handleSave} disabled={isPending}>
                         <Save className="mr-2 h-4 w-4" />
-                        {isPending ? 'Guardando...' : 'Guardar'}
+                        {isPending ? t('saving') : t('save')}
                     </Button>
                 </div>
             </div>
@@ -226,7 +230,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                                     <FormItem>
                                         <FormControl>
                                             <Input
-                                                placeholder="Título del artículo"
+                                                placeholder={t('titlePlaceholder')}
                                                 className="text-xl font-bold h-12 border-0 bg-transparent px-0 focus-visible:ring-0 placeholder:text-muted-foreground/40"
                                                 {...field}
                                             />
@@ -242,7 +246,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                                     <FormItem>
                                         <FormControl>
                                             <Textarea
-                                                placeholder="Extracto breve del artículo (opcional, para SEO y listados)"
+                                                placeholder={t('excerptPlaceholder')}
                                                 className="resize-none border-0 bg-transparent px-0 focus-visible:ring-0 text-sm text-muted-foreground placeholder:text-muted-foreground/40"
                                                 rows={2}
                                                 {...field}
@@ -283,7 +287,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                                 {article.publishedAt && (
                                     <div className="text-xs">
                                         <span className="text-muted-foreground">Publicado: </span>
-                                        {new Date(article.publishedAt).toLocaleDateString('es-ES')}
+                                        {new Date(article.publishedAt).toLocaleDateString()}
                                     </div>
                                 )}
                             </CardContent>
@@ -293,7 +297,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                     {/* Cover image */}
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-medium">Imagen de portada</CardTitle>
+                            <CardTitle className="text-xs font-medium">{t('coverImage')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Form {...form}>
@@ -303,7 +307,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="URL de la imagen" className="text-xs" {...field} />
+                                                <Input placeholder={t('imageUrlPlaceholder')} className="text-xs" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -330,7 +334,7 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                                             </FormControl>
                                             <FormLabel className="text-xs font-medium flex items-center gap-1.5 cursor-pointer">
                                                 <Star className="h-3.5 w-3.5 text-amber-500" />
-                                                Artículo destacado
+                                                {t('isFeatured')}
                                             </FormLabel>
                                         </FormItem>
                                     )}
@@ -344,12 +348,12 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                         <CardHeader className="pb-2">
                             <CardTitle className="text-xs font-medium flex items-center gap-1.5">
                                 <FolderOpen className="h-3.5 w-3.5" />
-                                Categorías
+                                {t('categories')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {categories.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">Sin categorías creadas</p>
+                                <p className="text-xs text-muted-foreground">{t('noCategories')}</p>
                             ) : (
                                 <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
                                     {categories.map((cat) => (
@@ -376,12 +380,12 @@ export function ArticleEditorForm({ orgSlug, article, categories, tags }: Articl
                         <CardHeader className="pb-2">
                             <CardTitle className="text-xs font-medium flex items-center gap-1.5">
                                 <Tag className="h-3.5 w-3.5" />
-                                Tags
+                                {t('tags')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {tags.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">Sin tags creados</p>
+                                <p className="text-xs text-muted-foreground">{t('noTags')}</p>
                             ) : (
                                 <div className="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto">
                                     {tags.map((tag) => (

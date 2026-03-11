@@ -2,27 +2,28 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerFast, scaleIn, VIEWPORT } from '@/components/site/animations/variants'
 import type { PublicArticle } from '@/domains/editorial/queries/public-articles.query'
 
 const STANDINGS = [
-  { pos: 1, name: 'Surrey FC',            played: 18, won: 13, drawn: 3, lost: 2, gd: +28, pts: 42 },
+  { pos: 1, name: 'Surrey FC', played: 18, won: 13, drawn: 3, lost: 2, gd: +28, pts: 42 },
   { pos: 2, name: 'Victoria Highlanders', played: 18, won: 12, drawn: 3, lost: 3, gd: +21, pts: 39, isUs: true },
-  { pos: 3, name: 'Langley United',       played: 18, won: 10, drawn: 4, lost: 4, gd: +14, pts: 34 },
-  { pos: 4, name: 'Burnaby FC',           played: 18, won: 9,  drawn: 3, lost: 6, gd: +8,  pts: 30 },
-  { pos: 5, name: 'Richmond Athletic',    played: 18, won: 8,  drawn: 3, lost: 7, gd: +2,  pts: 27 },
-  { pos: 6, name: 'Nanaimo United',       played: 18, won: 6,  drawn: 5, lost: 7, gd: -4,  pts: 23 },
-  { pos: 7, name: 'Kelowna FC',           played: 18, won: 4,  drawn: 4, lost: 10, gd: -15, pts: 16 },
-  { pos: 8, name: 'Prince George SC',     played: 18, won: 2,  drawn: 1, lost: 15, gd: -34, pts: 7  },
+  { pos: 3, name: 'Langley United', played: 18, won: 10, drawn: 4, lost: 4, gd: +14, pts: 34 },
+  { pos: 4, name: 'Burnaby FC', played: 18, won: 9, drawn: 3, lost: 6, gd: +8, pts: 30 },
+  { pos: 5, name: 'Richmond Athletic', played: 18, won: 8, drawn: 3, lost: 7, gd: +2, pts: 27 },
+  { pos: 6, name: 'Nanaimo United', played: 18, won: 6, drawn: 5, lost: 7, gd: -4, pts: 23 },
+  { pos: 7, name: 'Kelowna FC', played: 18, won: 4, drawn: 4, lost: 10, gd: -15, pts: 16 },
+  { pos: 8, name: 'Prince George SC', played: 18, won: 2, drawn: 1, lost: 15, gd: -34, pts: 7 },
 ]
 
 interface LatestNewsSectionProps {
   articles: PublicArticle[]
 }
 
-function ArticleCard({ article }: { article: PublicArticle }) {
+function ArticleCard({ article, t }: { article: PublicArticle; t: any }) {
   const category = article.ArticleCategories?.[0]?.article_categories?.name
+  const locale = useLocale()
 
   return (
     <motion.div variants={scaleIn}>
@@ -43,7 +44,7 @@ function ArticleCard({ article }: { article: PublicArticle }) {
         <div className="flex flex-col gap-2 pt-3">
           {category && (
             <span className="inline-block w-fit bg-gold px-2 py-0.5 font-sans text-[10px] font-bold uppercase tracking-widest text-black">
-              {category}
+              {t.has(`categories.${category}`) ? t(`categories.${category}`) : category}
             </span>
           )}
           <h3 className="font-oswald text-[18px] font-bold uppercase leading-tight text-white group-hover:text-gold transition-colors line-clamp-2">
@@ -51,7 +52,7 @@ function ArticleCard({ article }: { article: PublicArticle }) {
           </h3>
           {article.publishedAt && (
             <p className="font-sans text-[11px] text-gray-500">
-              {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(article.publishedAt))}
+              {new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : locale === 'fr' ? 'fr-FR' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(article.publishedAt))}
             </p>
           )}
         </div>
@@ -61,7 +62,8 @@ function ArticleCard({ article }: { article: PublicArticle }) {
 }
 
 export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
-  const t = useTranslations('latestNews')
+  const t = useTranslations('subpages.news')
+  const tLatest = useTranslations('latestNews')
 
   return (
     <section className="bg-[#0f0f0f] py-12 lg:py-16">
@@ -76,9 +78,9 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
             viewport={VIEWPORT}
           >
             <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-oswald text-[28px] font-bold uppercase text-white sm:text-[32px]">{t('title')}</h2>
+              <h2 className="font-oswald text-[28px] font-bold uppercase text-white sm:text-[32px]">{tLatest('title')}</h2>
               <Link href="/noticias" className="font-sans text-[12px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                {t('allNews')}
+                {tLatest('allNews')}
               </Link>
             </div>
 
@@ -91,12 +93,12 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
                 viewport={VIEWPORT}
               >
                 {articles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
+                  <ArticleCard key={article.id} article={article} t={t} />
                 ))}
               </motion.div>
             ) : (
               <div className="flex h-40 items-center justify-center border border-white/5">
-                <p className="font-sans text-[13px] text-gray-600">{t('noArticles')}</p>
+                <p className="font-sans text-[13px] text-gray-600">{tLatest('noArticles')}</p>
               </div>
             )}
           </motion.div>
@@ -112,17 +114,17 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
               <div className="flex items-center justify-between border-b border-white/10 bg-[#161616] px-4 py-3">
                 <h3 className="font-oswald text-[14px] font-bold uppercase tracking-wider text-white">League 1 BC</h3>
                 <Link href="/tabla" className="font-sans text-[10px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                  {t('full')}
+                  {tLatest('full')}
                 </Link>
               </div>
 
               <div className="px-0">
                 <div className="grid grid-cols-[20px_1fr_24px_24px_24px_28px] gap-x-2 border-b border-white/5 px-3 py-2">
-                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600">#</span>
-                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600">Club</span>
-                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">P</span>
-                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">GD</span>
-                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">Pts</span>
+                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600">{tLatest('table.hash')}</span>
+                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600">{tLatest('table.club')}</span>
+                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">{tLatest('table.p')}</span>
+                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">{tLatest('table.gd')}</span>
+                  <span className="font-sans text-[10px] font-bold uppercase text-gray-600 text-right">{tLatest('table.pts')}</span>
                   <span></span>
                 </div>
 
@@ -145,7 +147,7 @@ export function LatestNewsSection({ articles }: LatestNewsSectionProps) {
               </div>
 
               <div className="border-t border-white/5 px-3 py-2">
-                <p className="font-sans text-[10px] text-gray-600">{t('provisional')}</p>
+                <p className="font-sans text-[10px] text-gray-600">{tLatest('provisional')}</p>
               </div>
             </div>
           </motion.div>
