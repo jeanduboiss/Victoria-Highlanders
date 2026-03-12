@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 ## Victoria Highlanders — Sports Management Platform
 
-**Version:** 1.0.0
-**Date:** 2026-02-19
+**Version:** 1.0.1
+**Date:** 2026-03-11
 **Status:** Approved — Fase 1
 
 ---
