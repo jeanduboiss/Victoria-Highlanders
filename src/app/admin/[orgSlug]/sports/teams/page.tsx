@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth'
 import { getTeamsByOrg } from '@/domains/sports/queries/squad.queries'
-import { redirect } from 'next/navigation'
+import {  redirect  } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { TeamsTable } from './_components/teams-table'
 import { CreateTeamSheet } from './_components/create-team-sheet'
 import { PageHeader } from '@/components/admin/page-header'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default async function TeamsPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'teams', 'read').catch(() => redirect('/login'))
 
@@ -20,13 +22,13 @@ export default async function TeamsPage({ params }: Props) {
   return (
     <div className="space-y-4 py-4">
       <PageHeader
-        title="Equipos"
-        description={`${teams.length} equipo${teams.length !== 1 ? 's' : ''} registrado${teams.length !== 1 ? 's' : ''}`}
+        title={t('sports.teams')}
+        description={t('sports.teamsCount', { count: teams.length })}
         action={
           <CreateTeamSheet orgSlug={orgSlug}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
-              Nuevo equipo
+              {t('sports.newTeam')}
             </Button>
           </CreateTeamSheet>
         }

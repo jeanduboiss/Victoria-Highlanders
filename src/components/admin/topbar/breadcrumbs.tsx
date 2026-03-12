@@ -11,35 +11,19 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import React from 'react'
-
-const SEGMENT_LABELS: Record<string, string> = {
-  admin: 'Admin',
-  sports: 'Deportes',
-  matches: 'Partidos',
-  players: 'Jugadores',
-  teams: 'Equipos',
-  seasons: 'Temporadas',
-  editorial: 'Editorial',
-  articles: 'Artículos',
-  events: 'Eventos',
-  categories: 'Categorías',
-  tags: 'Tags',
-  media: 'Media',
-  users: 'Usuarios',
-  configuration: 'Configuración',
-  new: 'Nuevo',
-  edit: 'Editar',
-}
+import { useTranslations } from 'next-intl'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-function labelFor(segment: string) {
-  if (UUID_REGEX.test(segment)) return 'Detalle'
-  return SEGMENT_LABELS[segment] ?? segment
-}
-
 export function AdminBreadcrumbs() {
   const pathname = usePathname()
+  const t = useTranslations('admin.sidebar')
+  const tDashboard = useTranslations('admin.dashboard')
+
+  function labelFor(segment: string) {
+    if (UUID_REGEX.test(segment)) return tDashboard('detail')
+    return t.has(segment as any) ? t(segment as any) : segment
+  }
 
   // Split and filter empty segments
   const segments = pathname.split('/').filter(Boolean)
@@ -53,8 +37,6 @@ export function AdminBreadcrumbs() {
   })
 
   // Skip the first two segments (admin + orgSlug) from display if desired
-  // Keep admin + orgSlug visible so user knows their org
-  // slice(2) removes "admin" + orgSlug — show only content path
   const visibleCrumbs = crumbs.slice(2)
 
   return (
@@ -65,10 +47,10 @@ export function AdminBreadcrumbs() {
             {index > 0 && <BreadcrumbSeparator />}
             <BreadcrumbItem>
               {crumb.isLast ? (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                <BreadcrumbPage className="capitalize">{crumb.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={crumb.href}>{crumb.label}</Link>
+                  <Link href={crumb.href} className="capitalize">{crumb.label}</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
+
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -35,20 +37,22 @@ interface Props {
 }
 
 export function PagesTable({ pages, orgSlug }: Props) {
+  const t = useTranslations('admin.pages.site.pagesTable')
+  const locale = useLocale()
   const router = useRouter()
 
   const { execute: deletePage } = useAction(deletePageAction, {
     onSuccess: () => {
-      toast.success('Página eliminada.')
+      toast.success(t('successDelete'))
       router.refresh()
     },
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al eliminar.'),
+    onError: ({ error }) => toast.error(error.serverError ?? t('errorDelete')),
   })
 
   if (!pages.length)
     return (
       <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
-        No hay páginas creadas aún
+        {t('noPages')}
       </div>
     )
 
@@ -57,11 +61,11 @@ export function PagesTable({ pages, orgSlug }: Props) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Título</TableHead>
-            <TableHead>Slug</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Actualizado</TableHead>
-            <TableHead className="w-24 text-right">Acciones</TableHead>
+            <TableHead>{t('title')}</TableHead>
+            <TableHead>{t('slug')}</TableHead>
+            <TableHead>{t('status')}</TableHead>
+            <TableHead>{t('updated')}</TableHead>
+            <TableHead className="w-24 text-right">{t('actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -76,11 +80,11 @@ export function PagesTable({ pages, orgSlug }: Props) {
                   variant={page.status === 'PUBLISHED' ? 'default' : 'secondary'}
                   className="text-xs"
                 >
-                  {page.status === 'PUBLISHED' ? 'Publicada' : 'Borrador'}
+                  {page.status === 'PUBLISHED' ? t('statusPublished') : t('statusDraft')}
                 </Badge>
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
-                {new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(page.updatedAt))}
+                {new Intl.DateTimeFormat(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(page.updatedAt))}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-1">
@@ -104,18 +108,18 @@ export function PagesTable({ pages, orgSlug }: Props) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar página?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acción no se puede deshacer. La página &ldquo;{page.title}&rdquo; será eliminada permanentemente.
+                          {t('deleteDesc', { title: page.title })}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => deletePage({ orgSlug, pageId: page.id })}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                          Eliminar
+                          {t('delete')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

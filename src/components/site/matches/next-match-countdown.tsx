@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Calendar, MapPin, Trophy } from 'lucide-react'
 import Image from 'next/image'
+import { useTranslations, useLocale } from 'next-intl'
 import { fadeInUp, staggerContainer } from '@/components/site/animations/variants'
-import { AddToCalendarButton } from '@/components/site/matches/add-to-calendar-button'
 
 interface Team {
   name: string
@@ -19,7 +19,6 @@ export interface NextMatchCountdownProps {
   competitionName?: string | null
   venueName?: string | null
   isHomeGame?: boolean
-  matchId?: string
 }
 
 interface TimeLeft {
@@ -31,7 +30,7 @@ interface TimeLeft {
 
 function calculateTimeLeft(target: Date): TimeLeft {
   const difference = target.getTime() - new Date().getTime()
-  
+
   if (difference <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   }
@@ -50,16 +49,17 @@ export function NextMatchCountdown({
   awayTeam,
   competitionName = 'League 1 BC',
   venueName,
-  isHomeGame = true,
-  matchId,
+  isHomeGame = true
 }: NextMatchCountdownProps) {
+  const t = useTranslations('countdown')
+  const locale = useLocale()
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
     const target = new Date(targetDate)
-    
+
     setTimeLeft(calculateTimeLeft(target))
 
     const timer = setInterval(() => {
@@ -70,7 +70,7 @@ export function NextMatchCountdown({
   }, [targetDate])
 
   if (!isMounted) {
-    return null 
+    return null
   }
 
   return (
@@ -97,13 +97,13 @@ export function NextMatchCountdown({
               </span>
             ) : null}
             <h2 className="font-oswald text-[32px] font-bold uppercase leading-tight tracking-tight text-white md:text-[48px]">
-              Next <span className="text-gold">Match</span>
+              {t('nextMatch')} <span className="text-gold">{t('nextMatchAccent')}</span>
             </h2>
           </motion.div>
 
           {/* Teams Layout */}
           <motion.div variants={fadeInUp} className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-between gap-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm md:flex-row md:p-12">
-            
+
             {/* Home Team */}
             <TeamDisplay team={homeTeam} isHome={true} />
 
@@ -124,18 +124,18 @@ export function NextMatchCountdown({
             {venueName ? (
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gold" />
-                <span>{venueName} {isHomeGame ? "(Home)" : "(Away)"}</span>
+                <span>{venueName} ({isHomeGame ? t('home') : t('away')})</span>
               </div>
             ) : null}
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gold" />
               <span>
-                {new Date(targetDate).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'short', 
-                  day: 'numeric', 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {new Date(targetDate).toLocaleDateString(locale, {
+                  weekday: 'long',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
                 })}
               </span>
             </div>
@@ -143,27 +143,13 @@ export function NextMatchCountdown({
 
           {/* Countdown Timer */}
           <motion.div variants={fadeInUp} className="mt-12 flex items-center justify-center gap-4 md:gap-8">
-            <TimeUnit value={timeLeft.days} label="Days" />
+            <TimeUnit value={timeLeft.days} label={t('days')} />
             <TimeSeparator />
-            <TimeUnit value={timeLeft.hours} label="Hours" />
+            <TimeUnit value={timeLeft.hours} label={t('hours')} />
             <TimeSeparator />
-            <TimeUnit value={timeLeft.minutes} label="Minutes" />
+            <TimeUnit value={timeLeft.minutes} label={t('minutes')} />
             <TimeSeparator />
-            <TimeUnit value={timeLeft.seconds} label="Seconds" />
-          </motion.div>
-
-          {/* Add to Calendar */}
-          <motion.div variants={fadeInUp} className="mt-8 flex justify-center">
-            <AddToCalendarButton
-              match={{
-                matchDate: targetDate,
-                homeTeam,
-                awayTeam,
-                venue: venueName ? { name: venueName } : null,
-                competitionName,
-                matchId,
-              }}
-            />
+            <TimeUnit value={timeLeft.seconds} label={t('seconds')} />
           </motion.div>
 
         </motion.div>

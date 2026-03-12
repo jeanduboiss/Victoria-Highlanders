@@ -52,9 +52,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // -------------------------------------------------------------------------
-  // /login — Redirect authenticated users to their org dashboard
+  // /login and /register — Redirect authenticated users to their org dashboard
   // -------------------------------------------------------------------------
-  if (pathname === '/login') {
+  if (pathname === '/login' || pathname === '/register') {
     if (session) {
       const orgSlug = await resolveFirstOrgSlug(supabase, session.user.id)
       if (orgSlug) return NextResponse.redirect(new URL(`/admin/${orgSlug}`, request.url))
@@ -124,6 +124,7 @@ async function resolveFirstOrgSlug(
 export const config = {
   matcher: [
     '/login',
+    '/register',
     '/admin',
     '/admin/:path*',
   ],

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
+
 import { useAction } from 'next-safe-action/hooks'
 import { activateSeasonAction, archiveSeasonAction } from '@/domains/sports/actions/season.actions'
 import { Badge } from '@/components/ui/badge'
@@ -48,18 +50,21 @@ interface SeasonsTableProps {
 }
 
 export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
+    const t = useTranslations('admin.pages.sports.seasonsTable')
+    const locale = useLocale()
+
     const { execute: executeActivate, isPending: isActivating } = useAction(activateSeasonAction, {
-        onSuccess: () => toast.success('Temporada activada.'),
-        onError: ({ error }: any) => toast.error(error.serverError ?? 'Error al activar.'),
+        onSuccess: () => toast.success(t('successActivate')),
+        onError: ({ error }: any) => toast.error(error.serverError ?? t('errorActivate')),
     })
 
     const { execute: executeArchive, isPending: isArchiving } = useAction(archiveSeasonAction, {
-        onSuccess: () => toast.success('Temporada archivada. Registros bloqueados.'),
-        onError: ({ error }: any) => toast.error(error.serverError ?? 'Error al archivar.'),
+        onSuccess: () => toast.success(t('successArchive')),
+        onError: ({ error }: any) => toast.error(error.serverError ?? t('errorArchive')),
     })
 
     if (seasons.length === 0)
-        return <p className="text-sm text-muted-foreground py-8 text-center">No hay temporadas registradas.</p>
+        return <p className="text-sm text-muted-foreground py-8 text-center">{t('noSeasons')}</p>
 
     return (
         <TooltipProvider>
@@ -68,10 +73,10 @@ export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Temporada</TableHead>
-                                <TableHead>Período</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('season')}</TableHead>
+                                <TableHead>{t('period')}</TableHead>
+                                <TableHead>{t('status')}</TableHead>
+                                <TableHead className="text-right">{t('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -88,25 +93,25 @@ export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
                                             {season.isCurrent && (
                                                 <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px]">
                                                     <Sparkles className="mr-1 h-2.5 w-2.5" />
-                                                    Activa
+                                                    {t('active')}
                                                 </Badge>
                                             )}
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                        {new Date(season.startDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                                        {new Date(season.startDate).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { month: 'short', year: 'numeric' })}
                                         {' → '}
-                                        {new Date(season.endDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                                        {new Date(season.endDate).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { month: 'short', year: 'numeric' })}
                                     </TableCell>
                                     <TableCell>
                                         {season.isArchived ? (
                                             <Badge variant="secondary" className="text-xs">
                                                 <Lock className="mr-1 h-3 w-3" />
-                                                Archivada
+                                                {t('archived')}
                                             </Badge>
                                         ) : (
                                             <Badge variant="outline" className="text-xs">
-                                                Abierta
+                                                {t('open')}
                                             </Badge>
                                         )}
                                     </TableCell>
@@ -125,7 +130,7 @@ export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
                                                             <Check className="h-4 w-4" />
                                                         </Button>
                                                     </TooltipTrigger>
-                                                    <TooltipContent>Marcar como activa</TooltipContent>
+                                                    <TooltipContent>{t('markActive')}</TooltipContent>
                                                 </Tooltip>
                                             )}
                                             {!season.isArchived && !season.isCurrent && (
@@ -143,23 +148,22 @@ export function SeasonsTable({ seasons, orgSlug }: SeasonsTableProps) {
                                                                 </Button>
                                                             </AlertDialogTrigger>
                                                         </TooltipTrigger>
-                                                        <TooltipContent>Archivar temporada</TooltipContent>
+                                                        <TooltipContent>{t('archiveSeason')}</TooltipContent>
                                                     </Tooltip>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>¿Archivar temporada &ldquo;{season.name}&rdquo;?</AlertDialogTitle>
+                                                            <AlertDialogTitle>{t('confirmArchiveTitle', { name: season.name })}</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                Esta acción bloqueará todos los registros de jugadores de la temporada.
-                                                                Los datos se preservarán como historial inmutable. Esta acción no se puede deshacer.
+                                                                {t('confirmArchiveDesc')}
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                                 onClick={() => executeArchive({ orgSlug, seasonId: season.id })}
                                                             >
-                                                                Archivar permanentemente
+                                                                {t('confirmArchive')}
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>

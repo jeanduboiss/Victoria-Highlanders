@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth'
 import { getArticlesByOrg } from '@/domains/editorial/queries/editorial.queries'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { ArticlesTable } from './_components/articles-table'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default async function ArticlesPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'articles', 'read').catch(() => redirect('/login'))
 
@@ -24,13 +26,13 @@ export default async function ArticlesPage({ params }: Props) {
     <div className="space-y-4 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Artículos</h1>
-          <p className="text-muted-foreground">{articles.length} artículo(s) en total.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('editorial.articlesTitle')}</h1>
+          <p className="text-muted-foreground">{articles.length} {t('editorial.articlesRegistered')}</p>
         </div>
         <Button size="sm" asChild>
           <Link href={`/admin/${orgSlug}/editorial/articles/new`}>
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo artículo
+            {t('editorial.newArticle')}
           </Link>
         </Button>
       </div>

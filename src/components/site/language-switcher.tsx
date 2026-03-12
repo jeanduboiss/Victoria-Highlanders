@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useTransition } from 'react'
 
 const LOCALES = [
   { value: 'es', label: 'ES' },
@@ -14,13 +14,15 @@ interface Props {
 }
 
 export function LanguageSwitcher({ currentLocale, variant = 'site' }: Props) {
-  const [pending, setPending] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   function switchLocale(locale: string) {
-    if (locale === currentLocale || pending) return
-    setPending(true)
-    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000;SameSite=Lax`
-    window.location.reload()
+    if (locale === currentLocale || isPending) return
+
+    startTransition(() => {
+      document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000;SameSite=Lax`
+      window.location.reload()
+    })
   }
 
   return (
@@ -29,7 +31,7 @@ export function LanguageSwitcher({ currentLocale, variant = 'site' }: Props) {
         <button
           key={value}
           onClick={() => switchLocale(value)}
-          disabled={pending || currentLocale === value}
+          disabled={isPending || currentLocale === value}
           className={`px-2 py-1 font-sans text-[11px] font-bold uppercase tracking-wider rounded transition-all ${variant === 'admin'
             ? currentLocale === value
               ? 'text-foreground bg-accent'

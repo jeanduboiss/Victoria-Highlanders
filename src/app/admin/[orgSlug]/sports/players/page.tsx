@@ -1,7 +1,8 @@
 import { requirePermission } from '@/lib/auth'
 import { getPlayersByOrg } from '@/domains/sports/queries/squad.queries'
 import { getTeamsByOrg, getSeasonsByOrg } from '@/domains/sports/queries/squad.queries'
-import { redirect } from 'next/navigation'
+import {  redirect  } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { PlayersTable } from './_components/players-table'
 import { CreatePlayerSheet } from './_components/create-player-sheet'
 import { PageHeader } from '@/components/admin/page-header'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default async function PlayersPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'players', 'read').catch(() => redirect('/login'))
 
@@ -25,13 +27,13 @@ export default async function PlayersPage({ params }: Props) {
   return (
     <div className="space-y-4 py-4 min-w-0">
       <PageHeader
-        title="Jugadores"
-        description={`${players.length} jugador${players.length !== 1 ? 'es' : ''} en el pool`}
+        title={t('sports.players')}
+        description={t('sports.playersCount', { count: players.length })}
         action={
           <CreatePlayerSheet orgSlug={orgSlug} teams={teams} seasons={seasons}>
             <Button size="sm" className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
-              Nuevo jugador
+              {t('sports.newPlayer')}
             </Button>
           </CreatePlayerSheet>
         }

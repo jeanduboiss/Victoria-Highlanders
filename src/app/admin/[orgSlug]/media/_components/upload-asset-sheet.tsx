@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { useState, useRef } from 'react'
 import { useAction } from 'next-safe-action/hooks'
 import { createBrowserClient } from '@supabase/ssr'
@@ -26,6 +28,7 @@ interface UploadAssetSheetProps {
 }
 
 export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
+  const t = useTranslations('admin.pages.media.uploadSheet')
   const [open, setOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -38,25 +41,25 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
 
   const { execute } = useAction(uploadAssetAction, {
     onSuccess: () => {
-      toast.success('Archivo subido correctamente.')
+      toast.success(t('success'))
       setSelectedFile(null)
       setAltText('')
       setOpen(false)
     },
     onError: ({ error }) => {
-      toast.error(error.serverError ?? 'Error al registrar el archivo.')
+      toast.error(error.serverError ?? t('errorRegister'))
     },
   })
 
   async function handleUpload() {
     if (activeTab === 'local' && !selectedFile) return
     if (activeTab === 'url' && (!externalUrl || !externalUrl.startsWith('http'))) {
-      toast.error('Por favor, ingresa una URL válida que comience con http/https.')
+      toast.error(t('errorUrl'))
       return
     }
 
     if (activeTab === 'local' && selectedFile && selectedFile.size > MAX_FILE_SIZE) {
-      toast.error('El archivo excede el límite de 5 MB.')
+      toast.error(t('errorSize'))
       return
     }
 
@@ -112,7 +115,7 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
         })
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error al subir el archivo.')
+      toast.error(err instanceof Error ? err.message : t('errorRegister'))
     } finally {
       setIsUploading(false)
     }
@@ -123,19 +126,19 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:w-[440px] md:w-[480px]">
         <SheetHeader>
-          <SheetTitle>Subir archivo</SheetTitle>
-          <SheetDescription>Sube un archivo a la biblioteca de media.</SheetDescription>
+          <SheetTitle>{t('title')}</SheetTitle>
+          <SheetDescription>{t('desc')}</SheetDescription>
         </SheetHeader>
         <div className="space-y-4 mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="local">Dispositivo</TabsTrigger>
-              <TabsTrigger value="url">Por URL</TabsTrigger>
+              <TabsTrigger value="local">{t('tabLocal')}</TabsTrigger>
+              <TabsTrigger value="url">{t('tabUrl')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="local" className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="file-input">Archivo</Label>
+                <Label htmlFor="file-input">{t('labelFile')}</Label>
                 <div
                   className="mt-2 border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
                   onClick={() => fileRef.current?.click()}
@@ -153,8 +156,8 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <Upload className="h-8 w-8" />
-                      <p className="text-sm">Haz clic para seleccionar un archivo</p>
-                      <p className="text-xs text-muted-foreground mt-1">Límite máximo: 5 MB</p>
+                      <p className="text-sm">{t('clickToSelect')}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t('maxLimit')}</p>
                     </div>
                   )}
                 </div>
@@ -171,7 +174,7 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
 
             <TabsContent value="url" className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="url-input">URL del recurso (Google Drive / Internet)</Label>
+                <Label htmlFor="url-input">{t('labelUrl')}</Label>
                 <div className="flex items-center mt-2 relative">
                   <LinkIcon className="absolute left-3 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -184,17 +187,17 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Los enlaces externos no ocupan espacio en el servidor pero deben ser accesibles públicamente.
+                  {t('urlDesc')}
                 </p>
               </div>
             </TabsContent>
           </Tabs>
 
           <div>
-            <Label htmlFor="alt-text">Alt text (opcional)</Label>
+            <Label htmlFor="alt-text">{t('labelAlt')}</Label>
             <Input
               id="alt-text"
-              placeholder="Descripción de la imagen para accesibilidad"
+              placeholder={t('altPlaceholder')}
               value={altText}
               onChange={(e) => setAltText(e.target.value)}
               className="mt-2"
@@ -202,14 +205,14 @@ export function UploadAssetSheet({ orgSlug, children }: UploadAssetSheetProps) {
           </div>
           <div className="flex gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button
               className="flex-1"
               disabled={isUploading || (activeTab === 'local' ? (!selectedFile || selectedFile.size > MAX_FILE_SIZE) : !externalUrl)}
               onClick={handleUpload}
             >
-              {isUploading ? 'Subiendo...' : 'Subir'}
+              {isUploading ? t('uploading') : t('upload')}
             </Button>
           </div>
         </div>

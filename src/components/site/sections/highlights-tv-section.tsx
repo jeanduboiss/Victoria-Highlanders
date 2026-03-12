@@ -2,11 +2,19 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInUp, scaleIn, staggerContainer, staggerFast, VIEWPORT } from '@/components/site/animations/variants'
 
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enGB, fr } from 'date-fns/locale'
+import { useLocale } from 'next-intl'
 import type { PublicMediaTVItem } from '@/domains/media/queries/public-media.query'
+
+const DATE_FNS_LOCALES = {
+  es,
+  en: enGB,
+  fr,
+} as const
 
 const FALLBACK_VIDEOS = [
   { title: 'Highlights: VHFC vs TSS Rovers', duration: '3:42', ago: '2 days ago', featured: true, url: '/tv' },
@@ -20,12 +28,16 @@ interface HighlightsTvSectionProps {
 }
 
 export function HighlightsTvSection({ videos }: HighlightsTvSectionProps) {
+  const locale = useLocale()
+  const t = useTranslations('highlightsTV')
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] || es
+
   const displayVideos = videos && videos.length > 0
     ? videos.map((v, i) => ({
       title: v.fileName,
       duration: v.durationSeconds ? `${Math.floor(v.durationSeconds / 60)}:${(v.durationSeconds % 60).toString().padStart(2, '0')}` : 'Video',
-      ago: formatDistanceToNow(new Date(v.createdAt), { addSuffix: true, locale: es }),
-      featured: i === 0, // Featured para el mas reciente
+      ago: formatDistanceToNow(new Date(v.createdAt), { addSuffix: true, locale: dateFnsLocale }),
+      featured: i === 0,
       url: v.publicUrl,
     }))
     : FALLBACK_VIDEOS
@@ -40,10 +52,10 @@ export function HighlightsTvSection({ videos }: HighlightsTvSectionProps) {
           viewport={VIEWPORT}
         >
           <h2 className="font-oswald text-[26px] font-bold uppercase text-white sm:text-[28px]">
-            Highlanders <span className="text-gold">TV</span>
+            {t('title')} <span className="text-gold">{t('titleAccent')}</span>
           </h2>
           <Link href="/tv" className="font-sans text-[12px] font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors">
-            View All →
+            {t('viewAll')}
           </Link>
         </motion.div>
 
@@ -74,7 +86,7 @@ export function HighlightsTvSection({ videos }: HighlightsTvSectionProps) {
                   </div>
                   {video.featured && (
                     <div className="absolute left-2 top-2 bg-gold px-2 py-0.5">
-                      <span className="font-sans text-[9px] font-bold uppercase tracking-widest text-black">Latest</span>
+                      <span className="font-sans text-[9px] font-bold uppercase tracking-widest text-black">{t('latest')}</span>
                     </div>
                   )}
                 </div>

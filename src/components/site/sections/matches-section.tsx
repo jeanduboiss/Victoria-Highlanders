@@ -1,8 +1,7 @@
 'use client'
 
 import { motion } from 'motion/react'
-import { useTranslations } from 'next-intl'
-import dynamic from 'next/dynamic'
+import { useTranslations, useLocale } from 'next-intl'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import { Calendar, MapPin } from 'lucide-react'
 import type { PublicMatch, PublicMatchBar } from '@/domains/sports/queries/public-matches.query'
@@ -21,15 +20,25 @@ interface MatchesSectionProps {
 
 function MatchCard({ match }: { match: PublicMatch }) {
   const t = useTranslations('matches')
+  const locale = useLocale()
   const isFinished = match.status === 'FINISHED'
   const date = new Date(match.matchDate)
 
   return (
-    <div className="py-4 border-b border-white/[0.06] last:border-0">
-      <div className="flex items-center gap-4">
-        <div className="w-12 text-center shrink-0">
-          <p className="font-oswald text-[11px] font-bold uppercase text-white/40">
-            {date.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase()}
+    <div className="flex items-center gap-4 py-4 border-b border-white/[0.06] last:border-0">
+      <div className="w-12 text-center shrink-0">
+        <p className="font-oswald text-[11px] font-bold uppercase text-white/40">
+          {date.toLocaleDateString(locale, { month: 'short' }).toUpperCase()}
+        </p>
+        <p className="font-oswald text-[22px] font-bold text-white leading-none">
+          {date.getDate()}
+        </p>
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <p className="font-sans text-sm font-medium text-white truncate">
+            {match.homeTeam.name}
           </p>
           <p className="font-oswald text-[22px] font-bold text-white leading-none">
             {date.getDate()}
@@ -74,7 +83,11 @@ function MatchCard({ match }: { match: PublicMatch }) {
         </div>
       </div>
 
-      {!isFinished && <AddToCalendarButton match={match} />}
+      <div className="shrink-0">
+        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isFinished ? 'bg-gold/10 text-gold' : 'bg-white/[0.05] text-white/40'}`}>
+          {isFinished ? t('final') : date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
     </div>
   )
 }

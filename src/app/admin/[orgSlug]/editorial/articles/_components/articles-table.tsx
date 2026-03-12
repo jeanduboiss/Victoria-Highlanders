@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowRight } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 type Article = {
   id: string
@@ -29,13 +30,6 @@ interface ArticlesTableProps {
   orgSlug: string
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  PUBLISHED: 'Publicado',
-  DRAFT: 'Borrador',
-  SCHEDULED: 'Programado',
-  ARCHIVED: 'Archivado',
-}
-
 const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
   PUBLISHED: 'default',
   DRAFT: 'secondary',
@@ -44,8 +38,18 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'outline' | 'des
 }
 
 export function ArticlesTable({ articles, orgSlug }: ArticlesTableProps) {
+  const t = useTranslations('admin.pages.editorial.articlesTable')
+  const locale = useLocale()
+
+  const statusLabels: Record<string, string> = {
+    PUBLISHED: t('statusPublished'),
+    DRAFT: t('statusDraft'),
+    SCHEDULED: t('statusScheduled'),
+    ARCHIVED: t('statusArchived'),
+  }
+
   if (articles.length === 0)
-    return <p className="text-sm text-muted-foreground py-8 text-center">No hay artículos aún. Crea el primero.</p>
+    return <p className="text-sm text-muted-foreground py-8 text-center">{t('noArticles')}</p>
 
   return (
     <div className="rounded-md border overflow-hidden">
@@ -53,10 +57,10 @@ export function ArticlesTable({ articles, orgSlug }: ArticlesTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Título</TableHead>
-              <TableHead className="hidden sm:table-cell">Categorías</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="hidden md:table-cell">Fecha</TableHead>
+              <TableHead>{t('title')}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t('categories')}</TableHead>
+              <TableHead>{t('status')}</TableHead>
+              <TableHead className="hidden md:table-cell">{t('date')}</TableHead>
               <TableHead className="w-[50px]" />
             </TableRow>
           </TableHeader>
@@ -67,7 +71,7 @@ export function ArticlesTable({ articles, orgSlug }: ArticlesTableProps) {
                   <div className="flex items-center gap-2">
                     <span className="font-medium line-clamp-1">{article.title}</span>
                     {article.isFeatured && (
-                      <Badge variant="outline" className="text-xs shrink-0">Destacado</Badge>
+                      <Badge variant="outline" className="text-xs shrink-0">{t('featured')}</Badge>
                     )}
                   </div>
                 </TableCell>
@@ -78,15 +82,15 @@ export function ArticlesTable({ articles, orgSlug }: ArticlesTableProps) {
                 </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANTS[article.status] ?? 'secondary'} className="text-xs">
-                    {STATUS_LABELS[article.status] ?? article.status}
+                    {statusLabels[article.status] ?? article.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">
                   {article.publishedAt
-                    ? new Date(article.publishedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+                    ? new Date(article.publishedAt).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                     : article.scheduledAt
-                      ? `Prog. ${new Date(article.scheduledAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`
-                      : new Date(article.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      ? `${t('prog')} ${new Date(article.scheduledAt).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short' })}`
+                      : new Date(article.createdAt).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </TableCell>
                 <TableCell>
                   <Button variant="ghost" size="icon" asChild>

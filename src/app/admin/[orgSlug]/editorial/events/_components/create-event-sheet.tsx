@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createEventSchema } from '@/domains/editorial/schemas/event.schema'
 import { createEventAction } from '@/domains/editorial/actions/event.actions'
+import { useTranslations } from 'next-intl'
 import {
     Sheet,
     SheetContent,
@@ -49,19 +50,20 @@ interface CreateEventSheetProps {
     children: React.ReactNode
 }
 
-const EVENT_TYPES = [
-    { value: 'MATCH', label: 'Día de partido' },
-    { value: 'TRAINING', label: 'Entrenamiento' },
-    { value: 'SOCIAL', label: 'Social' },
-    { value: 'MEMBERSHIP', label: 'Membresía' },
-    { value: 'PRESS', label: 'Prensa' },
-    { value: 'CHARITY', label: 'Caridad' },
-    { value: 'OTHER', label: 'Otro' },
-] as const
-
 export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetProps) {
+    const t = useTranslations('admin.pages.editorial.newEventSheet')
     const [open, setOpen] = useState(false)
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+    const EVENT_TYPES = [
+        { value: 'MATCH', label: t('types.MATCH') },
+        { value: 'TRAINING', label: t('types.TRAINING') },
+        { value: 'SOCIAL', label: t('types.SOCIAL') },
+        { value: 'MEMBERSHIP', label: t('types.MEMBERSHIP') },
+        { value: 'PRESS', label: t('types.PRESS') },
+        { value: 'CHARITY', label: t('types.CHARITY') },
+        { value: 'OTHER', label: t('types.OTHER') },
+    ] as const
 
     const form = useForm<FormValues>({
         resolver: zodResolver(createEventSchema),
@@ -77,13 +79,13 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
 
     const { execute, isPending } = useAction(createEventAction, {
         onSuccess: () => {
-            toast.success('Evento creado correctamente.')
+            toast.success(t('success'))
             form.reset()
             setSelectedTagIds([])
             setOpen(false)
         },
         onError: ({ error }) => {
-            toast.error(error.serverError ?? 'Error al crear evento.')
+            toast.error(error.serverError ?? t('error'))
         },
     })
 
@@ -102,8 +104,8 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle>Nuevo evento</SheetTitle>
-                    <SheetDescription>Crea un evento para la comunidad.</SheetDescription>
+                    <SheetTitle>{t('title')}</SheetTitle>
+                    <SheetDescription>{t('desc')}</SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -112,9 +114,9 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                             name="title"
                             render={({ field }: any) => (
                                 <FormItem>
-                                    <FormLabel>Título</FormLabel>
+                                    <FormLabel>{t('eventTitle')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Nombre del evento" {...field} />
+                                        <Input placeholder={t('titlePlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -125,9 +127,9 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                             name="description"
                             render={({ field }: any) => (
                                 <FormItem>
-                                    <FormLabel>Descripción</FormLabel>
+                                    <FormLabel>{t('description')}</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Descripción del evento..." rows={3} className="resize-none" {...field} />
+                                        <Textarea placeholder={t('descPlaceholder')} rows={3} className="resize-none" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -139,7 +141,7 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                                 name="eventType"
                                 render={({ field }: any) => (
                                     <FormItem>
-                                        <FormLabel>Tipo</FormLabel>
+                                        <FormLabel>{t('type')}</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
@@ -161,9 +163,9 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                                 name="locationText"
                                 render={({ field }: any) => (
                                     <FormItem>
-                                        <FormLabel>Lugar</FormLabel>
+                                        <FormLabel>{t('location')}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Ej: Estadio" {...field} value={field.value ?? ''} />
+                                            <Input placeholder={t('locationPlaceholder')} {...field} value={field.value ?? ''} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -176,7 +178,7 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                                 name="startDatetime"
                                 render={({ field }: any) => (
                                     <FormItem>
-                                        <FormLabel>Inicio</FormLabel>
+                                        <FormLabel>{t('start')}</FormLabel>
                                         <FormControl>
                                             <Input type="datetime-local" {...field} />
                                         </FormControl>
@@ -189,7 +191,7 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                                 name="endDatetime"
                                 render={({ field }: any) => (
                                     <FormItem>
-                                        <FormLabel>Fin (opcional)</FormLabel>
+                                        <FormLabel>{t('end')}</FormLabel>
                                         <FormControl>
                                             <Input type="datetime-local" {...field} />
                                         </FormControl>
@@ -202,7 +204,7 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
                         {/* Tags selection */}
                         {tags.length > 0 && (
                             <div className="space-y-2">
-                                <p className="text-sm font-medium">Tags</p>
+                                <p className="text-sm font-medium">{t('tags')}</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {tags.map((tag) => (
                                         <Badge
@@ -220,10 +222,10 @@ export function CreateEventSheet({ orgSlug, tags, children }: CreateEventSheetPr
 
                         <div className="flex gap-2 pt-2">
                             <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button type="submit" className="flex-1" disabled={isPending}>
-                                {isPending ? 'Guardando...' : 'Crear evento'}
+                                {isPending ? t('saving') : t('create')}
                             </Button>
                         </div>
                     </form>

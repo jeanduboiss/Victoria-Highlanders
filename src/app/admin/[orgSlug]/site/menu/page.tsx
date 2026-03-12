@@ -1,5 +1,6 @@
 import { requirePermission } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+import {  redirect  } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/admin/page-header'
 import { NavMenuEditor } from './_components/nav-menu-editor'
 import { prisma } from '@/lib/prisma/client'
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default async function NavMenuPage({ params }: Props) {
+  const t = await getTranslations('admin.pages')
   const { orgSlug } = await params
   const ctx = await requirePermission(orgSlug, 'site_config', 'read').catch(() => redirect('/login'))
 
@@ -36,8 +38,8 @@ export default async function NavMenuPage({ params }: Props) {
   return (
     <div className="space-y-4 py-4">
       <PageHeader
-        title="Menú de navegación"
-        description="Gestiona el orden y visibilidad de los links del sitio público"
+        title={t('site.menu')}
+        description={t('site.menuDesc')}
       />
       <NavMenuEditor items={navItems} pages={pages} orgSlug={orgSlug} />
     </div>

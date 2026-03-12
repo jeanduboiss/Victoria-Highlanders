@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { requireOrgAccess } from '@/lib/auth'
 import { prisma } from '@/lib/prisma/client'
 import { redirect } from 'next/navigation'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { KpiCard } from '@/components/admin/dashboard/kpi-card'
 import { NextMatchWidget } from '@/components/admin/dashboard/next-match-widget'
 import { RecentArticlesWidget } from '@/components/admin/dashboard/recent-articles-widget'
@@ -41,6 +42,7 @@ async function getDashboardData(organizationId: string) {
 
   const recentActivity: ActivityItem[] = []
 
+  const tActivity = await getTranslations('admin.dashboard')
   const recentFinishedMatches = await prisma.match.findMany({
     where: { organizationId, status: 'FINISHED' },
     orderBy: { updatedAt: 'desc' },
@@ -54,7 +56,7 @@ async function getDashboardData(organizationId: string) {
     recentActivity.push({
       id: `match-${m.id}`,
       type: 'match_finished',
-      description: `${m.homeTeam.name} ${m.homeScore ?? '?'} – ${m.awayScore ?? '?'} ${m.awayTeam.name}`,
+      description: `${tActivity('matchFinished')}: ${m.homeTeam.name} ${m.homeScore ?? '?'} – ${m.awayScore ?? '?'} ${m.awayTeam.name}`,
       createdAt: m.updatedAt,
     })
   })
@@ -69,7 +71,7 @@ async function getDashboardData(organizationId: string) {
     recentActivity.push({
       id: `article-${a.id}`,
       type: 'article_published',
-      description: `Artículo publicado: "${a.title}"`,
+      description: `${tActivity('articlePublished')}: "${a.title}"`,
       createdAt: a.publishedAt ?? new Date(),
     })
   })
@@ -86,12 +88,14 @@ async function getDashboardData(organizationId: string) {
 
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { orgSlug } = await params
+  const locale = await getLocale()
+  const t = await getTranslations('admin.dashboard')
   const ctx = await requireOrgAccess(orgSlug).catch(() => redirect('/login'))
 
   const { kpis, nextMatch, recentArticles, latestActivity } = await getDashboardData(ctx.organizationId)
 
   const firstName = ctx.email.split('@')[0]
-  const today = new Date().toLocaleDateString('es-ES', {
+  const today = new Date().toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'fr' ? 'fr-FR' : 'es-ES', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -107,10 +111,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         >
           <Bell className="w-4 h-4 text-amber-400 shrink-0" />
           <p className="text-sm text-amber-300 flex-1">
-            <span className="font-semibold">{kpis.pendingMemberCount} {kpis.pendingMemberCount === 1 ? 'usuario pendiente' : 'usuarios pendientes'}</span>
-            {' '}de aprobación en la plataforma.
+            <span className="font-semibold">{kpis.pendingMemberCount} {kpis.pendingMemberCount === 1 ? t('pendingMembers') : t('pendingMembersPlural')}</span>
+            {' '}{t('pendingApproval')}
           </p>
-          <span className="text-xs text-amber-400/60 font-medium uppercase tracking-wide shrink-0">Ver →</span>
+          <span className="text-xs text-amber-400/60 font-medium uppercase tracking-wide shrink-0">{t('view')} →</span>
         </Link>
       )}
 
@@ -118,7 +122,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight capitalize">
-            Bienvenido, {firstName}
+            {t('welcome')} {firstName}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5 capitalize">{today}</p>
         </div>
@@ -130,34 +134,34 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          title="Jugadores activos"
+          title={t('kpi.activePlayers')}
           value={kpis.playerCount}
           icon={Users}
-          description="En el pool de la organización"
+          description={t('kpi.activePlayersDesc')}
           iconColor="text-emerald-600 dark:text-emerald-400"
           iconBg="bg-emerald-500/10"
         />
         <KpiCard
-          title="Partidos jugados"
+          title={t('kpi.matchesPlayed')}
           value={kpis.publishedMatchCount}
           icon={Trophy}
-          description="Finalizados esta temporada"
+          description={t('kpi.matchesPlayedDesc')}
           iconColor="text-amber-600 dark:text-amber-400"
           iconBg="bg-amber-500/10"
         />
         <KpiCard
-          title="Artículos publicados"
+          title={t('kpi.publishedArticles')}
           value={kpis.articleCount}
           icon={Newspaper}
-          description="En el sitio web"
+          description={t('kpi.publishedArticlesDesc')}
           iconColor="text-blue-600 dark:text-blue-400"
           iconBg="bg-blue-500/10"
         />
         <KpiCard
-          title="Eventos próximos"
+          title={t('kpi.upcomingEvents')}
           value={kpis.upcomingEventCount}
           icon={CalendarRange}
-          description="Publicados y futuros"
+          description={t('kpi.upcomingEventsDesc')}
           iconColor="text-violet-600 dark:text-violet-400"
           iconBg="bg-violet-500/10"
         />
@@ -165,9 +169,9 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
       {/* Widgets row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <NextMatchWidget orgSlug={orgSlug} match={nextMatch} />
-        <RecentArticlesWidget orgSlug={orgSlug} articles={recentArticles} />
-        <ActivityFeed items={latestActivity} />
+        <NextMatchWidget orgSlug={orgSlug} match={nextMatch} locale={locale} />
+        <RecentArticlesWidget orgSlug={orgSlug} articles={recentArticles} locale={locale} />
+        <ActivityFeed items={latestActivity} locale={locale} />
       </div>
     </div>
   )

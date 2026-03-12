@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { staggerContainer, fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
 import type { PublicArticle } from '@/domains/editorial/queries/public-articles.query'
 import type { PublicMatchBar } from '@/domains/sports/queries/public-matches.query'
@@ -16,6 +16,7 @@ interface InfoStripSectionProps {
 
 export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideResults }: InfoStripSectionProps) {
   const t = useTranslations('infoStrip')
+  const locale = useLocale()
 
   return (
     <div className="bg-[#111] border-t border-white/5">
@@ -41,7 +42,7 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideR
                 </h3>
                 {latestArticle.publishedAt && (
                   <span className="font-sans text-[11px] text-gray-500">
-                    {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(latestArticle.publishedAt))}
+                    {new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(latestArticle.publishedAt))}
                   </span>
                 )}
               </div>
@@ -61,7 +62,7 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideR
                   : `${nextMatch.homeTeam.shortName ?? nextMatch.homeTeam.name} vs Victoria Highlanders`}
               </span>
               <span className="font-sans text-[12px] text-gray-400">
-                {new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(nextMatch.matchDate))}
+                {new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(nextMatch.matchDate))}
               </span>
               {nextMatch.venue && (
                 <span className="font-sans text-[11px] text-gray-600">{nextMatch.venue.name}</span>
@@ -88,9 +89,6 @@ export function InfoStripSection({ latestArticle, nextMatch, latestResult, hideR
                     {latestResult.homeScore} – {latestResult.awayScore}
                   </span>
                 </div>
-                <Link href="/partidos" className="font-sans text-[11px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
-                  Match Report →
-                </Link>
               </div>
               <Link href="/partidos" className="font-sans text-[11px] font-bold uppercase tracking-wider text-gold hover:text-gold-light transition-colors">
                 {t('matchReport')}

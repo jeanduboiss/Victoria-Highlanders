@@ -4,23 +4,11 @@ import { getPublicRoster, getRosterFilters } from '@/domains/sports/queries/publ
 import type { PublicRosterPlayer } from '@/domains/sports/queries/public-players.query'
 import type { TeamCategory } from '@prisma/client'
 import { RosterFilter } from '@/components/site/plantel/roster-filter'
-
-const POSITION_LABELS: Record<string, string> = {
-  GOALKEEPER: 'Porteros',
-  DEFENDER: 'Defensas',
-  MIDFIELDER: 'Centrocampistas',
-  FORWARD: 'Delanteros',
-}
+import { getTranslations } from 'next-intl/server'
 
 const POSITION_ORDER = ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD']
 
-function PlayerCard({ player }: { player: PublicRosterPlayer }) {
-  const posLabel: Record<string, string> = {
-    GOALKEEPER: 'POR',
-    DEFENDER: 'DEF',
-    MIDFIELDER: 'CEN',
-    FORWARD: 'DEL',
-  }
+function PlayerCard({ player, t }: { player: PublicRosterPlayer, t: any }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden bg-[#111] border border-white/[0.06] hover:border-gold/40 transition-all duration-300">
@@ -65,7 +53,7 @@ function PlayerCard({ player }: { player: PublicRosterPlayer }) {
         <div className="flex justify-between items-center mt-0.5">
           {player.position && (
             <p className="font-sans text-[11px] font-bold uppercase tracking-wider text-white/40">
-              {posLabel[player.position] ?? player.position}
+              {t.has(`shortPositions.${player.position}`) ? t(`shortPositions.${player.position}`) : player.position}
             </p>
           )}
           {player.country && (
@@ -93,6 +81,7 @@ export default async function PlantelPage(props: PageProps) {
     ? (rawCategoryString as TeamCategory)
     : 'FIRST_TEAM'
 
+  const t = await getTranslations('subpages.roster')
   const { seasons, teams } = await getRosterFilters()
 
   // Use explicit season if provided, else current
@@ -120,8 +109,8 @@ export default async function PlantelPage(props: PageProps) {
     <div className="bg-[#0a0a0a] min-h-screen">
       <div className="mx-auto max-w-[1280px] px-4 lg:px-8 py-12 lg:py-16">
         <div className="mb-4">
-          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">Temporada Roster</p>
-          <h1 className="font-oswald text-[36px] sm:text-[48px] font-bold uppercase text-white">El Plantel</h1>
+          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-gold mb-2">{t('seasonTitle')}</p>
+          <h1 className="font-oswald text-[36px] sm:text-[48px] font-bold uppercase text-white">{t('title')}</h1>
         </div>
 
         {/* Filter component YEPK */}
@@ -134,7 +123,7 @@ export default async function PlantelPage(props: PageProps) {
 
         {players.length === 0 ? (
           <div className="flex h-60 items-center justify-center border border-white/5 rounded bg-white/[0.02]">
-            <p className="font-sans text-[13px] text-gray-500 uppercase tracking-widest font-bold">No hay jugadores registrados para este filtro</p>
+            <p className="font-sans text-[13px] text-gray-500 uppercase tracking-widest font-bold">{t('noPlayers')}</p>
           </div>
         ) : (
           <div className="space-y-12">
@@ -142,13 +131,13 @@ export default async function PlantelPage(props: PageProps) {
               <div key={pos}>
                 <div className="flex items-center gap-4 mb-5">
                   <h2 className="font-oswald text-[13px] font-bold uppercase tracking-[0.2em] text-gold">
-                    {POSITION_LABELS[pos] ?? pos}
+                    {t.has(`positions.${pos}`) ? t(`positions.${pos}`) : pos}
                   </h2>
                   <div className="flex-1 h-px bg-white/[0.06]" />
                   <span className="font-sans text-[11px] font-bold text-white/30">{group.length}</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                  {group.map((p) => <PlayerCard key={p.recordId} player={p} />)}
+                  {group.map((p) => <PlayerCard key={p.recordId} player={p} t={t} />)}
                 </div>
               </div>
             ))}
@@ -156,11 +145,11 @@ export default async function PlantelPage(props: PageProps) {
             {ungrouped.length > 0 && (
               <div>
                 <div className="flex items-center gap-4 mb-5">
-                  <h2 className="font-oswald text-[13px] font-bold uppercase tracking-[0.2em] text-white/40">Sin posición</h2>
+                  <h2 className="font-oswald text-[13px] font-bold uppercase tracking-[0.2em] text-white/40">{t('noPosition')}</h2>
                   <div className="flex-1 h-px bg-white/[0.06]" />
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                  {ungrouped.map((p) => <PlayerCard key={p.recordId} player={p} />)}
+                  {ungrouped.map((p) => <PlayerCard key={p.recordId} player={p} t={t} />)}
                 </div>
               </div>
             )}

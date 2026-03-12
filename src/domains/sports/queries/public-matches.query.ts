@@ -49,7 +49,6 @@ export async function getPublicMatchBar() {
       select: {
         id: true,
         matchDate: true,
-        competitionName: true,
         homeTeam: { select: { name: true, shortName: true, badgeUrl: true } },
         awayTeam: { select: { name: true, shortName: true, badgeUrl: true } },
         venue: { select: { name: true } },

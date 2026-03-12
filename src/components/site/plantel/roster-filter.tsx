@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { motion } from 'motion/react'
 import type { TeamCategory } from '@prisma/client'
+import { useTranslations } from 'next-intl'
 
 interface Season {
     id: string
@@ -40,6 +41,7 @@ export function RosterFilter({ seasons, teams, currentSeasonId, currentCategory 
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
+    const t = useTranslations('subpages.roster')
 
     const categories = Array.from(new Set(teams.map(t => t.category)))
 
@@ -75,18 +77,18 @@ export function RosterFilter({ seasons, teams, currentSeasonId, currentCategory 
                         key={cat}
                         onClick={() => handleCategoryChange(cat)}
                         className={`px-4 py-2 font-oswald text-[13px] font-bold uppercase tracking-widest transition-all ${currentCategory === cat
-                                ? 'bg-gold text-black'
-                                : 'bg-[#1a1a1a] text-white/60 hover:bg-white/10 hover:text-white'
+                            ? 'bg-gold text-black'
+                            : 'bg-[#1a1a1a] text-white/60 hover:bg-white/10 hover:text-white'
                             }`}
                     >
-                        {CATEGORY_LABELS[cat] ?? cat}
+                        {t.has(`categories.${cat}`) ? t(`categories.${cat}`) : (CATEGORY_LABELS[cat] ?? cat)}
                     </button>
                 ))}
             </div>
 
             <div className="w-full md:w-auto min-w-[200px]">
                 <label className="block font-sans text-[11px] font-bold uppercase tracking-wider text-white/40 mb-2">
-                    Temporada
+                    {t('seasonTitle')}
                 </label>
                 <select
                     value={currentSeasonId ?? ''}
@@ -95,7 +97,7 @@ export function RosterFilter({ seasons, teams, currentSeasonId, currentCategory 
                 >
                     {seasons.map((s) => (
                         <option key={s.id} value={s.id}>
-                            {s.name} {s.isCurrent && '(Actual)'}
+                            {s.name} {s.isCurrent && t('current')}
                         </option>
                     ))}
                 </select>

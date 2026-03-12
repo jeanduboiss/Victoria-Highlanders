@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useAction } from 'next-safe-action/hooks'
 import { updateSiteConfigAction } from '@/domains/configuration/actions/site-config.actions'
@@ -21,6 +22,7 @@ interface SponsorsFormProps {
 }
 
 export function SponsorsForm({ orgSlug, siteName, initialSponsors }: SponsorsFormProps) {
+  const t = useTranslations('admin.pages.configuration.sponsors')
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors)
   const [newName, setNewName] = useState('')
   const [newLogoUrl, setNewLogoUrl] = useState('')
@@ -28,13 +30,13 @@ export function SponsorsForm({ orgSlug, siteName, initialSponsors }: SponsorsFor
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
   const { execute, isPending } = useAction(updateSiteConfigAction, {
-    onSuccess: () => toast.success('Sponsors guardados.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al guardar.'),
+    onSuccess: () => toast.success(t('success')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   function addOrUpdateSponsor() {
     if (!newName.trim() || !newLogoUrl.trim()) {
-      toast.error('El nombre y la URL del logo son obligatorios.')
+      toast.error(t('requiredFields'))
       return
     }
 
@@ -108,7 +110,7 @@ export function SponsorsForm({ orgSlug, siteName, initialSponsors }: SponsorsFor
       <div className="space-y-3">
         {sponsors.length === 0 && (
           <p className="text-sm text-muted-foreground py-4 text-center border rounded-md">
-            No hay sponsors configurados. Agrega el primero abajo.
+            {t('noSponsors')}
           </p>
         )}
         {sponsors.map((s, i) => (
@@ -143,7 +145,7 @@ export function SponsorsForm({ orgSlug, siteName, initialSponsors }: SponsorsFor
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{s.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{s.websiteUrl || 'Sin enlace web'}</p>
+              <p className="text-xs text-muted-foreground truncate">{s.websiteUrl || t('noLink')}</p>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
@@ -170,27 +172,27 @@ export function SponsorsForm({ orgSlug, siteName, initialSponsors }: SponsorsFor
       </div>
 
       <div className={`rounded-md border p-4 space-y-3 transition-colors ${editingIndex !== null ? 'border-primary/50 bg-primary/5' : ''}`}>
-        <p className="text-sm font-medium">{editingIndex !== null ? 'Editar sponsor' : 'Agregar sponsor'}</p>
+        <p className="text-sm font-medium">{editingIndex !== null ? t('remove') : t('add')}</p>
         <div className="grid grid-cols-2 gap-3">
-          <Input placeholder="Nombre (ej. Nike)" value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <Input placeholder="URL del logo" value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} />
+          <Input placeholder={t('name')} value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <Input placeholder={t('logoUrl')} value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} />
         </div>
-        <Input placeholder="URL del sitio web (opcional)" value={newWebsiteUrl} onChange={(e) => setNewWebsiteUrl(e.target.value)} />
+        <Input placeholder={t('websitePlaceholder')} value={newWebsiteUrl} onChange={(e) => setNewWebsiteUrl(e.target.value)} />
 
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={addOrUpdateSponsor} type="button" className={editingIndex !== null ? 'border-primary/50 text-primary' : ''}>
-            {editingIndex !== null ? 'Guardar Cambios' : <><Plus className="h-3.5 w-3.5 mr-1.5" /> Agregar</>}
+            {editingIndex !== null ? t('save') : <><Plus className="h-3.5 w-3.5 mr-1.5" /> {t('add')}</>}
           </Button>
           {editingIndex !== null && (
             <Button variant="ghost" size="sm" onClick={cancelEdit} type="button">
-              Cancelar
+              {t('remove')}
             </Button>
           )}
         </div>
       </div>
 
       <Button onClick={save} disabled={isPending}>
-        {isPending ? 'Guardando...' : 'Guardar sponsors'}
+        {isPending ? t('saving') : t('save')}
       </Button>
     </div>
   )

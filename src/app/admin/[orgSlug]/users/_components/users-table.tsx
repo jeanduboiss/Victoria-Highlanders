@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
+
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -66,73 +68,76 @@ interface UsersTableProps {
   currentUserId: string
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  CLUB_ADMIN: 'Club Admin',
-  CLUB_MANAGER: 'Manager',
-  EDITOR: 'Editor',
-  VIEWER: 'Viewer',
-  SUPER_ADMIN: 'Super Admin',
-  LEAGUE_ADMIN: 'Liga Admin',
-}
-
-const APPROVABLE_ROLES = [
-  { value: 'CLUB_ADMIN', label: 'Club Admin' },
-  { value: 'CLUB_MANAGER', label: 'Manager' },
-  { value: 'EDITOR', label: 'Editor' },
-  { value: 'VIEWER', label: 'Viewer' },
-] as const
-
-const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-  ACTIVE: { label: 'Activo', variant: 'default' },
-  INACTIVE: { label: 'Inactivo', variant: 'secondary' },
-  PENDING: { label: 'Pendiente', variant: 'outline' },
-}
-
 export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps) {
+  const t = useTranslations('admin.pages.usersTable')
+  const locale = useLocale()
+
   const [approvingId, setApprovingId] = useState<string | null>(null)
   const [selectedRole, setSelectedRole] = useState<string>('VIEWER')
 
+  const roleLabels: Record<string, string> = {
+    CLUB_ADMIN: t('roleAdmin'),
+    CLUB_MANAGER: t('roleManager'),
+    EDITOR: t('roleEditor'),
+    VIEWER: t('roleViewer'),
+    SUPER_ADMIN: t('roleAdmin'),
+    LEAGUE_ADMIN: t('roleAdmin'),
+  }
+
+  const approvableRoles = [
+    { value: 'CLUB_ADMIN', label: t('roleAdmin') },
+    { value: 'CLUB_MANAGER', label: t('roleManager') },
+    { value: 'EDITOR', label: t('roleEditor') },
+    { value: 'VIEWER', label: t('roleViewer') },
+  ] as const
+
+  const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+    ACTIVE: { label: t('statusActive'), variant: 'default' },
+    INACTIVE: { label: t('statusInactive'), variant: 'secondary' },
+    PENDING: { label: t('statusPending'), variant: 'outline' },
+  }
+
   const { execute: deactivate, isPending: isDeactivating } = useAction(deactivateMemberAction, {
-    onSuccess: () => toast.success('Miembro desactivado.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al desactivar.'),
+    onSuccess: () => toast.success(t('successDeactivate')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const { execute: activate, isPending: isActivating } = useAction(activateMemberAction, {
-    onSuccess: () => toast.success('Miembro reactivado.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al activar.'),
+    onSuccess: () => toast.success(t('successActivate')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const { execute: remove, isPending: isRemoving } = useAction(removeMemberAction, {
-    onSuccess: () => toast.success('Miembro eliminado de la organización.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al eliminar.'),
+    onSuccess: () => toast.success(t('successRemove')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const { execute: resend, isPending: isResending } = useAction(resendInviteAction, {
     onSuccess: ({ data }) => {
       if (data?.emailSent) {
-        toast.success('Invitación reenviada.')
+        toast.success(t('successResend'))
       } else {
-        toast.info(`Email no disponible. Link: ${data?.inviteLink}`)
+        toast.info(t('noEmail', { link: data?.inviteLink ?? '' }))
       }
     },
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al reenviar.'),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const { execute: updateRole } = useAction(updateMemberRoleAction, {
-    onSuccess: () => toast.success('Rol actualizado.'),
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al cambiar rol.'),
+    onSuccess: () => toast.success(t('successUpdateRole')),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const { execute: approve, isPending: isApproving } = useAction(approveUserAction, {
     onSuccess: () => {
-      toast.success('Usuario aprobado correctamente.')
+      toast.success(t('successApprove'))
       setApprovingId(null)
     },
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al aprobar.'),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   if (members.length === 0)
-    return <p className="text-sm text-muted-foreground py-8 text-center">No hay miembros aún.</p>
+    return <p className="text-sm text-muted-foreground py-8 text-center">{t('noMembers')}</p>
 
   const approvingMember = members.find((m) => m.id === approvingId)
 
@@ -143,18 +148,18 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead className="hidden sm:table-cell">Estado</TableHead>
-                <TableHead className="hidden md:table-cell">Desde</TableHead>
-                <TableHead className="text-right pr-4">Acciones</TableHead>
+                <TableHead>{t('user')}</TableHead>
+                <TableHead>{t('role')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t('status')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('since')}</TableHead>
+                <TableHead className="text-right pr-4">{t('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {members.map((member) => {
                 const displayName = member.user.fullName || member.user.email
                 const isSelf = member.userId === currentUserId
-                const statusInfo = STATUS_CONFIG[member.status] ?? STATUS_CONFIG.PENDING
+                const statusInfo = statusConfig[member.status] ?? statusConfig.PENDING
 
                 return (
                   <TableRow key={member.id}>
@@ -176,14 +181,14 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {APPROVABLE_ROLES.map((r) => (
+                            {approvableRoles.map((r) => (
                               <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
                         <Badge variant="outline" className="text-xs whitespace-nowrap">
-                          {ROLE_LABELS[member.role] ?? member.role}
+                          {roleLabels[member.role] ?? member.role}
                         </Badge>
                       )}
                     </TableCell>
@@ -193,7 +198,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(member.createdAt).toLocaleDateString('es-ES', {
+                      {new Date(member.createdAt).toLocaleDateString(locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-GB', {
                         day: '2-digit',
                         month: 'short',
                         year: 'numeric',
@@ -209,7 +214,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                             disabled={isDeactivating}
                             onClick={() => deactivate({ orgSlug, memberId: member.id })}
                           >
-                            Desactivar
+                            {t('deactivate')}
                           </Button>
                         )}
 
@@ -221,7 +226,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                             disabled={isActivating}
                             onClick={() => activate({ orgSlug, memberId: member.id })}
                           >
-                            Activar
+                            {t('activate')}
                           </Button>
                         )}
 
@@ -236,7 +241,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                                 setApprovingId(member.id)
                               }}
                             >
-                              Aprobar
+                              {t('approve')}
                             </Button>
                             <Button
                               variant="ghost"
@@ -245,7 +250,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                               disabled={isResending}
                               onClick={() => resend({ orgSlug, memberId: member.id })}
                             >
-                              Reenviar
+                              {t('resend')}
                             </Button>
                           </>
                         )}
@@ -264,18 +269,18 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
+                                <AlertDialogTitle>{t('confirmDeleteTitle')}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  {displayName} será removido de la organización. Esta acción no puede deshacerse.
+                                  {t('confirmDeleteDesc', { name: displayName })}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                                 <AlertDialogAction
                                   className="bg-destructive hover:bg-destructive/90"
                                   onClick={() => remove({ orgSlug, memberId: member.id })}
                                 >
-                                  Eliminar
+                                  {t('delete')}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -294,9 +299,9 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
       <Dialog open={!!approvingId} onOpenChange={(v: boolean) => { if (!v) setApprovingId(null) }}>
         <DialogContent className="sm:max-w-[360px]">
           <DialogHeader>
-            <DialogTitle>Aprobar usuario</DialogTitle>
+            <DialogTitle>{t('approveTitle')}</DialogTitle>
             <DialogDescription>
-              {approvingMember?.user.fullName || approvingMember?.user.email} tendrá acceso al dashboard con el rol que elijas.
+              {t('approveDesc', { name: (approvingMember?.user.fullName || approvingMember?.user.email) ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
@@ -305,7 +310,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {APPROVABLE_ROLES.map((r) => (
+                {approvableRoles.map((r) => (
                   <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -313,7 +318,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setApprovingId(null)}>
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button
               disabled={isApproving}
@@ -322,7 +327,7 @@ export function UsersTable({ members, orgSlug, currentUserId }: UsersTableProps)
                 approve({ orgSlug, memberId: approvingId, role: selectedRole as 'CLUB_ADMIN' | 'CLUB_MANAGER' | 'EDITOR' | 'VIEWER' })
               }}
             >
-              {isApproving ? 'Aprobando...' : 'Confirmar'}
+              {isApproving ? t('approving') : t('confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

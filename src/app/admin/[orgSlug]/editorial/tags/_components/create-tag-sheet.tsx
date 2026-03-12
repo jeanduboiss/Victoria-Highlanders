@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createTagSchema } from '@/domains/editorial/schemas/article.schema'
 import { createTagAction } from '@/domains/editorial/actions/article.actions'
+import { useTranslations } from 'next-intl'
 import {
     Sheet,
     SheetContent,
@@ -35,6 +36,7 @@ interface CreateTagSheetProps {
 }
 
 export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
+    const t = useTranslations('admin.pages.editorial.newTagSheet')
     const [open, setOpen] = useState(false)
 
     const form = useForm<FormValues>({
@@ -44,12 +46,12 @@ export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
 
     const { execute, isPending } = useAction(createTagAction, {
         onSuccess: () => {
-            toast.success('Tag creado.')
+            toast.success(t('success'))
             form.reset({ orgSlug, name: '' })
             setOpen(false)
         },
         onError: ({ error }) => {
-            toast.error(error.serverError ?? 'Error al crear tag.')
+            toast.error(error.serverError ?? t('error'))
         },
     })
 
@@ -62,8 +64,8 @@ export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="w-full sm:w-[440px] md:w-[540px]">
                 <SheetHeader>
-                    <SheetTitle>Nuevo tag</SheetTitle>
-                    <SheetDescription>Crea un tag para organizar artículos y eventos.</SheetDescription>
+                    <SheetTitle>{t('title')}</SheetTitle>
+                    <SheetDescription>{t('desc')}</SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -72,9 +74,9 @@ export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
                             name="name"
                             render={({ field }: any) => (
                                 <FormItem>
-                                    <FormLabel>Nombre</FormLabel>
+                                    <FormLabel>{t('name')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: Liga local" {...field} />
+                                        <Input placeholder={t('placeholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -82,10 +84,10 @@ export function CreateTagSheet({ orgSlug, children }: CreateTagSheetProps) {
                         />
                         <div className="flex gap-2 pt-2">
                             <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button type="submit" className="flex-1" disabled={isPending}>
-                                {isPending ? 'Guardando...' : 'Crear tag'}
+                                {isPending ? t('saving') : t('create')}
                             </Button>
                         </div>
                     </form>

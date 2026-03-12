@@ -30,15 +30,20 @@ export function SiteNavbar({ navItems, locale }: Props) {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {navItems.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-4 py-2 font-sans text-[12px] font-semibold uppercase tracking-widest text-white/60 transition-colors hover:text-white"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navItems.map((link) => {
+            const navKey = link.href.replace('/', '')
+            const label = t.has(navKey as any) ? t(navKey as any) : link.label
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-4 py-2 font-sans text-[12px] font-semibold uppercase tracking-widest text-white/60 transition-colors hover:text-white"
+              >
+                {label}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -58,7 +63,7 @@ export function SiteNavbar({ navItems, locale }: Props) {
               {t('login')}
             </Link>
             <Link
-              href="/login"
+              href="/register"
               className="border border-white/20 px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-widest text-white/70 transition-all hover:border-white/50 hover:text-white"
             >
               {t('register')}
@@ -99,22 +104,27 @@ export function SiteNavbar({ navItems, locale }: Props) {
             className="overflow-hidden border-t border-white/10 bg-[#111] lg:hidden"
           >
             <div className="py-2">
-              {navItems.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.3 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="block px-6 py-3 font-sans text-[13px] font-semibold uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 border-b border-white/5 transition-colors"
+              {navItems.map((link, i) => {
+                const navKey = link.href.replace('/', '')
+                const label = t.has(navKey as any) ? t(navKey as any) : link.label
+
+                return (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className="block px-6 py-3 font-sans text-[13px] font-semibold uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 border-b border-white/5 transition-colors"
+                    >
+                      {label}
+                    </Link>
+                  </motion.div>
+                )
+              })}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -130,7 +140,7 @@ export function SiteNavbar({ navItems, locale }: Props) {
                     {t('login')}
                   </Link>
                   <Link
-                    href="/login"
+                    href="/register"
                     onClick={() => setOpen(false)}
                     className="flex-1 py-2.5 text-center font-sans text-[11px] font-semibold uppercase tracking-widest text-white bg-gold/10 border border-gold/40 hover:bg-gold hover:text-black transition-all"
                   >

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { useState } from 'react'
 import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
@@ -58,6 +60,8 @@ const CATEGORIES = [
 ] as const
 
 export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
+    const t = useTranslations('admin.pages.sports.teamsTable')
+    const tc = useTranslations('subpages.roster.categories')
     const [open, setOpen] = useState(false)
 
     const form = useForm<FormValues>({
@@ -74,12 +78,12 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
 
     const { execute, isPending } = useAction(createTeamAction, {
         onSuccess: () => {
-            toast.success('Equipo creado correctamente.')
+            toast.success(t('teamCreatedSuccessfully') || 'Equipo creado correctamente.')
             form.reset({ orgSlug, name: '', shortName: '', gender: 'MALE', description: '', isExternal: false })
             setOpen(false)
         },
         onError: ({ error }) => {
-            toast.error(error.serverError ?? 'Error al crear equipo.')
+            toast.error(error.serverError ?? (t('errorCreatingTeam') || 'Error al crear equipo.'))
         },
     })
 
@@ -92,8 +96,8 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="w-full sm:w-[440px] md:w-[540px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle>Nuevo equipo</SheetTitle>
-                    <SheetDescription>Registra un equipo dentro de la organización.</SheetDescription>
+                    <SheetTitle>{t('newTeam')}</SheetTitle>
+                    <SheetDescription>{t('registerTeamOrg')}</SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
@@ -102,9 +106,9 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre</FormLabel>
+                                    <FormLabel>{t('name')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: Victoria Highlanders FC" {...field} />
+                                        <Input placeholder={t('ejName')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -115,9 +119,9 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                             name="shortName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre corto (opcional)</FormLabel>
+                                    <FormLabel>{t('shortName')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: VHF" {...field} />
+                                        <Input placeholder={t('ejShort')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -129,16 +133,16 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                                 name="category"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Categoría</FormLabel>
+                                        <FormLabel>{t('category')}</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Selecciona" />
+                                                    <SelectValue placeholder={t('selectCategory')} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {CATEGORIES.map((c) => (
-                                                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                                                    <SelectItem key={c.value} value={c.value}>{tc(c.value)}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -151,17 +155,17 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                                 name="gender"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Género</FormLabel>
+                                        <FormLabel>{t('gender')}</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue />
+                                                    <SelectValue placeholder={t('selectGender')} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="MALE">Masculino</SelectItem>
-                                                <SelectItem value="FEMALE">Femenino</SelectItem>
-                                                <SelectItem value="MIXED">Mixto</SelectItem>
+                                                <SelectItem value="MALE">{t('male')}</SelectItem>
+                                                <SelectItem value="FEMALE">{t('female')}</SelectItem>
+                                                <SelectItem value="MIXED">{t('mixed')}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -174,10 +178,10 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Descripción (opcional)</FormLabel>
+                                    <FormLabel>{t('description')}</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder="Descripción del equipo..."
+                                            placeholder={t('ejDesc')}
                                             className="resize-none"
                                             rows={3}
                                             {...field}
@@ -200,10 +204,10 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
                                         <FormLabel>
-                                            Es un equipo rival (Externo)
+                                            {t('isRival')}
                                         </FormLabel>
                                         <FormDescription className="text-xs">
-                                            Márcarlo si este equipo pertenece a la liga pero no a nuestra institución (Para crear historiales de partidos de liga).
+                                            {t('isRivalDesc')}
                                         </FormDescription>
                                     </div>
                                 </FormItem>
@@ -211,10 +215,10 @@ export function CreateTeamSheet({ orgSlug, children }: CreateTeamSheetProps) {
                         />
                         <div className="flex gap-2 pt-2">
                             <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button type="submit" className="flex-1" disabled={isPending}>
-                                {isPending ? 'Guardando...' : 'Crear equipo'}
+                                {isPending ? t('saving') || 'Guardando...' : t('create')}
                             </Button>
                         </div>
                     </form>

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { Badge } from '@/components/ui/badge'
 import { Tag } from 'lucide-react'
 
@@ -15,8 +17,9 @@ interface TagsTableProps {
 }
 
 export function TagsTable({ tags }: TagsTableProps) {
+    const t = useTranslations('admin.pages.editorial.tagsTable')
     if (tags.length === 0)
-        return <p className="text-sm text-muted-foreground py-8 text-center">No hay tags creados.</p>
+        return <p className="text-sm text-muted-foreground py-8 text-center">{t('noTags')}</p>
 
     return (
         <div className="flex flex-wrap gap-3">
@@ -32,10 +35,10 @@ export function TagsTable({ tags }: TagsTableProps) {
                     </div>
                     <div className="flex gap-1.5 ml-2">
                         <Badge variant="secondary" className="text-[10px] tabular-nums">
-                            {tag._count.articles} art.
+                            {tag._count.articles} {t('art')}
                         </Badge>
                         <Badge variant="outline" className="text-[10px] tabular-nums">
-                            {tag._count.events} ev.
+                            {tag._count.events} {t('ev')}
                         </Badge>
                     </div>
                 </div>

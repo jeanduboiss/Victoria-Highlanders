@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import {
   Table,
@@ -8,30 +11,19 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { StandingsRow } from '@/domains/sports/queries/standings.query'
-import type { TeamCategory } from '@prisma/client'
-
-const CATEGORY_LABELS: Record<TeamCategory, string> = {
-  FIRST_TEAM: 'Primera',
-  RESERVE: 'Reservas',
-  U23: 'Sub-23',
-  U20: 'Sub-20',
-  U18: 'Sub-18',
-  U16: 'Sub-16',
-  U14: 'Sub-14',
-  U12: 'Sub-12',
-  WOMEN: 'Femenino',
-  FUTSAL: 'Fútsal',
-}
 
 interface Props {
   standings: StandingsRow[]
 }
 
 export function StandingsTable({ standings }: Props) {
+  const t = useTranslations('admin.pages.sports.standings')
+  const tc = useTranslations('subpages.roster.categories')
+
   if (!standings.length)
     return (
       <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
-        No hay partidos finalizados con estos filtros
+        {t('noResults')}
       </div>
     )
 
@@ -41,15 +33,15 @@ export function StandingsTable({ standings }: Props) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-10 text-center">#</TableHead>
-            <TableHead>Equipo</TableHead>
-            <TableHead className="text-center">PJ</TableHead>
-            <TableHead className="text-center">G</TableHead>
-            <TableHead className="text-center">E</TableHead>
-            <TableHead className="text-center">P</TableHead>
-            <TableHead className="text-center hidden sm:table-cell">GF</TableHead>
-            <TableHead className="text-center hidden sm:table-cell">GC</TableHead>
-            <TableHead className="text-center">DG</TableHead>
-            <TableHead className="text-center font-bold">Pts</TableHead>
+            <TableHead>{t('team')}</TableHead>
+            <TableHead className="text-center">{t('mp')}</TableHead>
+            <TableHead className="text-center">{t('w')}</TableHead>
+            <TableHead className="text-center">{t('d')}</TableHead>
+            <TableHead className="text-center">{t('l')}</TableHead>
+            <TableHead className="text-center hidden sm:table-cell">{t('gf')}</TableHead>
+            <TableHead className="text-center hidden sm:table-cell">{t('ga')}</TableHead>
+            <TableHead className="text-center">{t('gd')}</TableHead>
+            <TableHead className="text-center font-bold">{t('pts')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -65,9 +57,11 @@ export function StandingsTable({ standings }: Props) {
                       className="h-5 w-5 object-contain shrink-0"
                     />
                   )}
-                  <span className="font-medium">{row.team.shortName ?? row.team.name}</span>
-                  <Badge variant="outline" className="text-xs hidden md:inline-flex">
-                    {CATEGORY_LABELS[row.team.category]}
+                  <span className="font-medium truncate max-w-[120px] sm:max-w-none">
+                    {row.team.shortName ?? row.team.name}
+                  </span>
+                  <Badge variant="outline" className="text-[10px] hidden md:inline-flex px-1 h-4">
+                    {tc(row.team.category)}
                   </Badge>
                 </div>
               </TableCell>

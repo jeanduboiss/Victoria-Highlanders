@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,
 } from '@/components/ui/sheet'
@@ -46,6 +47,7 @@ interface Props {
 }
 
 export function TestimonialSheet({ orgSlug, testimonial, children }: Props) {
+  const t = useTranslations('admin.pages.site.newTestimonialSheet')
   const [open, setOpen] = useState(false)
 
   const form = useForm<FormValues>({
@@ -77,10 +79,10 @@ export function TestimonialSheet({ orgSlug, testimonial, children }: Props) {
 
   const { execute, isPending } = useAction(upsertTestimonialAction, {
     onSuccess: () => {
-      toast.success(testimonial ? 'Testimonio actualizado.' : 'Testimonio creado.')
+      toast.success(testimonial ? t('successEdit') : t('successNew'))
       setOpen(false)
     },
-    onError: ({ error }) => toast.error(error.serverError ?? 'Error al guardar.'),
+    onError: ({ error }) => toast.error(error.serverError ?? t('error')),
   })
 
   const rating = form.watch('rating')
@@ -90,38 +92,38 @@ export function TestimonialSheet({ orgSlug, testimonial, children }: Props) {
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:w-[480px]">
         <SheetHeader>
-          <SheetTitle>{testimonial ? 'Editar testimonio' : 'Nuevo testimonio'}</SheetTitle>
-          <SheetDescription>Testimonios publicados aparecen en el sitio web público.</SheetDescription>
+          <SheetTitle>{testimonial ? t('titleEdit') : t('titleNew')}</SheetTitle>
+          <SheetDescription>{t('desc')}</SheetDescription>
         </SheetHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit((v) => execute(v))} className="space-y-4 mt-6">
             <FormField control={form.control} name="authorName" render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre del autor</FormLabel>
-                <FormControl><Input placeholder="Ej: Juan Pérez" {...field} /></FormControl>
+                <FormLabel>{t('authorName')}</FormLabel>
+                <FormControl><Input placeholder={t('authorPlaceholder')} {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
             <FormField control={form.control} name="authorRole" render={({ field }) => (
               <FormItem>
-                <FormLabel>Rol / descripción <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                <FormControl><Input placeholder="Ej: Hincha de toda la vida" {...field} /></FormControl>
+                <FormLabel>{t('authorRole')}</FormLabel>
+                <FormControl><Input placeholder={t('authorRolePlaceholder')} {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
             <FormField control={form.control} name="authorAvatarUrl" render={({ field }) => (
               <FormItem>
-                <FormLabel>URL de foto <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                <FormLabel>{t('authorAvatar')}</FormLabel>
+                <FormControl><Input placeholder={t('avatarPlaceholder')} {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
             <FormItem>
-              <FormLabel>Calificación</FormLabel>
+              <FormLabel>{t('rating')}</FormLabel>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
@@ -140,10 +142,10 @@ export function TestimonialSheet({ orgSlug, testimonial, children }: Props) {
 
             <FormField control={form.control} name="content" render={({ field }) => (
               <FormItem>
-                <FormLabel>Testimonio</FormLabel>
+                <FormLabel>{t('content')}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Escribe el testimonio aquí..."
+                    placeholder={t('contentPlaceholder')}
                     className="min-h-[120px] resize-none"
                     {...field}
                   />
@@ -154,10 +156,10 @@ export function TestimonialSheet({ orgSlug, testimonial, children }: Props) {
 
             <div className="flex gap-2 pt-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                Cancelar
+                {t('cancel')}
               </Button>
               <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? 'Guardando...' : testimonial ? 'Guardar cambios' : 'Crear testimonio'}
+                {isPending ? t('saving') : testimonial ? t('save') : t('create')}
               </Button>
             </div>
           </form>

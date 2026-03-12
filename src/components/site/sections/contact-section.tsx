@@ -4,18 +4,11 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { Mail, Phone, MapPin, ArrowRight, Loader2 } from 'lucide-react'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { fadeInLeft, fadeInRight, fadeInUp, staggerContainer, VIEWPORT } from '@/components/site/animations/variants'
 
-const TOPICS = [
-  'Membresías & Socios',
-  'Patrocinios',
-  'Prensa & Medios',
-  'Academia',
-  'Entradas & Eventos',
-  'Otro',
-]
-
 export function ContactSection() {
+  const t = useTranslations('contact')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -23,6 +16,8 @@ export function ContactSection() {
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
+
+  const TOPIC_KEYS = ['memberships', 'sponsorships', 'press', 'academy', 'tickets', 'other'] as const
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,15 +50,17 @@ export function ContactSection() {
 
             <div>
               <span className="inline-block bg-gold px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-black mb-4">
-                Contact Us
+                {t('badge')}
               </span>
               <h2 className="font-oswald text-[52px] font-bold uppercase leading-[1.05] text-white lg:text-[60px]">
-                Let&apos;s Get<br />In Touch.
+                {t('title').split('\n').map((line, i, arr) => (
+                  <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                ))}
               </h2>
             </div>
 
             <p className="font-sans text-[15px] leading-relaxed text-gray-400 max-w-[340px]">
-              ¿Querés ser parte del club, patrocinar al equipo o simplemente ponerte en contacto? Estamos acá para escucharte.
+              {t('description')}
             </p>
 
             <motion.div
@@ -78,7 +75,7 @@ export function ContactSection() {
                   <Mail className="size-4 text-gray-400 group-hover:text-gold transition-colors" />
                 </div>
                 <div>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">Email</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">{t('emailLabel')}</p>
                   <p className="font-sans text-[13px] text-white group-hover:text-gold transition-colors">info@victoriahighlanders.ca</p>
                 </div>
               </motion.a>
@@ -88,7 +85,7 @@ export function ContactSection() {
                   <Phone className="size-4 text-gray-400 group-hover:text-gold transition-colors" />
                 </div>
                 <div>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">Teléfono</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">{t('phoneLabel')}</p>
                   <p className="font-sans text-[13px] text-white group-hover:text-gold transition-colors">+1 (250) 555-1234</p>
                 </div>
               </motion.a>
@@ -98,7 +95,7 @@ export function ContactSection() {
                   <MapPin className="size-4 text-gray-400" />
                 </div>
                 <div>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">Estadio</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-gray-600">{t('venueLabel')}</p>
                   <p className="font-sans text-[13px] text-white">Royal Athletic Park, Victoria BC</p>
                 </div>
               </motion.div>
@@ -122,13 +119,13 @@ export function ContactSection() {
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </div>
-                  <h3 className="font-oswald text-[28px] font-bold uppercase text-white">Mensaje Enviado</h3>
-                  <p className="font-sans text-[14px] text-gray-400">Nos pondremos en contacto pronto. ¡Gracias!</p>
+                  <h3 className="font-oswald text-[28px] font-bold uppercase text-white">{t('sentTitle')}</h3>
+                  <p className="font-sans text-[14px] text-gray-400">{t('sentDescription')}</p>
                   <button
                     onClick={() => { setSent(false); setName(''); setEmail(''); setPhone(''); setTopic(''); setMessage('') }}
                     className="mt-2 font-sans text-[12px] uppercase tracking-widest text-gold hover:text-gold-light transition-colors"
                   >
-                    Enviar otro mensaje
+                    {t('sendAnother')}
                   </button>
                 </div>
               ) : (
@@ -138,12 +135,12 @@ export function ContactSection() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-2">
                       <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                        Nombre completo
+                        {t('fullName')}
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="Tu nombre..."
+                        placeholder={t('fullNamePlaceholder')}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="h-12 bg-[#1a1a1a] border border-white/10 px-4 font-sans text-[14px] text-white placeholder:text-gray-600 outline-none transition-colors focus:border-gold/60 focus:bg-[#1f1f1f]"
@@ -151,12 +148,12 @@ export function ContactSection() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                        Correo electrónico
+                        {t('email')}
                       </label>
                       <input
                         type="email"
                         required
-                        placeholder="tu@email.com"
+                        placeholder={t('emailPlaceholder')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="h-12 bg-[#1a1a1a] border border-white/10 px-4 font-sans text-[14px] text-white placeholder:text-gray-600 outline-none transition-colors focus:border-gold/60 focus:bg-[#1f1f1f]"
@@ -168,11 +165,11 @@ export function ContactSection() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-2">
                       <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                        Teléfono
+                        {t('phone')}
                       </label>
                       <input
                         type="tel"
-                        placeholder="+1 (250) ..."
+                        placeholder={t('phonePlaceholder')}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className="h-12 bg-[#1a1a1a] border border-white/10 px-4 font-sans text-[14px] text-white placeholder:text-gray-600 outline-none transition-colors focus:border-gold/60 focus:bg-[#1f1f1f]"
@@ -180,7 +177,7 @@ export function ContactSection() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                        Tema
+                        {t('topicLabel')}
                       </label>
                       <div className="relative">
                         <select
@@ -188,9 +185,9 @@ export function ContactSection() {
                           onChange={(e) => setTopic(e.target.value)}
                           className="h-12 w-full appearance-none bg-[#1a1a1a] border border-white/10 px-4 pr-10 font-sans text-[14px] text-white outline-none transition-colors focus:border-gold/60 focus:bg-[#1f1f1f] [&>option]:bg-[#1a1a1a]"
                         >
-                          <option value="" disabled>Selecciona un tema...</option>
-                          {TOPICS.map((t) => (
-                            <option key={t} value={t}>{t}</option>
+                          <option value="" disabled>{t('topicPlaceholder')}</option>
+                          {TOPIC_KEYS.map((key) => (
+                            <option key={key} value={key}>{t(`topics.${key}`)}</option>
                           ))}
                         </select>
                         <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -203,48 +200,48 @@ export function ContactSection() {
                   {/* Checkboxes */}
                   <div className="flex flex-col gap-3">
                     <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                      Área de interés
+                      {t('interestArea')}
                     </label>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {TOPICS.map((t) => (
-                        <label
-                          key={t}
-                          className={`group flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors ${
-                            topic === t
-                              ? 'border-gold/60 bg-gold/10'
-                              : 'border-white/8 bg-white/3 hover:border-white/20'
-                          }`}
-                          onClick={() => setTopic(t)}
-                        >
-                          <div className={`flex size-4 shrink-0 items-center justify-center border transition-colors ${
-                            topic === t ? 'border-gold bg-gold' : 'border-white/20'
-                          }`}>
-                            {topic === t && (
-                              <svg viewBox="0 0 12 12" className="size-2.5" fill="none" stroke="black" strokeWidth="2.5">
-                                <polyline points="1.5 6 4.5 9 10.5 3" />
-                              </svg>
-                            )}
-                          </div>
-                          <span className={`font-sans text-[11px] leading-tight transition-colors ${
-                            topic === t ? 'text-gold' : 'text-gray-400 group-hover:text-gray-200'
-                          }`}>
-                            {t}
-                          </span>
-                        </label>
-                      ))}
+                      {TOPIC_KEYS.map((key) => {
+                        const label = t(`topics.${key}`)
+                        return (
+                          <label
+                            key={key}
+                            className={`group flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors ${topic === key
+                                ? 'border-gold/60 bg-gold/10'
+                                : 'border-white/8 bg-white/3 hover:border-white/20'
+                              }`}
+                            onClick={() => setTopic(key)}
+                          >
+                            <div className={`flex size-4 shrink-0 items-center justify-center border transition-colors ${topic === key ? 'border-gold bg-gold' : 'border-white/20'
+                              }`}>
+                              {topic === key && (
+                                <svg viewBox="0 0 12 12" className="size-2.5" fill="none" stroke="black" strokeWidth="2.5">
+                                  <polyline points="1.5 6 4.5 9 10.5 3" />
+                                </svg>
+                              )}
+                            </div>
+                            <span className={`font-sans text-[11px] leading-tight transition-colors ${topic === key ? 'text-gold' : 'text-gray-400 group-hover:text-gray-200'
+                              }`}>
+                              {label}
+                            </span>
+                          </label>
+                        )
+                      })}
                     </div>
                   </div>
 
                   {/* Textarea */}
                   <div className="flex flex-col gap-2">
                     <label className="font-sans text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-                      Mensaje
+                      {t('messageLabel')}
                     </label>
                     <div className="relative">
                       <textarea
                         required
                         rows={5}
-                        placeholder="Escribí tu mensaje acá..."
+                        placeholder={t('messagePlaceholder')}
                         value={message}
                         maxLength={500}
                         onChange={(e) => setMessage(e.target.value)}
@@ -269,7 +266,7 @@ export function ContactSection() {
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       <>
-                        Enviar Mensaje
+                        {t('submitButton')}
                         <ArrowRight className="size-5" />
                       </>
                     )}

@@ -1,7 +1,10 @@
 import { Bell, Trophy, Newspaper } from 'lucide-react'
 import { prisma } from '@/lib/prisma/client'
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enGB, fr } from 'date-fns/locale'
+import { getLocale } from 'next-intl/server'
+import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import {
   Popover,
   PopoverContent,
@@ -9,30 +12,49 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
+const DATE_FNS_LOCALES = {
+  es,
+  en: enGB,
+  fr,
+} as const
+
 interface NotificationsPopoverProps {
   orgId: string
 }
 
+const getNotificationData = cache(async (orgId: string) => {
+  return unstable_cache(
+    async () => {
+      const [recentEvents, recentArticles] = await Promise.all([
+        prisma.matchEvent.findMany({
+          where: { match: { organizationId: orgId } },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          include: {
+            player: { select: { firstName: true, lastName: true } },
+            match: { select: { homeTeam: { select: { name: true } }, awayTeam: { select: { name: true } } } },
+          },
+        }),
+        prisma.article.findMany({
+          where: { organizationId: orgId, status: 'PUBLISHED' },
+          orderBy: { publishedAt: 'desc' },
+          take: 5,
+          select: { id: true, title: true, publishedAt: true },
+        }),
+      ])
+      return { recentEvents, recentArticles }
+    },
+    [`notifications-${orgId}`],
+    { revalidate: 60, tags: [`notifications-${orgId}`] }
+  )()
+})
+
 export async function NotificationsPopover({ orgId }: NotificationsPopoverProps) {
+  const locale = await getLocale()
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] || es
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-  const [recentEvents, recentArticles] = await Promise.all([
-    prisma.matchEvent.findMany({
-      where: { match: { organizationId: orgId } },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        player: { select: { firstName: true, lastName: true } },
-        match: { select: { homeTeam: { select: { name: true } }, awayTeam: { select: { name: true } } } },
-      },
-    }),
-    prisma.article.findMany({
-      where: { organizationId: orgId, status: 'PUBLISHED' },
-      orderBy: { publishedAt: 'desc' },
-      take: 5,
-      select: { id: true, title: true, publishedAt: true },
-    }),
-  ])
+  const { recentEvents, recentArticles } = await getNotificationData(orgId)
 
   type NotifItem = {
     id: string
@@ -46,7 +68,7 @@ export async function NotificationsPopover({ orgId }: NotificationsPopoverProps)
       id: `ev-${e.id}`,
       type: 'match_event' as const,
       description: `${e.player.firstName} ${e.player.lastName} — ${e.match.homeTeam.name} vs ${e.match.awayTeam.name}`,
-      date: e.createdAt,
+      date: new Date(e.createdAt),
     })),
     ...recentArticles
       .filter((a) => a.publishedAt !== null)
@@ -54,7 +76,7 @@ export async function NotificationsPopover({ orgId }: NotificationsPopoverProps)
         id: `art-${a.id}`,
         type: 'article' as const,
         description: `Publicado: "${a.title}"`,
-        date: a.publishedAt!,
+        date: new Date(a.publishedAt!),
       })),
   ]
     .sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -107,7 +129,10 @@ export async function NotificationsPopover({ orgId }: NotificationsPopoverProps)
                   <div className="flex-1 min-w-0">
                     <p className="text-xs leading-snug line-clamp-2">{item.description}</p>
                     <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(item.date, { addSuffix: true, locale: es })}
+                      {formatDistanceToNow(item.date, {
+                        addSuffix: true,
+                        locale: dateFnsLocale
+                      })}
                     </p>
                   </div>
                   {isNew && <span className="size-1.5 rounded-full bg-primary shrink-0 mt-1.5" />}
