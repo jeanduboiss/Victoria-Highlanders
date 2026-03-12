@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
 import { useTranslations, useLocale } from 'next-intl'
 import { fadeInUp, VIEWPORT } from '@/components/site/animations/variants'
